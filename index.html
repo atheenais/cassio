@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Cassio – Révision CM2</title>
+
+  <!-- ═══ PWA : installation & hors-ligne ═══ -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f9cf9">
+  <!-- Support iOS (Safari n'utilise pas tout le manifest) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cassio">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+<button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Basculer mode clair / sombre" aria-label="Basculer mode clair / sombre">🌙</button>
+<button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" title="Activer / couper le son" aria-label="Activer / couper le son">🔊</button>
+<div class="page">
+  <div id="app"></div>
+</div>
+<input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="handleImport(event)">
+
+<!-- ═══════════════════════════════════════════════════
+     DONNÉES : une matière par fichier (chargement en parallèle)
+     L'ordre des matières est défini dans data/curriculum.js
+     ═══════════════════════════════════════════════════ -->
+<script src="data/curriculum-maths.js"></script>
+<script src="data/curriculum-francais.js"></script>
+<script src="data/curriculum-histoire.js"></script>
+<script src="data/curriculum-sciences.js"></script>
+<script src="data/curriculum-anglais.js"></script>
+<script src="data/curriculum-emc.js"></script>
+<script src="data/curriculum-svt.js"></script>
+<script src="data/curriculum-techno.js"></script>
+<script src="data/curriculum-physchim.js"></script>
+<script src="data/curriculum-latin.js"></script>
+<script src="data/curriculum-numerique.js"></script>
+<script src="data/curriculum.js"></script>
+
+<!-- ═══════════════════════════════════════════════════
+     LOGIQUE : ordre essentiel (chaque fichier dépend des précédents)
+     config → state → render → app
+     ═══════════════════════════════════════════════════ -->
+<script src="scripts/config.js"></script>
+<script src="scripts/state.js"></script>
+<script src="scripts/render.js"></script>
+<script src="scripts/app.js"></script>
+
+<!-- ═══ Enregistrement du service worker (hors-ligne) ═══
+     Ne s'exécute que si le site est servi par un serveur (http/https),
+     pas en ouverture directe du fichier (file://). -->
+<script>
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => {
+        console.warn('Service worker non enregistré :', err);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
