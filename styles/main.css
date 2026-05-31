@@ -24,7 +24,11 @@
       color: var(--text);
       font-family: 'Nunito', sans-serif;
       min-height: 100vh;
-      padding: 1rem 1rem 4rem;
+      /* Le padding-top utilise env(safe-area-inset-top) pour respecter la zone
+         de la barre d'état système iOS (heure/wifi/batterie) en mode PWA installée.
+         max() garantit qu'on a au moins 1rem même si la safe area est nulle. */
+      padding: max(1rem, env(safe-area-inset-top)) 1rem 4rem;
+      overflow-x: hidden; /* Sécurité : aucun élément ne doit créer de scroll horizontal sur mobile */
       background-image: radial-gradient(ellipse at 20% 10%, #1a2a5e44 0%, transparent 60%),
                         radial-gradient(ellipse at 80% 80%, #2d1a5e33 0%, transparent 60%);
     }
@@ -68,10 +72,13 @@
     }
     .app-header p { color: var(--muted); font-size: .9rem; }
 
-    /* ── BREADCRUMB ── */
+    /* ── BREADCRUMB ──
+       Le padding-right réserve l'espace pour les boutons flottants 🔊 et 🌙
+       en haut à droite (position: fixed), qui sinon recouvrent le texte. */
     .breadcrumb {
-      display: flex; align-items: center; gap: .5rem;
-      font-size: .85rem; color: var(--muted); margin-bottom: 1.25rem; padding: .25rem 0;
+      display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+      font-size: .85rem; color: var(--muted); margin-bottom: 1.25rem;
+      padding: .25rem 5.5rem .25rem 0;
     }
     .breadcrumb .crumb { cursor: pointer; color: var(--blue); font-weight: 700; transition: opacity .15s; }
     .breadcrumb .crumb:hover { opacity: .75; }
@@ -160,15 +167,19 @@
 
     .topic-card {
       background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-      padding: .9rem 1.1rem; display: flex; align-items: center; gap: .9rem;
+      padding: .9rem 1.1rem;
+      display: flex; flex-direction: column; gap: .55rem;
       cursor: pointer; transition: all .15s;
     }
     .topic-card:hover { border-color: var(--subj-color); background: rgba(255,255,255,.04); transform: translateX(4px); }
+    /* Ligne du haut : icône + titre/étoiles + badge + bouton */
+    .topic-card-row { display: flex; align-items: center; gap: .9rem; }
 
     .topic-icon { font-size: 1.6rem; flex-shrink: 0; width: 40px; text-align: center; }
     .topic-info { flex: 1; min-width: 0; }
     .topic-info .t-name { font-size: .95rem; font-weight: 700; margin-bottom: .15rem; }
-    .topic-info .t-meta { font-size: .78rem; color: var(--muted); }
+    /* La description passe sur sa propre ligne, en pleine largeur */
+    .topic-card .t-meta { font-size: .78rem; color: var(--muted); line-height: 1.45; }
     .topic-stars { display: flex; gap: .15rem; margin-bottom: .1rem; }
     .topic-star { font-size: .85rem; }
 
@@ -188,6 +199,14 @@
       flex-shrink: 0; white-space: nowrap;
     }
     .btn-start:hover { opacity: .85; transform: translateY(-1px); }
+
+    /* Sur les très petits écrans (iPhone SE 1G, 320px), on compacte le bouton
+       pour éviter qu'il ne chevauche les titres longs comme "Proportionnalité". */
+    @media (max-width: 360px) {
+      .btn-start { padding: .35rem .65rem; font-size: .72rem; }
+      .topic-card-row { gap: .55rem; }
+      .topic-icon { width: 32px; font-size: 1.4rem; }
+    }
 
     /* ── QUIZ: STATS BAR ── */
     .stats {
@@ -433,6 +452,59 @@
     .profile-card:hover { transform: translateY(-5px); border-color: var(--pc); box-shadow: 0 14px 40px rgba(0,0,0,.45); }
     .profile-emoji { font-size: 4.5rem; margin-bottom: .75rem; display: block; }
     .profile-name { font-size: 1.3rem; font-weight: 900; color: var(--pc); }
+
+    /* ── BOUTON "MODE INVITÉ" sur l'écran de profil ──
+       Style volontairement discret : c'est un bouton secondaire, pas un 3e profil. */
+    .guest-btn {
+      display: flex; flex-direction: column; align-items: center;
+      gap: .15rem; margin: 0 auto; padding: .85rem 1.4rem;
+      max-width: 280px; width: fit-content;
+      background: transparent; border: 1px dashed var(--border);
+      border-radius: 14px; cursor: pointer;
+      font-family: 'Nunito', sans-serif; color: var(--muted);
+      transition: all .15s;
+    }
+    .guest-btn:hover {
+      border-color: var(--text); color: var(--text);
+      background: rgba(148,163,184,.05);
+    }
+    .guest-btn-emoji { font-size: 1.6rem; }
+    .guest-btn-text { font-size: .95rem; font-weight: 800; }
+    .guest-btn-sub { font-size: .72rem; opacity: .8; }
+
+    /* ── BANNIÈRE "MODE INVITÉ" (visible sur tous les écrans en mode invité) ──
+       Discrète mais bien identifiable. Reste collée en haut. */
+    .guest-banner[hidden] { display: none; }   /* l'attribut HTML hidden doit primer sur display:flex */
+    .guest-banner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .5rem; padding: .5rem .9rem;
+      padding-right: 6.5rem;  /* laisse la place aux boutons flottants 🔊 et 🌙 en haut à droite */
+      background: rgba(148,163,184,.12);
+      border-bottom: 1px solid rgba(148,163,184,.3);
+      font-size: .82rem; font-weight: 700;
+      color: #94a3b8;
+    }
+    body.light .guest-banner { background: rgba(100,116,139,.1); color: #64748b; }
+    .guest-banner-label { flex: 1; }
+    .guest-banner-btn {
+      font-family: 'Nunito', sans-serif; font-size: .72rem; font-weight: 700;
+      padding: .3rem .7rem; border-radius: 8px;
+      border: 1px solid rgba(148,163,184,.4);
+      background: transparent; color: inherit; cursor: pointer;
+      transition: all .15s;
+    }
+    .guest-banner-btn:hover { background: rgba(148,163,184,.15); }
+    .guest-banner-quit { border-color: var(--red); color: var(--red); }
+    .guest-banner-quit:hover { background: rgba(248,113,113,.1); }
+
+    /* Petit message d'info en mode invité dans la section "data-actions" */
+    .guest-actions { flex-direction: column; align-items: stretch; }
+    .guest-info {
+      font-size: .82rem; color: var(--muted); line-height: 1.5;
+      margin: 0 0 .5rem; padding: .55rem .8rem;
+      background: rgba(148,163,184,.08); border-radius: 8px;
+      border-left: 3px solid #94a3b8;
+    }
 
     /* ── PROFILE BANNER (HOME) ── */
     .profile-banner {
@@ -706,7 +778,8 @@
 
     /* ── BOUTON THÈME (flottant) ── */
     .theme-toggle {
-      position: fixed; top: .75rem; right: .75rem; z-index: 100;
+      position: fixed;
+      top: max(.75rem, env(safe-area-inset-top)); right: .75rem; z-index: 100;
       width: 38px; height: 38px; border-radius: 50%;
       border: 1px solid var(--border); background: var(--card);
       color: var(--text); cursor: pointer;
@@ -718,7 +791,8 @@
 
     /* Bouton son (à gauche du bouton thème) */
     .sound-toggle {
-      position: fixed; top: .75rem; right: 3.4rem; z-index: 100;
+      position: fixed;
+      top: max(.75rem, env(safe-area-inset-top)); right: 3.4rem; z-index: 100;
       width: 38px; height: 38px; border-radius: 50%;
       border: 1px solid var(--border); background: var(--card);
       color: var(--text); cursor: pointer;

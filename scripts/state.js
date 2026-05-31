@@ -25,7 +25,8 @@ function getTopic(sId, tId) {
   const subj = getSubject(sId);
   return subj ? subj.topics.find(t => t.id === tId) : undefined;
 }
-function getProfile() { return PROFILES.find(p => p.id === S.profile); }
+function getProfile() { return ALL_PROFILES.find(p => p.id === S.profile); }
+function isGuest() { return S.profile === 'guest'; }
 
 /* ─ Types de questions ─ */
 function qType(q) { return q.type || 'qcu'; }

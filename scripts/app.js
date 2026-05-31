@@ -23,6 +23,7 @@ function resetHistory() {
 function exportData() {
   const prof = getProfile();
   if (!prof) return;
+  if (isGuest()) { alert("L'export est désactivé en mode invité."); return; }
   const data = {
     version: 1,
     exportedAt: new Date().toISOString(),
@@ -42,6 +43,7 @@ function exportData() {
 }
 
 function triggerImport() {
+  if (isGuest()) { alert("L'import est désactivé en mode invité."); return; }
   document.getElementById('import-file').click();
 }
 
@@ -49,6 +51,7 @@ function handleImport(ev) {
   const file = ev.target.files && ev.target.files[0];
   ev.target.value = ''; // reset pour pouvoir réimporter le même fichier
   if (!file) return;
+  if (isGuest()) { alert("L'import est désactivé en mode invité."); return; }
   const reader = new FileReader();
   reader.onload = e => {
     try {
@@ -302,7 +305,7 @@ document.addEventListener('keydown', quizKeyHandler);
    (par exemple suite à un import d'un ancien JSON), on les retire silencieusement.
    Sans ce nettoyage, les écrans qui parcourent la progression stockée plantent. */
 function cleanupOrphanedProgress() {
-  PROFILES.forEach(p => {
+  ALL_PROFILES.forEach(p => {
     const key = `cm2-progress-${p.id}`;
     let raw;
     try { raw = JSON.parse(localStorage.getItem(key) || '{}'); } catch { return; }

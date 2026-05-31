@@ -37,6 +37,28 @@ function selectProfile(id) {
   S.profile = id;
   goHome();
 }
+
+/* ── Mode invité ──
+   Entrer : on bascule sur le profil "guest" et on va à l'accueil.
+   Quitter : on retourne à l'écran de sélection de profil.
+   Réinitialiser : on efface la progression et les sessions de l'invité,
+                   mais on reste en mode invité. */
+function enterGuestMode() {
+  S.profile = 'guest';
+  goHome();
+}
+function exitGuestMode() {
+  goProfile();
+}
+function resetGuestProgress() {
+  if (!confirm('Effacer toute la progression du mode invité ? Les profils Elias et Leïla ne seront pas touchés.')) return;
+  localStorage.removeItem('cm2-progress-guest');
+  // On retire aussi les sessions du profil invité
+  const others = getSessions().filter(s => s.profile !== 'guest');
+  localStorage.setItem('cm2-sessions', JSON.stringify(others));
+  _invalidateCache('all');
+  goHome(); // rafraîchit l'affichage
+}
 function goHome() {
   clearQuizTimers();
   S.screen = 'home'; S.subjId = null; S.topicId = null;
@@ -129,6 +151,13 @@ function goHistory() {
    ═══════════════════════════════════════════════════ */
 function render() {
   const app = document.getElementById('app');
+  // Affichage de la bannière "Mode invité" : sur tous les écrans SAUF l'écran de
+  // sélection de profil (où elle ferait doublon avec le bouton "Mode invité")
+  const banner = document.getElementById('guest-banner');
+  if (banner) {
+    const showBanner = isGuest() && S.screen !== 'profile';
+    banner.hidden = !showBanner;
+  }
   if (S.screen === 'profile') { app.innerHTML = renderProfile();  }
   if (S.screen === 'home')    { app.innerHTML = renderHome();     }
   if (S.screen === 'subject') { app.innerHTML = renderSubject();  }
@@ -160,6 +189,11 @@ function renderProfile() {
       </div>
       <p class="profile-intro">Choisis ton profil pour retrouver ta progression.</p>
       <div class="profile-grid">${cards}</div>
+      <button class="guest-btn" onclick="enterGuestMode()" title="Tester l'app sans toucher aux profils enfants">
+        <span class="guest-btn-emoji">👤</span>
+        <span class="guest-btn-text">Mode invité</span>
+        <span class="guest-btn-sub">Pour tester librement</span>
+      </button>
     </div>`;
 }
 
@@ -306,11 +340,17 @@ function renderHome() {
 
       ${renderBadgesSection()}
 
-      <div class="data-actions">
-        <button class="btn-sm" onclick="exportData()">💾 Exporter ma progression</button>
-        <button class="btn-sm" onclick="triggerImport()">📂 Importer un fichier</button>
-      </div>
-      ${doneTopics > 0 ? `<div class="reset-link" onclick="resetProgress()">Effacer toute la progression</div>` : ''}
+      ${isGuest()
+        ? `<div class="data-actions guest-actions">
+             <p class="guest-info">👤 Tu es en mode invité. Ta progression est isolée, elle n'affecte pas Elias ni Leïla.</p>
+             <button class="btn-sm" onclick="resetGuestProgress()">🔄 Réinitialiser le mode invité</button>
+           </div>`
+        : `<div class="data-actions">
+             <button class="btn-sm" onclick="exportData()">💾 Exporter ma progression</button>
+             <button class="btn-sm" onclick="triggerImport()">📂 Importer un fichier</button>
+           </div>
+           ${doneTopics > 0 ? `<div class="reset-link" onclick="resetProgress()">Effacer toute la progression</div>` : ''}`
+      }
     </div>`;
 }
 
@@ -325,7 +365,10 @@ function renderSubject() {
 
   const topicCards = subj.topics.map(t => {
     const ts = getTopicScore(S.subjId, t.id);
-    let badge = `<div class="topic-badge">${t.questions.length} q.</div>`;
+    // Le badge "10 q." (nombre de questions) n'apparaît que quand il y a un score :
+    // on évite le bruit visuel sur les thèmes non joués, où l'info est répétitive
+    // (tous les thèmes ont 10 questions).
+    let badge = '';
     let stars = 0;
     if (ts) {
       // En cas de score obsolète (ex: ancien 5/5 sur thème désormais à 10 q.),
@@ -341,14 +384,16 @@ function renderSubject() {
     const btnLabel = ts ? 'Rejouer' : 'Commencer';
     return `
       <div class="topic-card" onclick="startQuiz('${S.subjId}','${t.id}')">
-        <div class="topic-icon">${t.emoji}</div>
-        <div class="topic-info">
-          <div class="t-name">${t.name}</div>
-          <div class="topic-stars">${starsHTML(stars)}</div>
-          <div class="t-meta">${t.desc}</div>
+        <div class="topic-card-row">
+          <div class="topic-icon">${t.emoji}</div>
+          <div class="topic-info">
+            <div class="t-name">${t.name}</div>
+            <div class="topic-stars">${starsHTML(stars)}</div>
+          </div>
+          ${badge}
+          <button class="btn-start">${btnLabel}</button>
         </div>
-        ${badge}
-        <button class="btn-start">${btnLabel}</button>
+        <div class="t-meta">${t.desc}</div>
       </div>`;
   }).join('');
 

@@ -230,3 +230,37 @@ ils resteraient sur l'ancienne version en cache.
 
 En ouverture directe `file://` (double-clic), l'app continue de fonctionner
 normalement, simplement sans les fonctions PWA.
+
+## Mode invité
+
+Sous les profils Elias et Leïla, un bouton discret « 👤 Mode invité » permet à
+quelqu'un d'autre (cousin, copain, parent curieux) de tester l'app **sans
+toucher à la progression des enfants**.
+
+- La progression du mode invité est **stockée séparément** (clé `cm2-progress-guest`)
+- Une **bannière** apparaît en haut de l'écran tant qu'on est en mode invité,
+  avec deux actions : **Réinitialiser** (efface la progression invité, on reste
+  en mode invité) et **Quitter** (retour à l'écran de profil)
+- **Export et import désactivés** en mode invité, par sécurité (impossible d'écraser
+  les profils Elias/Leïla par erreur)
+- Avatar 👤 neutre, gris-bleu, bien différencié des profils enfants
+
+## Améliorations UX responsive (priorité 1)
+
+Corrections suite à un audit responsive sur smartphones (320 → 768 px) :
+
+- **Cartes de thème restructurées** : titre + bouton sur la première ligne, description en pleine largeur dessous. Plus de chevauchements ni de texte ratatiné à 1 mot par ligne sur iPhone SE.
+- **Badge "10 q." supprimé** quand le thème n'a pas encore été joué (info répétitive). Quand un score existe, le badge "8/10" coloré apparaît avec les étoiles, ce qui est plus utile.
+- **Breadcrumb dégagé** : padding-right pour éviter le chevauchement avec les boutons flottants 🔊/🌙 (le titre "Résultats" était partiellement masqué). Le breadcrumb se replie sur 2 lignes proprement si nécessaire.
+- **Adaptation iPhone SE 1G (320px)** : bouton "Commencer" et icônes compactés via media query, pour gérer les titres longs comme "Proportionnalité".
+- **overflow-x: hidden** sur le body : sécurité contre tout débordement horizontal accidentel.
+
+## Support de la safe area iOS
+
+Les boutons flottants (🔊, 🌙) et le contenu général de l'app respectent désormais
+la **safe area** des iPhones (zone de la barre d'état système : heure, wifi, batterie,
+encoche/Dynamic Island). Cela évite la superposition visible en mode PWA installée
+sur l'écran d'accueil.
+
+Implémentation : `env(safe-area-inset-top)` avec fallback `max(1rem, ...)` pour
+préserver l'apparence sur les écrans sans safe area (navigateur classique).

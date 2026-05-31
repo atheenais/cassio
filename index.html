@@ -20,6 +20,11 @@
 <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Basculer mode clair / sombre" aria-label="Basculer mode clair / sombre">🌙</button>
 <button id="sound-toggle" class="sound-toggle" onclick="toggleSound()" title="Activer / couper le son" aria-label="Activer / couper le son">🔊</button>
 <div class="page">
+  <div id="guest-banner" class="guest-banner" hidden>
+    <span class="guest-banner-label">👤 Mode invité</span>
+    <button class="guest-banner-btn" onclick="resetGuestProgress()" title="Effacer la progression du mode invité">Réinitialiser</button>
+    <button class="guest-banner-btn guest-banner-quit" onclick="exitGuestMode()" title="Revenir au choix du profil">Quitter</button>
+  </div>
   <div id="app"></div>
 </div>
 <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="handleImport(event)">

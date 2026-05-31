@@ -28,3 +28,11 @@ const PROFILES = [
   { id: 'leila', name: 'Leïla', emoji: '👧', color: '#f472b6', grad: 'linear-gradient(135deg,#f472b6,#fb923c)' }
 ];
 
+/* Profil "invité" : séparé de PROFILES car il a un statut particulier.
+   - Pas affiché comme carte au même rang qu'Elias/Leïla
+   - Pas d'export/import autorisé en mode invité
+   - Progression stockée séparément dans cm2-progress-guest
+   - Bannière dédiée visible pendant la session */
+const GUEST_PROFILE = { id: 'guest', name: 'Invité', emoji: '👤', color: '#94a3b8', grad: 'linear-gradient(135deg,#94a3b8,#64748b)' };
+const ALL_PROFILES = PROFILES.concat([GUEST_PROFILE]);
+
