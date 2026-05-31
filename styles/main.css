@@ -473,6 +473,69 @@
     .guest-btn-text { font-size: .95rem; font-weight: 800; }
     .guest-btn-sub { font-size: .72rem; opacity: .8; }
 
+    /* ── ÉCRAN PERSONNALISATION ── */
+    .customize-screen { max-width: 540px; margin: 0 auto; }
+    .customize-header { text-align: center; margin-bottom: 1.5rem; padding: 0 4rem; }
+    .customize-header h1 { font-size: 1.4rem; margin: 0 0 .5rem; color: var(--blue); }
+    .customize-intro { font-size: .88rem; color: var(--muted); margin: 0; }
+
+    .customize-preview {
+      background: var(--card); border: 2px solid var(--blue);
+      border-radius: 18px; padding: 1.5rem; margin-bottom: 1.5rem;
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      box-shadow: 0 8px 24px rgba(79,156,249,.18);
+    }
+    .customize-preview-emoji { font-size: 4.5rem; line-height: 1; }
+    .customize-preview-name { font-size: 1.4rem; font-weight: 900; color: var(--text); }
+
+    .customize-section { margin-bottom: 1.5rem; }
+    .customize-label {
+      display: block; font-size: .8rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); margin-bottom: .65rem;
+    }
+
+    /* Grille d'avatars cliquables */
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+      gap: .5rem;
+    }
+    .avatar-choice {
+      width: 100%; aspect-ratio: 1;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; cursor: pointer;
+      font-size: 1.8rem; transition: all .15s;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0; line-height: 1;
+    }
+    .avatar-choice:hover { border-color: var(--blue); transform: translateY(-2px); }
+    .avatar-choice.active {
+      background: rgba(79,156,249,.12);
+      border-color: var(--blue); border-width: 2px;
+      box-shadow: 0 4px 12px rgba(79,156,249,.25);
+    }
+
+    /* Champ texte pour le nom */
+    .customize-input {
+      width: 100%; box-sizing: border-box;
+      padding: .85rem 1rem; min-height: 44px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text);
+      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700;
+      transition: border-color .15s;
+    }
+    .customize-input:focus {
+      outline: none; border-color: var(--blue); border-width: 2px;
+      padding: calc(.85rem - 1px) calc(1rem - 1px);  /* compense le bord 2px */
+    }
+
+    .customize-actions {
+      display: flex; gap: .75rem; justify-content: flex-end;
+      margin-top: 2rem;
+    }
+    .customize-actions .btn-sm { min-width: 100px; }
+
     /* ── BANNIÈRE "MODE INVITÉ" (visible sur tous les écrans en mode invité) ──
        Discrète mais bien identifiable. Reste collée en haut. */
     .guest-banner[hidden] { display: none; }   /* l'attribut HTML hidden doit primer sur display:flex */
@@ -700,6 +763,62 @@
     .level-name { font-size: .95rem; font-weight: 900; margin-bottom: .15rem; }
     .level-xp { font-size: .75rem; color: var(--muted); }
     .level-xp strong { color: var(--text); }
+
+    /* ── CARTE STREAK (série de jours consécutifs) ──
+       Style proche de la level-card pour cohérence, mais avec une bordure
+       colorée selon l'état (orange/rouge pour la série, vert quand validé,
+       neutre quand pas de série). */
+    .streak-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1rem 1.2rem; margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 1rem;
+      position: relative; overflow: hidden;
+    }
+    .streak-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    /* Série en cours, pas encore joué aujourd'hui : barre orange (urgence motivante) */
+    .streak-active::before {
+      background: linear-gradient(90deg, var(--orange), var(--red));
+    }
+    /* Série validée pour aujourd'hui : barre verte (succès) */
+    .streak-done::before {
+      background: linear-gradient(90deg, var(--green), #2dd4bf);
+    }
+    /* Pas de série : barre neutre */
+    .streak-zero::before {
+      background: linear-gradient(90deg, var(--muted), var(--border));
+    }
+    .streak-flame {
+      font-size: 2rem; flex-shrink: 0;
+      filter: drop-shadow(0 2px 6px rgba(251,146,60,.35));
+    }
+    .streak-zero .streak-flame { filter: none; opacity: .8; }
+    .streak-text { flex: 1; min-width: 0; }
+    .streak-title { font-size: 1rem; font-weight: 900; margin-bottom: .15rem; }
+    .streak-active .streak-title { color: var(--orange); }
+    .streak-done .streak-title { color: var(--green); }
+    .streak-sub { font-size: .78rem; color: var(--muted); line-height: 1.4; }
+
+    /* Animation discrète d'apparition quand on arrive sur l'accueil avec une série active */
+    .streak-active .streak-flame {
+      animation: streak-flame-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes streak-flame-pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .streak-active .streak-flame { animation: none; }
+    }
+
+    /* Sur les très petits écrans, on compacte */
+    @media (max-width: 360px) {
+      .streak-card { padding: .85rem 1rem; gap: .75rem; }
+      .streak-flame { font-size: 1.7rem; }
+      .streak-title { font-size: .92rem; }
+      .streak-sub { font-size: .72rem; }
+    }
 
     .xp-bar {
       height: 8px; background: var(--border); border-radius: 99px;

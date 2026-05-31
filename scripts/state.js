@@ -25,7 +25,48 @@ function getTopic(sId, tId) {
   const subj = getSubject(sId);
   return subj ? subj.topics.find(t => t.id === tId) : undefined;
 }
-function getProfile() { return ALL_PROFILES.find(p => p.id === S.profile); }
+/* getProfile() retourne le profil enrichi avec sa personnalisation.
+   Les valeurs personnalisées (emoji, nom) sont stockées par profil dans le
+   localStorage et écrasent les valeurs par défaut. Si rien n'est stocké,
+   on retourne les valeurs de config.js. Le profil invité ne se personnalise pas. */
+function getProfile() {
+  const base = ALL_PROFILES.find(p => p.id === S.profile);
+  if (!base) return null;
+  if (S.profile === 'guest') return base; // jamais de personnalisation pour l'invité
+  const custom = getCustomization(S.profile);
+  if (!custom) return base;
+  return { ...base, ...custom };
+}
+
+/* Lit la personnalisation d'un profil. Retourne null si pas encore personnalisé. */
+function getCustomization(profileId) {
+  try {
+    const raw = localStorage.getItem(`cm2-customization-${profileId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // Validation minimale : on ne garde que les champs attendus
+    const out = {};
+    if (typeof parsed.emoji === 'string' && parsed.emoji.trim()) out.emoji = parsed.emoji;
+    if (typeof parsed.name === 'string' && parsed.name.trim()) out.name = parsed.name.trim();
+    return Object.keys(out).length ? out : null;
+  } catch { return null; }
+}
+
+/* Indique si un profil a déjà été personnalisé (existence de la clé en localStorage). */
+function hasCustomization(profileId) {
+  return !!getCustomization(profileId);
+}
+
+/* Sauvegarde la personnalisation. emoji et name sont validés ici. */
+function saveCustomization(profileId, emoji, name) {
+  if (profileId === 'guest') return; // sécurité
+  const cleanName = (name || '').trim().slice(0, 20);
+  const data = {};
+  if (emoji) data.emoji = emoji;
+  if (cleanName) data.name = cleanName;
+  localStorage.setItem(`cm2-customization-${profileId}`, JSON.stringify(data));
+}
+
 function isGuest() { return S.profile === 'guest'; }
 
 /* ─ Types de questions ─ */
@@ -273,6 +314,39 @@ function computeBestStreak(sessions) {
     else if (diff > 1) { current = 1; }
   }
   return best;
+}
+
+/* Série EN COURS : nombre de jours consécutifs jusqu'à aujourd'hui (ou hier).
+   - Si la dernière session est ≥ 2 jours dans le passé : la série est cassée → 0
+   - Si elle est d'aujourd'hui ou d'hier : on remonte tant que les jours sont consécutifs
+   La série "tient" un jour de répit : si tu joues mardi, tu peux jouer mercredi
+   pour continuer ; si tu attends jeudi, c'est cassé. */
+function computeCurrentStreak(sessions) {
+  if (sessions.length === 0) return 0;
+  const DAY = 24 * 3600 * 1000;
+  const startOfDay = ts => { const d = new Date(ts); d.setHours(0,0,0,0); return d.getTime(); };
+  const today = startOfDay(Date.now());
+  // Jours uniques où l'utilisateur a joué (en début de journée), triés du plus récent au plus ancien
+  const days = [...new Set(sessions.map(s => startOfDay(s.timestamp)))].sort((a, b) => b - a);
+  // Si le dernier jour joué est plus vieux que hier, la série est cassée
+  const mostRecent = days[0];
+  const daysSinceLast = Math.round((today - mostRecent) / DAY);
+  if (daysSinceLast > 1) return 0;
+  // Sinon on remonte
+  let streak = 1;
+  for (let i = 1; i < days.length; i++) {
+    const diff = Math.round((days[i - 1] - days[i]) / DAY);
+    if (diff === 1) streak++;
+    else break;
+  }
+  return streak;
+}
+
+/* Indique si l'utilisateur a déjà joué aujourd'hui (au moins 1 session sur la journée actuelle) */
+function hasPlayedToday(sessions) {
+  if (sessions.length === 0) return false;
+  const today = new Date().toDateString();
+  return sessions.some(s => new Date(s.timestamp).toDateString() === today);
 }
 
 /* Contexte global pour évaluer les badges */

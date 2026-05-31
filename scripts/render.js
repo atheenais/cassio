@@ -35,6 +35,59 @@ function goProfile() {
 }
 function selectProfile(id) {
   S.profile = id;
+  // À la PREMIÈRE sélection du profil (pas encore personnalisé), on dirige vers
+  // l'écran de personnalisation. L'invité ne passe jamais par là.
+  if (id !== 'guest' && !hasCustomization(id)) {
+    goCustomize();
+  } else {
+    goHome();
+  }
+}
+
+/* ── Personnalisation de l'avatar ──
+   goCustomize : ouvre l'écran avec un brouillon initialisé sur les valeurs actuelles
+   customizePickEmoji : met à jour le brouillon (emoji) et re-rend
+   customizeSetName : met à jour le brouillon (nom) sans re-rendre (pour éviter de
+                      perdre le focus du champ texte à chaque frappe)
+   customizeSave : valide et retourne à l'accueil
+   customizeCancel : annule et retourne à l'accueil sans modifier */
+function goCustomize() {
+  clearQuizTimers();
+  const prof = getProfile();
+  if (!prof) return;
+  S.screen = 'customize';
+  // Brouillon : on part des valeurs actuelles (par défaut ou déjà personnalisées)
+  S.customizeDraft = { emoji: prof.emoji, name: prof.name };
+  applySubjStyle(null);
+  render();
+}
+function customizePickEmoji(emoji) {
+  if (!S.customizeDraft) return;
+  S.customizeDraft.emoji = emoji;
+  render();
+}
+function customizeSetName(value) {
+  if (!S.customizeDraft) return;
+  // On ne re-rend pas pour préserver le focus du champ texte.
+  // Le brouillon est juste mis à jour silencieusement. L'aperçu est rafraîchi
+  // en revanche, pour donner un retour visuel immédiat.
+  S.customizeDraft.name = value;
+  const previewEl = document.querySelector('.customize-preview-name');
+  if (previewEl) previewEl.textContent = value.trim() || '...';
+}
+function customizeSave() {
+  if (!S.customizeDraft) return;
+  const name = (S.customizeDraft.name || '').trim();
+  if (!name) {
+    alert('Choisis un nom (1 caractère minimum).');
+    return;
+  }
+  saveCustomization(S.profile, S.customizeDraft.emoji, name);
+  S.customizeDraft = null;
+  goHome();
+}
+function customizeCancel() {
+  S.customizeDraft = null;
   goHome();
 }
 
@@ -158,8 +211,9 @@ function render() {
     const showBanner = isGuest() && S.screen !== 'profile';
     banner.hidden = !showBanner;
   }
-  if (S.screen === 'profile') { app.innerHTML = renderProfile();  }
-  if (S.screen === 'home')    { app.innerHTML = renderHome();     }
+  if (S.screen === 'profile')   { app.innerHTML = renderProfile();   }
+  if (S.screen === 'customize') { app.innerHTML = renderCustomize(); }
+  if (S.screen === 'home')      { app.innerHTML = renderHome();      }
   if (S.screen === 'subject') { app.innerHTML = renderSubject();  }
   if (S.screen === 'quiz')    { renderQuizScreen(); }
   if (S.screen === 'score')   { app.innerHTML = renderScore();    }
@@ -170,12 +224,18 @@ function render() {
    PROFILE SCREEN
    ═══════════════════════════════════════════════════ */
 function renderProfile() {
-  const cards = PROFILES.map(p => `
+  const cards = PROFILES.map(p => {
+    // Fusion avec la personnalisation éventuelle (sans toucher à S.profile)
+    const custom = getCustomization(p.id);
+    const emoji = custom?.emoji || p.emoji;
+    const name = custom?.name || p.name;
+    return `
     <div class="profile-card" onclick="selectProfile('${p.id}')"
          style="--pc:${p.color}; --pc-grad:${p.grad};">
-      <span class="profile-emoji">${p.emoji}</span>
-      <div class="profile-name">${p.name}</div>
-    </div>`).join('');
+      <span class="profile-emoji">${emoji}</span>
+      <div class="profile-name">${escapeHtml(name)}</div>
+    </div>`;
+  }).join('');
 
   return `
     <div class="anim-slide">
@@ -198,8 +258,57 @@ function renderProfile() {
 }
 
 /* ═══════════════════════════════════════════════════
-   HOME SCREEN
+   CUSTOMIZE SCREEN — Personnalisation de l'avatar
    ═══════════════════════════════════════════════════ */
+function renderCustomize() {
+  // S.customizeDraft contient l'état temporaire de la personnalisation en cours
+  // (emoji, nom) avant validation. Initialisé dans goCustomize().
+  const d = S.customizeDraft;
+  if (!d) return ''; // sécurité
+  const grid = AVATAR_EMOJIS.map(e => {
+    const cls = e === d.emoji ? 'avatar-choice active' : 'avatar-choice';
+    return `<button class="${cls}" type="button" onclick="customizePickEmoji('${e}')" aria-label="Choisir ${e}">${e}</button>`;
+  }).join('');
+  const isFirstTime = !hasCustomization(S.profile);
+  const title = isFirstTime ? 'Bienvenue ! Personnalise ton profil' : 'Personnalise ton profil';
+  return `
+    <div class="screen customize-screen">
+      <div class="customize-header">
+        <h1>${title}</h1>
+        ${isFirstTime ? '<p class="customize-intro">Choisis un avatar et un nom — tu pourras toujours les changer plus tard.</p>' : ''}
+      </div>
+
+      <div class="customize-preview">
+        <div class="customize-preview-emoji">${d.emoji}</div>
+        <div class="customize-preview-name">${escapeHtml(d.name || '...')}</div>
+      </div>
+
+      <div class="customize-section">
+        <label class="customize-label">Avatar</label>
+        <div class="avatar-grid">${grid}</div>
+      </div>
+
+      <div class="customize-section">
+        <label class="customize-label" for="customize-name-input">Nom (max 20 caractères)</label>
+        <input type="text" id="customize-name-input" class="customize-input" maxlength="20"
+               value="${escapeAttr(d.name)}" placeholder="Ton nom"
+               oninput="customizeSetName(this.value)"
+               autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+
+      <div class="customize-actions">
+        ${!isFirstTime ? '<button class="btn-sm" onclick="customizeCancel()">Annuler</button>' : ''}
+        <button class="btn-sm accent" onclick="customizeSave()">${isFirstTime ? "C'est parti !" : 'Valider'}</button>
+      </div>
+    </div>`;
+}
+
+/* Échappe les caractères HTML dangereux dans le nom affiché */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
 function renderLevelCard() {
   const xp = computeTotalXP();
   const info = getLevelInfo(xp);
@@ -220,6 +329,60 @@ function renderLevelCard() {
           <div class="level-xp">${xpLine}</div>
           <div class="xp-bar"><div class="xp-bar-fill" style="width:${fillPct}%"></div></div>
         </div>
+      </div>
+    </div>`;
+}
+
+/* Carte "série de jours consécutifs" affichée sur l'accueil.
+   Adapte son message selon 3 cas :
+   - Pas de série en cours : invite douce à démarrer
+   - Série en cours, pas encore joué aujourd'hui : motive à jouer pour continuer
+   - Série en cours, déjà joué aujourd'hui : félicite et projette vers demain
+   La taille de la flamme grandit avec la durée : 🔥 / 🔥🔥 / 🔥🔥🔥 */
+function renderStreakCard() {
+  const sessions = getSessions().filter(s => s.profile === S.profile);
+  const streak = computeCurrentStreak(sessions);
+  const playedToday = hasPlayedToday(sessions);
+
+  // Cas 1 : pas de série en cours
+  if (streak === 0) {
+    return `
+      <div class="streak-card streak-zero">
+        <div class="streak-flame">💪</div>
+        <div class="streak-text">
+          <div class="streak-title">Démarre ta série !</div>
+          <div class="streak-sub">Joue un quiz aujourd'hui pour lancer ton premier jour</div>
+        </div>
+      </div>`;
+  }
+
+  // Flamme évolutive selon la durée
+  let flame;
+  if (streak >= 14)      flame = '🔥🔥🔥';
+  else if (streak >= 7)  flame = '🔥🔥';
+  else                   flame = '🔥';
+
+  const dayLabel = streak === 1 ? '1 jour' : `${streak} jours`;
+
+  // Cas 2 : déjà joué aujourd'hui — on félicite
+  if (playedToday) {
+    return `
+      <div class="streak-card streak-done">
+        <div class="streak-flame">${flame}</div>
+        <div class="streak-text">
+          <div class="streak-title">${dayLabel} d'affilée ✓</div>
+          <div class="streak-sub">Bravo ! Reviens demain pour continuer ta série</div>
+        </div>
+      </div>`;
+  }
+
+  // Cas 3 : série en cours, pas encore joué aujourd'hui — on motive
+  return `
+    <div class="streak-card streak-active">
+      <div class="streak-flame">${flame}</div>
+      <div class="streak-text">
+        <div class="streak-title">${dayLabel} d'affilée</div>
+        <div class="streak-sub">Joue aujourd'hui pour continuer ta série !</div>
       </div>
     </div>`;
 }
@@ -307,11 +470,14 @@ function renderHome() {
         </div>
         <div class="profile-banner-right">
           <button class="btn-sm accent" onclick="goHistory()">📋 Historique</button>
+          ${!isGuest() ? '<button class="btn-sm" onclick="goCustomize()" title="Personnaliser ton avatar et ton nom">✏️</button>' : ''}
           <button class="btn-sm" onclick="goProfile()">Changer</button>
         </div>
       </div>
 
       ${renderLevelCard()}
+
+      ${renderStreakCard()}
 
       <div class="home-overview">
         <div class="overview-icon">🎓</div>

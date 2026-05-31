@@ -36,3 +36,12 @@ const PROFILES = [
 const GUEST_PROFILE = { id: 'guest', name: 'Invité', emoji: '👤', color: '#94a3b8', grad: 'linear-gradient(135deg,#94a3b8,#64748b)' };
 const ALL_PROFILES = PROFILES.concat([GUEST_PROFILE]);
 
+/* Choix d'emojis pour la personnalisation d'avatar. Variés et adaptés enfant.
+   Les emojis par défaut 👦 et 👧 sont inclus pour permettre de revenir au look d'origine. */
+const AVATAR_EMOJIS = [
+  '👦', '👧', '🧒',
+  '🦊', '🐱', '🐶', '🐧', '🐼', '🦁', '🐯',
+  '🦄', '🐉', '🦖', '🐝', '🦋',
+  '🚀', '⚡', '🌟', '🌈', '🎨', '🎮', '🤖', '👽'
+];
+

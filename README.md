@@ -278,3 +278,58 @@ Confort tactile et lisibilité sur petit écran :
   plus confortables à toucher avec un doigt. Conformes aux recommandations Apple
   (44×44 px) dans la mesure où la zone tactile réelle est légèrement supérieure
   à la bordure visible.
+
+## Série de jours consécutifs (streak)
+
+L'écran d'accueil affiche désormais une **carte "série de jours consécutifs"**
+juste après le niveau, qui motive à jouer chaque jour. Trois états possibles :
+
+- **Aucune série** : invitation douce « 💪 Démarre ta série ! »
+- **Série en cours, pas joué aujourd'hui** : message motivant en orange
+  « 🔥 N jours d'affilée — Joue aujourd'hui pour continuer ta série ! »
+  (avec une légère animation de pulsation sur la flamme)
+- **Série en cours, joué aujourd'hui** : félicitation en vert
+  « 🔥 N jours d'affilée ✓ — Bravo ! Reviens demain... »
+
+La flamme grandit avec la durée : 🔥 (1-6 jours), 🔥🔥 (7-13 jours), 🔥🔥🔥 (14+ jours).
+
+Une session de n'importe quel type (quiz par matière ou aléatoire) compte pour
+valider la journée. La série est cassée si plus de 2 jours sans jouer.
+
+Calculée à partir des sessions du profil courant (donc spécifique à chaque enfant
++ au mode invité indépendamment).
+
+## Personnalisation de l'avatar
+
+Chaque enfant peut désormais choisir son **avatar** (parmi 23 emojis variés) et
+son **nom affiché** (jusqu'à 20 caractères).
+
+- À la **première sélection** d'un profil après mise à jour, l'écran de
+  personnalisation s'ouvre automatiquement avec un message de bienvenue
+- Un bouton **✏️** sur l'écran d'accueil permet de modifier à tout moment
+- Le profil **invité** n'est pas personnalisable (reste 👤 / "Invité")
+- Stockage par profil dans `cm2-customization-elias` et `cm2-customization-leila`
+- Les valeurs personnalisées sont reprises partout dans l'app (accueil, cartes
+  de niveau, écran de profil, etc.)
+
+Choix d'emojis disponibles : 👦 👧 🧒 🦊 🐱 🐶 🐧 🐼 🦁 🐯 🦄 🐉 🦖 🐝 🦋 🚀 ⚡ 🌟 🌈 🎨 🎮 🤖 👽
+
+## Personnalisation de l'avatar
+
+Chaque profil peut désormais choisir son **emoji** et **modifier son nom**.
+
+**Première sélection** d'un profil : l'enfant arrive sur un écran "Bienvenue !
+Personnalise ton profil" qui lui propose une grille de 23 emojis variés
+(humains, animaux, objets fun) et un champ pour ajuster son nom.
+
+**Modification ultérieure** : un petit bouton ✏️ sur l'écran d'accueil permet
+de retourner à l'écran de personnalisation à tout moment. Le bouton Annuler
+préserve les valeurs en cours.
+
+Le mode invité n'est pas personnalisable (👤 Invité reste fixe) — cette
+distinction visuelle aide à différencier les profils "à long terme" du mode
+démo/test.
+
+Stockage : clé `cm2-customization-${profileId}` au format `{ emoji, name }`.
+Les défauts (👦 Elias, 👧 Leïla) restent dans `config.js` et sont utilisés
+tant qu'aucune personnalisation n'a été enregistrée.
