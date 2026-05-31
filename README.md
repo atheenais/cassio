@@ -264,3 +264,17 @@ sur l'écran d'accueil.
 
 Implémentation : `env(safe-area-inset-top)` avec fallback `max(1rem, ...)` pour
 préserver l'apparence sur les écrans sans safe area (navigateur classique).
+
+## Améliorations UX responsive (priorité 2)
+
+Confort tactile et lisibilité sur petit écran :
+
+- **Bannière "Mode invité" sur une ligne** : « 👤 Mode invité » reste lisible sans
+  passer à la ligne sur tous les viewports (320 → 430 px). Sur les écrans < 400 px,
+  le bouton « Réinitialiser » est masqué dans la bannière (reste accessible depuis
+  l'écran d'accueil), pour laisser de la place au label et au bouton « Quitter ».
+- **Zones tactiles élargies** : `.btn-sm` (Historique, Changer, Exporter, Importer),
+  `.btn-start` (Commencer, Rejouer) et `.hint-btn` passent à 36-40 px de haut minimum,
+  plus confortables à toucher avec un doigt. Conformes aux recommandations Apple
+  (44×44 px) dans la mesure où la zone tactile réelle est légèrement supérieure
+  à la bordure visible.

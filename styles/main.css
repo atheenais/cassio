@@ -193,17 +193,18 @@
     .topic-badge.s1 { color: var(--orange); border-color: rgba(251,146,60,.35); background: rgba(251,146,60,.08); }
 
     .btn-start {
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .8rem;
-      padding: .4rem .9rem; border-radius: 8px; border: none; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .85rem;
+      padding: .55rem 1.1rem; min-height: 40px; border-radius: 8px; border: none; cursor: pointer;
       background: var(--subj-grad); color: white; transition: all .15s;
       flex-shrink: 0; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center;
     }
     .btn-start:hover { opacity: .85; transform: translateY(-1px); }
 
     /* Sur les très petits écrans (iPhone SE 1G, 320px), on compacte le bouton
        pour éviter qu'il ne chevauche les titres longs comme "Proportionnalité". */
     @media (max-width: 360px) {
-      .btn-start { padding: .35rem .65rem; font-size: .72rem; }
+      .btn-start { padding: .45rem .75rem; font-size: .75rem; min-height: 36px; }
       .topic-card-row { gap: .55rem; }
       .topic-icon { width: 32px; font-size: 1.4rem; }
     }
@@ -257,9 +258,9 @@
     /* Bouton "💡 Indice" : discret, encourage à réfléchir d'abord avant de demander l'aide */
     .hint-btn {
       display: inline-flex; align-items: center;
-      font-family: 'Nunito', sans-serif; font-weight: 600; font-size: .78rem;
+      font-family: 'Nunito', sans-serif; font-weight: 600; font-size: .82rem;
       background: transparent; border: 1px dashed var(--border); color: var(--muted);
-      padding: .35rem .65rem; border-radius: 8px; cursor: pointer;
+      padding: .5rem .8rem; min-height: 36px; border-radius: 8px; cursor: pointer;
       margin-bottom: 1rem; transition: all .15s;
     }
     .hint-btn:hover {
@@ -476,26 +477,37 @@
        Discrète mais bien identifiable. Reste collée en haut. */
     .guest-banner[hidden] { display: none; }   /* l'attribut HTML hidden doit primer sur display:flex */
     .guest-banner {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: .5rem; padding: .5rem .9rem;
-      padding-right: 6.5rem;  /* laisse la place aux boutons flottants 🔊 et 🌙 en haut à droite */
+      display: flex; align-items: center; justify-content: flex-start;
+      gap: .4rem; padding: .5rem .7rem;
       background: rgba(148,163,184,.12);
       border-bottom: 1px solid rgba(148,163,184,.3);
       font-size: .82rem; font-weight: 700;
       color: #94a3b8;
     }
     body.light .guest-banner { background: rgba(100,116,139,.1); color: #64748b; }
-    .guest-banner-label { flex: 1; }
+    .guest-banner-label { white-space: nowrap; flex-shrink: 0; margin-right: auto; }
     .guest-banner-btn {
       font-family: 'Nunito', sans-serif; font-size: .72rem; font-weight: 700;
-      padding: .3rem .7rem; border-radius: 8px;
+      padding: .4rem .65rem; min-height: 36px; border-radius: 8px;
       border: 1px solid rgba(148,163,184,.4);
       background: transparent; color: inherit; cursor: pointer;
       transition: all .15s;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; white-space: nowrap;
     }
     .guest-banner-btn:hover { background: rgba(148,163,184,.15); }
-    .guest-banner-quit { border-color: var(--red); color: var(--red); }
+    .guest-banner-quit { border-color: var(--red); color: var(--red); margin-right: 6rem; }
     .guest-banner-quit:hover { background: rgba(248,113,113,.1); }
+
+    /* Sur les petits écrans, on masque le bouton "Réinitialiser" pour gagner de la place
+       (il reste accessible depuis l'écran d'accueil en mode invité). Seul "Quitter" est essentiel. */
+    @media (max-width: 400px) {
+      .guest-banner { padding: .45rem .55rem; gap: .3rem; font-size: .75rem; }
+      .guest-banner-btn { font-size: .68rem; padding: .35rem .45rem; min-height: 34px; }
+      .guest-banner-label { font-size: .75rem; }
+      .guest-banner-btn:not(.guest-banner-quit) { display: none; }
+      .guest-banner-quit { margin-right: 5.7rem; }
+    }
 
     /* Petit message d'info en mode invité dans la section "data-actions" */
     .guest-actions { flex-direction: column; align-items: stretch; }
@@ -519,8 +531,9 @@
     .profile-banner-right { display: flex; gap: .5rem; align-items: center; }
     .btn-sm {
       font-family: 'Nunito', sans-serif; font-size: .75rem; font-weight: 700;
-      padding: .35rem .8rem; border-radius: 8px; border: 1px solid var(--border);
+      padding: .55rem 1rem; min-height: 40px; border-radius: 8px; border: 1px solid var(--border);
       cursor: pointer; background: transparent; color: var(--muted); transition: all .15s;
+      display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
     }
     .btn-sm:hover { border-color: var(--blue); color: var(--blue); }
     .btn-sm.accent { background: var(--subj-grad); border: none; color: white; }
