@@ -23,7 +23,7 @@ const LEVELS_CONFIG = {
     id: '6eme',
     name: '6ème',
     emoji: '📗',
-    subjects: [] // À remplir lors de la livraison 2
+    subjects: ['maths', 'francais', 'histoire-geo'] // Livraison v12 : 3 matières × 4 thèmes × 10 questions
   },
   '5eme': {
     id: '5eme',

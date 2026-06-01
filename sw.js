@@ -8,7 +8,7 @@
    nouveaux fichiers. Sans ce changement de version, les utilisateurs déjà
    installés continueraient de voir l'ancienne version en cache. */
 
-const CACHE_VERSION = 'cm2-v11';
+const CACHE_VERSION = 'cm2-v12';
 
 /* Liste de tous les fichiers nécessaires au fonctionnement hors-ligne.
    Les chemins sont relatifs au scope du service worker (la racine de l'app). */
@@ -32,6 +32,10 @@ const ASSETS = [
   './data/cm2/physchim.js',
   './data/cm2/latin.js',
   './data/cm2/numerique.js',
+  // Données — niveau 6ème (v12)
+  './data/6eme/maths.js',
+  './data/6eme/francais.js',
+  './data/6eme/histoire-geo.js',
   // Manifest curriculum (multi-niveaux)
   './data/curriculum.js',
   // Logique

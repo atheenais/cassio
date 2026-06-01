@@ -304,11 +304,48 @@ function renderCustomize() {
                autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
 
+      ${renderCustomizeLevelSection()}
+
       <div class="customize-actions">
         ${!isFirstTime ? '<button class="btn-sm" onclick="customizeCancel()">Annuler</button>' : ''}
         <button class="btn-sm accent" onclick="customizeSave()">${isFirstTime ? "C'est parti !" : 'Valider'}</button>
       </div>
     </div>`;
+}
+
+/* Section "Choisir ma classe" sur l'écran de personnalisation.
+   N'apparaît que si au moins 2 niveaux ont du contenu chargé (sinon, c'est inutile :
+   un seul niveau est forcément le bon). Le choix prend effet immédiatement (pas besoin
+   d'attendre "Valider") car il modifie une clé localStorage indépendante de la
+   personnalisation. C'est cohérent avec le sélecteur de l'accueil. */
+function renderCustomizeLevelSection() {
+  const available = getAvailableLevels();
+  if (available.length < 2) return ''; // un seul niveau peuplé : pas la peine
+  const current = getCurrentLevel();
+  const buttons = available.map(lvl => {
+    const cfg = getLevelConfig(lvl);
+    const isActive = lvl === current;
+    return `<button type="button" class="level-pill ${isActive ? 'active' : ''}"
+                    onclick="changeLevelFromCustomize('${lvl}')"
+                    aria-pressed="${isActive}">
+              ${cfg.emoji} ${cfg.name}
+            </button>`;
+  }).join('');
+  return `
+    <div class="customize-section">
+      <label class="customize-label">🎓 Ma classe</label>
+      <div class="level-pills">${buttons}</div>
+    </div>`;
+}
+
+/* Changement de niveau depuis l'écran personnalisation.
+   Comportement : on persiste le choix immédiatement et on re-rend la même page
+   pour mettre à jour le pill actif. La validation/annulation de la personnalisation
+   (emoji, nom) reste indépendante : changer de classe est toujours conservé. */
+function changeLevelFromCustomize(levelId) {
+  if (levelId === getCurrentLevel()) return;
+  setCurrentLevel(levelId);
+  render(); // reste sur l'écran customize, met juste à jour le pill actif
 }
 
 /* Échappe les caractères HTML dangereux dans le nom affiché */

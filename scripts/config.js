@@ -4,8 +4,9 @@
 const STYLES = {
   maths:     { color: '#4f9cf9', grad: 'linear-gradient(135deg, #4f9cf9, #a78bfa)' },
   francais:  { color: '#fb923c', grad: 'linear-gradient(135deg, #fb923c, #f472b6)' },
-  histoire:  { color: '#2dd4bf', grad: 'linear-gradient(135deg, #2dd4bf, #34d399)' },
-  sciences:  { color: '#fbbf24', grad: 'linear-gradient(135deg, #fbbf24, #fb923c)' },
+  histoire:    { color: '#2dd4bf', grad: 'linear-gradient(135deg, #2dd4bf, #34d399)' },
+  'histoire-geo': { color: '#0d9488', grad: 'linear-gradient(135deg, #0d9488, #2dd4bf)' }, // matière 6ème (histoire + géo)
+  sciences:    { color: '#fbbf24', grad: 'linear-gradient(135deg, #fbbf24, #fb923c)' },
   anglais:   { color: '#a78bfa', grad: 'linear-gradient(135deg, #a78bfa, #6366f1)' },
   emc:       { color: '#ec4899', grad: 'linear-gradient(135deg, #ec4899, #8b5cf6)' },
   svt:       { color: '#10b981', grad: 'linear-gradient(135deg, #10b981, #84cc16)' },
