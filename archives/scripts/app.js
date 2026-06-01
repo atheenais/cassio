@@ -2,15 +2,7 @@
    RÉINITIALISATION
    ═══════════════════════════════════════════════════ */
 function resetProgress() {
-  const lvlConfig = getLevelConfig(getCurrentLevel());
-  const hasMultipleLevels = getAvailableLevels().length > 1;
-  let msg = `Effacer la progression de ${getProfile().name}`;
-  if (hasMultipleLevels && lvlConfig) {
-    msg += ` en ${lvlConfig.name} ? Cette action est irréversible.\n\nLes autres niveaux ne seront pas touchés.`;
-  } else {
-    msg += ` ? Cette action est irréversible.`;
-  }
-  if (confirm(msg)) {
+  if (confirm('Effacer toute la progression de ' + getProfile().name + ' ? Cette action est irréversible.')) {
     localStorage.removeItem(progressKey());
     _invalidateCache('progress');
     goHome();
@@ -32,28 +24,18 @@ function exportData() {
   const prof = getProfile();
   if (!prof) return;
   if (isGuest()) { alert("L'export est désactivé en mode invité."); return; }
-  // Export v2 : on exporte la progression de TOUS les niveaux du profil + le niveau courant.
-  // Les sessions sont déjà annotées avec leur `level` d'origine.
-  const progressByLevel = {};
-  LEVEL_IDS.forEach(lvl => {
-    try {
-      const raw = localStorage.getItem(`cm2-progress-${prof.id}-${lvl}`);
-      if (raw) progressByLevel[lvl] = JSON.parse(raw);
-    } catch {}
-  });
   const data = {
-    version: 2,
+    version: 1,
     exportedAt: new Date().toISOString(),
     profile: { id: prof.id, name: prof.name },
-    currentLevel: getCurrentLevel(),
-    progressByLevel,
+    progress: getProgress(),
     sessions: getSessions().filter(s => s.profile === S.profile)
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `cassio-${prof.id}-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `cm2-${prof.id}-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -74,86 +56,45 @@ function handleImport(ev) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-
-      // Détection du format : v1 (progress: {}) ou v2 (progressByLevel: {cm2: {}, ...})
-      const isV2 = data.progressByLevel && typeof data.progressByLevel === 'object';
-      const isV1 = data.progress && typeof data.progress === 'object';
-      if (!isV1 && !isV2) {
-        throw new Error('Format JSON invalide (champ "progress" ou "progressByLevel" manquant).');
+      if (!data.progress || typeof data.progress !== 'object') {
+        throw new Error('Format JSON invalide (champ "progress" manquant).');
       }
-
-      // Normaliser en structure v2 : { cm2: {...}, 6eme: {...}, ... }
-      const rawProgressByLevel = isV2 ? data.progressByLevel : { cm2: data.progress };
-
-      // Filtrer : pour chaque (niveau, matière, thème), ne garder que les entrées
-      // encore présentes dans le programme actuel.
-      const cleanProgressByLevel = {};
-      let keptTopics = 0, droppedTopics = 0;
-      const keptByLevel = {};
-      for (const lvl in rawProgressByLevel) {
-        if (!LEVELS_CONFIG[lvl]) { // niveau inconnu, on ignore
-          for (const sId in (rawProgressByLevel[lvl] || {})) {
-            droppedTopics += Object.keys(rawProgressByLevel[lvl][sId] || {}).length;
-          }
-          continue;
+      // Filtrer : on ne garde que les matières et thèmes encore présents dans le programme actuel.
+      // Cela évite de stocker des entrées orphelines qui feraient planter les écrans qui consultent la progression.
+      const cleanProgress = {};
+      let kept = 0, dropped = 0;
+      for (const sId in data.progress) {
+        const subj = getSubject(sId);
+        if (!subj) { dropped += Object.keys(data.progress[sId] || {}).length; continue; }
+        for (const tId in data.progress[sId]) {
+          const topic = getTopic(sId, tId);
+          if (!topic) { dropped++; continue; }
+          if (!cleanProgress[sId]) cleanProgress[sId] = {};
+          cleanProgress[sId][tId] = data.progress[sId][tId];
+          kept++;
         }
-        cleanProgressByLevel[lvl] = {};
-        let countThisLevel = 0;
-        for (const sId in rawProgressByLevel[lvl]) {
-          const subj = getSubject(sId, lvl);
-          if (!subj) { droppedTopics += Object.keys(rawProgressByLevel[lvl][sId] || {}).length; continue; }
-          for (const tId in rawProgressByLevel[lvl][sId]) {
-            const topic = getTopic(sId, tId, lvl);
-            if (!topic) { droppedTopics++; continue; }
-            if (!cleanProgressByLevel[lvl][sId]) cleanProgressByLevel[lvl][sId] = {};
-            cleanProgressByLevel[lvl][sId][tId] = rawProgressByLevel[lvl][sId][tId];
-            keptTopics++;
-            countThisLevel++;
-          }
-        }
-        if (countThisLevel > 0) keptByLevel[lvl] = countThisLevel;
-        if (Object.keys(cleanProgressByLevel[lvl]).length === 0) delete cleanProgressByLevel[lvl];
       }
-
-      // Filtrer les sessions en tenant compte de leur `level` d'origine.
-      // Pour v1, on assume que toutes les sessions sont du CM2.
+      // Filtrer aussi les sessions
       const rawSessions = Array.isArray(data.sessions) ? data.sessions.filter(s => s && typeof s === 'object') : [];
-      const cleanSessions = rawSessions.map(s => ({ ...s, level: s.level || 'cm2' })).filter(s => {
-        if (!LEVELS_CONFIG[s.level]) return false;
-        if (s.subjId === (typeof RANDOM_SUBJ_ID !== 'undefined' ? RANDOM_SUBJ_ID : '__random__')) return true;
-        return getSubject(s.subjId, s.level) && getTopic(s.subjId, s.topicId, s.level);
+      const cleanSessions = rawSessions.filter(s => {
+        if (s.subjId === (typeof RANDOM_SUBJ_ID !== 'undefined' ? RANDOM_SUBJ_ID : '__random__')) return true; // sessions Quiz aléatoire toujours valides
+        return getSubject(s.subjId) && getTopic(s.subjId, s.topicId);
       });
       const droppedSessions = rawSessions.length - cleanSessions.length;
 
       const prof = getProfile();
-      const levelsSummary = Object.entries(keptByLevel)
-        .map(([lvl, n]) => `${getLevelConfig(lvl)?.name || lvl} : ${n}`)
-        .join(', ') || 'aucun';
       let msg = `Importer les données dans le profil ${prof.name} ?\n\n`
-              + `• Progression : ${keptTopics} thèmes (${levelsSummary})\n`
+              + `• Progression : ${kept} thèmes\n`
               + `• Sessions   : ${cleanSessions.length}\n`;
-      if (droppedTopics > 0 || droppedSessions > 0) {
-        msg += `\n⚠️ ${droppedTopics} entrée${droppedTopics > 1 ? 's' : ''} de progression et ${droppedSessions} session${droppedSessions > 1 ? 's' : ''}\n`
+      if (dropped > 0 || droppedSessions > 0) {
+        msg += `\n⚠️ ${dropped} entrée${dropped > 1 ? 's' : ''} de progression et ${droppedSessions} session${droppedSessions > 1 ? 's' : ''}\n`
              + `seront ignorées (matières/thèmes plus présents dans le programme actuel).\n`;
       }
-      msg += `\n⚠️ Toute la progression de ${prof.name} (tous niveaux) sera remplacée.`;
+      msg += `\n⚠️ La progression actuelle de ${prof.name} sera remplacée.`;
       if (!confirm(msg)) return;
 
-      // Remplace la progression du profil actif niveau par niveau.
-      // Les niveaux qui n'apparaissent pas dans l'import sont effacés (cohérent
-      // avec le comportement v1 : "tout ou rien" pour le profil).
-      LEVEL_IDS.forEach(lvl => {
-        const key = `cm2-progress-${prof.id}-${lvl}`;
-        if (cleanProgressByLevel[lvl]) {
-          localStorage.setItem(key, JSON.stringify(cleanProgressByLevel[lvl]));
-        } else {
-          localStorage.removeItem(key);
-        }
-      });
-      // Niveau courant : on respecte celui exporté s'il est valide
-      if (data.currentLevel && LEVELS_CONFIG[data.currentLevel]) {
-        localStorage.setItem(`cm2-level-${prof.id}`, data.currentLevel);
-      }
+      // Remplace la progression du profil actif (nettoyée)
+      localStorage.setItem(progressKey(), JSON.stringify(cleanProgress));
       // Fusionne les sessions : on garde celles des autres profils, on remplace celles du profil courant
       const others = getSessions().filter(s => s.profile !== S.profile);
       const imported = cleanSessions.map(s => ({ ...s, profile: S.profile })); // force le profil cible
@@ -359,91 +300,37 @@ document.addEventListener('keydown', quizKeyHandler);
    INIT
    ═══════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════
-   MIGRATION : structure multi-niveaux
-   ═══════════════════════════════════════════════════
-   Au passage à la structure multi-niveaux (livraison "niveaux"), les clés
-   localStorage de progression évoluent :
-     cm2-progress-{id}       →   cm2-progress-{id}-cm2
-   Et les sessions existantes (sans champ `level`) sont enrichies avec
-   `level: 'cm2'`. Cette migration est idempotente, silencieuse, et ne
-   s'exécute qu'une fois grâce au marqueur `cm2-migrated-levels`. */
-function migrateToMultiLevels() {
-  if (localStorage.getItem('cm2-migrated-levels') === '1') return;
-
-  // 1. Renommer les clés de progression legacy
-  ALL_PROFILES.forEach(p => {
-    const legacyKey = `cm2-progress-${p.id}`;
-    const newKey = `cm2-progress-${p.id}-cm2`;
-    const legacy = localStorage.getItem(legacyKey);
-    if (!legacy) return;
-    // Si la nouvelle clé existe déjà (cas pathologique : double migration),
-    // on ne l'écrase pas — on conserve la version "nouvelle" qui prime.
-    if (!localStorage.getItem(newKey)) {
-      localStorage.setItem(newKey, legacy);
-    }
-    localStorage.removeItem(legacyKey);
-    // Le profil avait déjà joué : on inscrit son niveau courant à 'cm2'
-    // (et on évite ainsi le popup d'onboarding pour les profils existants).
-    if (!localStorage.getItem(`cm2-level-${p.id}`)) {
-      localStorage.setItem(`cm2-level-${p.id}`, 'cm2');
-    }
-  });
-
-  // 2. Enrichir les sessions existantes avec `level: 'cm2'`
-  try {
-    const sessions = JSON.parse(localStorage.getItem('cm2-sessions') || '[]');
-    let changed = false;
-    sessions.forEach(s => {
-      if (s && typeof s === 'object' && !s.level) { s.level = 'cm2'; changed = true; }
-    });
-    if (changed) localStorage.setItem('cm2-sessions', JSON.stringify(sessions));
-  } catch {}
-
-  localStorage.setItem('cm2-migrated-levels', '1');
-}
-
 /* Nettoyage des données orphelines : si le localStorage contient des progressions
    pour des matières ou des thèmes qui ne sont plus dans le programme actuel
    (par exemple suite à un import d'un ancien JSON), on les retire silencieusement.
-   Sans ce nettoyage, les écrans qui parcourent la progression stockée plantent.
-
-   Avec le multi-niveaux, on itère sur (profil × niveau) et on nettoie la
-   progression de chaque niveau séparément. Les sessions sont nettoyées en
-   tenant compte de leur `level` d'origine. */
+   Sans ce nettoyage, les écrans qui parcourent la progression stockée plantent. */
 function cleanupOrphanedProgress() {
   ALL_PROFILES.forEach(p => {
-    LEVEL_IDS.forEach(lvl => {
-      const key = `cm2-progress-${p.id}-${lvl}`;
-      let raw;
-      try { raw = JSON.parse(localStorage.getItem(key) || '{}'); } catch { return; }
-      if (!raw || typeof raw !== 'object') return;
-      let changed = false;
-      const cleaned = {};
-      for (const sId in raw) {
-        const subj = getSubject(sId, lvl);
-        if (!subj) { changed = true; continue; }
-        cleaned[sId] = {};
-        for (const tId in raw[sId]) {
-          if (getTopic(sId, tId, lvl)) cleaned[sId][tId] = raw[sId][tId];
-          else changed = true;
-        }
-        if (Object.keys(cleaned[sId]).length === 0) { delete cleaned[sId]; changed = true; }
+    const key = `cm2-progress-${p.id}`;
+    let raw;
+    try { raw = JSON.parse(localStorage.getItem(key) || '{}'); } catch { return; }
+    let changed = false;
+    const cleaned = {};
+    for (const sId in raw) {
+      const subj = getSubject(sId);
+      if (!subj) { changed = true; continue; }
+      cleaned[sId] = {};
+      for (const tId in raw[sId]) {
+        if (getTopic(sId, tId)) cleaned[sId][tId] = raw[sId][tId];
+        else changed = true;
       }
-      if (changed) {
-        if (Object.keys(cleaned).length === 0) localStorage.removeItem(key);
-        else localStorage.setItem(key, JSON.stringify(cleaned));
-      }
-    });
+      // Si la matière n'a plus aucun thème valide, on la retire
+      if (Object.keys(cleaned[sId]).length === 0) { delete cleaned[sId]; changed = true; }
+    }
+    if (changed) localStorage.setItem(key, JSON.stringify(cleaned));
   });
-  // Nettoyage des sessions (en tenant compte de leur niveau d'origine)
+  // Nettoyage des sessions
   try {
     const sessions = JSON.parse(localStorage.getItem('cm2-sessions') || '[]');
     const cleaned = sessions.filter(s => {
       if (!s || typeof s !== 'object') return false;
-      const lvl = s.level || DEFAULT_LEVEL;
       if (s.subjId === RANDOM_SUBJ_ID) return true;
-      return !!getSubject(s.subjId, lvl) && !!getTopic(s.subjId, s.topicId, lvl);
+      return !!getSubject(s.subjId) && !!getTopic(s.subjId, s.topicId);
     });
     if (cleaned.length !== sessions.length) {
       localStorage.setItem('cm2-sessions', JSON.stringify(cleaned));
@@ -452,7 +339,6 @@ function cleanupOrphanedProgress() {
   _invalidateCache('all');
 }
 
-migrateToMultiLevels();
 cleanupOrphanedProgress();
 loadTheme();
 updateSoundButton();

@@ -105,11 +105,8 @@ function exitGuestMode() {
 }
 function resetGuestProgress() {
   if (!confirm('Effacer toute la progression du mode invité ? Les profils Elias et Leïla ne seront pas touchés.')) return;
-  // Supprime la progression de l'invité sur TOUS les niveaux scolaires
-  LEVEL_IDS.forEach(lvl => localStorage.removeItem(`cm2-progress-guest-${lvl}`));
-  // Réinitialise aussi son niveau courant (re-popup d'onboarding au prochain quiz)
-  localStorage.removeItem('cm2-level-guest');
-  // On retire les sessions du profil invité
+  localStorage.removeItem('cm2-progress-guest');
+  // On retire aussi les sessions du profil invité
   const others = getSessions().filter(s => s.profile !== 'guest');
   localStorage.setItem('cm2-sessions', JSON.stringify(others));
   _invalidateCache('all');
@@ -120,10 +117,6 @@ function goHome() {
   S.screen = 'home'; S.subjId = null; S.topicId = null;
   S.randomMode = false; S.reviewMode = false;
   applySubjStyle(null);
-  // Si le profil n'a pas encore choisi son niveau et que plusieurs niveaux sont
-  // disponibles, on bascule sur l'écran d'onboarding du niveau. Sinon, le niveau
-  // est inscrit silencieusement et on reste sur l'accueil.
-  maybeShowLevelOnboarding();
   render();
 }
 function goSubject(id) {
@@ -219,7 +212,6 @@ function render() {
     banner.hidden = !showBanner;
   }
   if (S.screen === 'profile')   { app.innerHTML = renderProfile();   }
-  if (S.screen === 'level-onboarding') { app.innerHTML = renderLevelOnboarding(); }
   if (S.screen === 'customize') { app.innerHTML = renderCustomize(); }
   if (S.screen === 'home')      { app.innerHTML = renderHome();      }
   if (S.screen === 'subject') { app.innerHTML = renderSubject();  }
@@ -341,86 +333,6 @@ function renderLevelCard() {
     </div>`;
 }
 
-/* ═══════════════════════════════════════════════════
-   SÉLECTEUR DE NIVEAU SCOLAIRE
-   ═══════════════════════════════════════════════════
-   Affiché uniquement quand au moins 2 niveaux ont du contenu chargé.
-   Tant qu'on n'a que le CM2, ce sélecteur est silencieux (string vide).
-   Quand on ajoutera 6ème ou 5ème en livraison 2, il apparaîtra automatiquement. */
-function renderLevelSelector() {
-  const available = getAvailableLevels();
-  if (available.length < 2) return ''; // un seul niveau peuplé : pas de sélecteur
-  const current = getCurrentLevel();
-  const currentConfig = getLevelConfig(current);
-  // Boutons pour chaque niveau disponible
-  const buttons = available.map(lvl => {
-    const cfg = getLevelConfig(lvl);
-    const isActive = lvl === current;
-    return `<button class="level-pill ${isActive ? 'active' : ''}"
-                    onclick="changeLevel('${lvl}')"
-                    aria-pressed="${isActive}">
-              ${cfg.emoji} ${cfg.name}
-            </button>`;
-  }).join('');
-  return `
-    <div class="level-selector" role="group" aria-label="Niveau scolaire">
-      <div class="level-selector-label">Niveau actuel : <strong>${currentConfig?.name || ''}</strong></div>
-      <div class="level-pills">${buttons}</div>
-    </div>`;
-}
-
-/* Changer de niveau scolaire pour le profil courant.
-   Si le niveau est le même que l'actuel, ne fait rien. Sinon, persiste le choix
-   et re-rend l'accueil pour afficher les matières du nouveau niveau. */
-function changeLevel(levelId) {
-  if (levelId === getCurrentLevel()) return;
-  setCurrentLevel(levelId);
-  goHome();
-}
-
-/* Popup d'onboarding au 1er lancement d'un profil quand plusieurs niveaux sont
-   peuplés. Tant qu'on n'a qu'un seul niveau (CM2), la popup ne se déclenche pas.
-   À déclencher depuis render() après que S.profile a été défini. */
-function maybeShowLevelOnboarding() {
-  if (!S.profile) return;
-  if (hasLevelChosen(S.profile)) return;
-  const available = getAvailableLevels();
-  if (available.length < 2) {
-    // Un seul niveau : on l'inscrit silencieusement sans déranger l'enfant
-    setCurrentLevel(available[0] || DEFAULT_LEVEL);
-    return;
-  }
-  // Plusieurs niveaux disponibles : on affiche un écran intermédiaire
-  S.screen = 'level-onboarding';
-}
-
-function renderLevelOnboarding() {
-  const prof = getProfile();
-  const available = getAvailableLevels();
-  const cards = available.map(lvl => {
-    const cfg = getLevelConfig(lvl);
-    return `
-      <button class="onboarding-level-card" onclick="chooseInitialLevel('${lvl}')">
-        <span class="onboarding-level-emoji">${cfg.emoji}</span>
-        <span class="onboarding-level-name">${cfg.name}</span>
-      </button>`;
-  }).join('');
-  return `
-    <div class="anim-slide level-onboarding">
-      <div class="app-header">
-        <h1>👋 Salut ${prof.name} !</h1>
-        <p>En quelle classe es-tu cette année ?</p>
-      </div>
-      <div class="onboarding-level-grid">${cards}</div>
-      <p class="onboarding-level-hint">Tu pourras changer à tout moment depuis l'accueil.</p>
-    </div>`;
-}
-
-function chooseInitialLevel(levelId) {
-  setCurrentLevel(levelId);
-  goHome();
-}
-
 /* Carte "série de jours consécutifs" affichée sur l'accueil.
    Adapte son message selon 3 cas :
    - Pas de série en cours : invite douce à démarrer
@@ -481,15 +393,12 @@ function renderBadgesSection() {
   const unlockedIds = new Set();
   BADGES.forEach(b => { if (b.check(ctx)) unlockedIds.add(b.id); });
   const tiles = BADGES.map(b => {
-    // getBadgeDisplay applique le nom/desc dynamique pour les badges marqués `dynamic: true`
-    // (par ex. "Maître du niveau" devient "Maître de CM2" / "Maître de 6ème").
-    const display = getBadgeDisplay(b);
     const isUnlocked = unlockedIds.has(b.id);
     const cls = isUnlocked ? 'unlocked' : 'locked';
-    const tooltip = `${display.name} — ${display.desc}${isUnlocked ? ' ✓' : ''}`;
+    const tooltip = `${b.name} — ${b.desc}${isUnlocked ? ' ✓' : ''}`;
     return `<div class="badge-tile ${cls}" title="${tooltip.replace(/"/g, '&quot;')}">
-              <span class="badge-emoji">${display.emoji}</span>
-              <div class="badge-name">${display.name}</div>
+              <span class="badge-emoji">${b.emoji}</span>
+              <div class="badge-name">${b.name}</div>
             </div>`;
   }).join('');
   return `
@@ -505,11 +414,10 @@ function renderBadgesSection() {
 function renderHome() {
   // Calcul unique : une seule lecture de progress, un seul parcours du curriculum.
   // On construit une map { sId: count } des thèmes complétés au format actuel.
-  const curriculum = getCurriculum(getCurrentLevel());
   const progress = getProgress();
   const doneBycSubject = {};
   let totalTopics = 0, doneTopics = 0;
-  curriculum.forEach(s => {
+  CURRICULUM.forEach(s => {
     totalTopics += s.topics.length;
     let done = 0;
     const subjProgress = progress[s.id];
@@ -524,7 +432,7 @@ function renderHome() {
   });
   const pct = totalTopics > 0 ? Math.round(doneTopics / totalTopics * 100) : 0;
 
-  const cards = curriculum.map(s => {
+  const cards = CURRICULUM.map(s => {
     const style = STYLES[s.id];
     const done = doneBycSubject[s.id];
     const subjPct = Math.round(done / s.topics.length * 100);
@@ -566,8 +474,6 @@ function renderHome() {
           <button class="btn-sm" onclick="goProfile()">Changer</button>
         </div>
       </div>
-
-      ${renderLevelSelector()}
 
       ${renderLevelCard()}
 
@@ -1153,12 +1059,12 @@ function renderScore() {
           <div class="badge-unlock-wrap">
             <div class="lbl">🎉 Nouveau${S.newBadges.length > 1 ? 'x' : ''} badge${S.newBadges.length > 1 ? 's' : ''} débloqué${S.newBadges.length > 1 ? 's' : ''} !</div>
             <div class="badge-unlock-list">
-              ${S.newBadges.map(b => { const d = getBadgeDisplay(b); return `
+              ${S.newBadges.map(b => `
                 <div class="badge-unlock-item">
-                  <span class="emj">${d.emoji}</span>
-                  <div class="nm">${d.name}</div>
-                  <div class="ds">${d.desc}</div>
-                </div>`; }).join('')}
+                  <span class="emj">${b.emoji}</span>
+                  <div class="nm">${b.name}</div>
+                  <div class="ds">${b.desc}</div>
+                </div>`).join('')}
             </div>
           </div>` : ''}
 
@@ -1234,9 +1140,8 @@ function renderEvolutionChart(sessionsChrono) {
   const dots = pts.map(p => {
     const isRandom = p.s.subjId === RANDOM_SUBJ_ID;
     const style = STYLES[p.s.subjId] || (isRandom ? STYLES.random : STYLES.maths);
-    const sessLevel = p.s.level || DEFAULT_LEVEL;
-    const subj = isRandom ? null : getSubject(p.s.subjId, sessLevel);
-    const topic = isRandom ? null : getTopic(p.s.subjId, p.s.topicId, sessLevel);
+    const subj = isRandom ? null : getSubject(p.s.subjId);
+    const topic = isRandom ? null : getTopic(p.s.subjId, p.s.topicId);
     const labelLeft = isRandom ? '🎲 Quiz aléatoire' : `${subj ? subj.name : '?'} – ${topic ? topic.name : '?'}`;
     const label = `${labelLeft} : ${p.s.score}/${p.s.total} (${Math.round(p.pct)}%) · ${formatDate(p.s.timestamp)}`;
     return `<circle class="ev-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5"
@@ -1302,9 +1207,8 @@ function renderHistory() {
     ? `<div class="session-empty">Aucune session pour l'instant.<br>Lance un quiz pour voir ton historique ici !</div>`
     : sessionsList.map(s => {
         const isRandom = s.subjId === RANDOM_SUBJ_ID;
-        const sessLevel = s.level || DEFAULT_LEVEL;
-        const subj = isRandom ? null : getSubject(s.subjId, sessLevel);
-        const topic = isRandom ? null : getTopic(s.subjId, s.topicId, sessLevel);
+        const subj = isRandom ? null : getSubject(s.subjId);
+        const topic = isRandom ? null : getTopic(s.subjId, s.topicId);
         // Filtrer les sessions corrompues (matière/thème disparus) mais GARDER les sessions random
         if (!isRandom && (!subj || !topic)) return '';
         const stars = getStars(s.score, s.total);

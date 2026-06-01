@@ -1,19 +1,16 @@
-# Cassio — Révision multi-niveaux
+# Cassio — Révision CM2
 
-Application de révision pour le cycle 3 et début du collège.
-Actuellement peuplée pour le **CM2** : **11 matières, 65 thèmes, 650 questions**.
-L'architecture est multi-niveaux : les programmes de **6ème** et **5ème** pourront
-être ajoutés sans modifier l'app, simplement en remplissant les dossiers prévus
-(voir `data/SCHEMA.md`).
+Application de révision pour le cycle 3 (CM2 / 6ème).
+**11 matières, 65 thèmes, 650 questions** au total.
 
 ## Fonctionnalités
 
 - Quiz par thème (10 questions) avec révision des erreurs
-- **🎲 Quiz aléatoire** : 10 questions surprise piochées dans toutes les matières du niveau actif
+- **🎲 Quiz aléatoire** : 10 questions surprise piochées dans toutes les matières
 - 2 profils utilisateurs avec progression et statistiques séparées
-- Système d'XP global (tous niveaux confondus), badges par niveau scolaire
+- Système d'XP, niveaux et badges
 - Historique des sessions avec graphique d'évolution
-- Export / import JSON de la progression (multi-niveaux, rétrocompatible v1)
+- Export / import JSON de la progression
 - Mode clair / sombre
 
 ## Utilisation
@@ -28,48 +25,41 @@ index.html              ← point d'entrée (charge tous les fichiers)
 ├── styles/
 │   └── main.css        ← tous les styles, animations, thèmes clair/sombre
 │
-├── data/               ← contenu pédagogique, organisé par niveau scolaire
-│   ├── curriculum.js   ← MANIFEST : LEVELS_CONFIG (niveaux + matières)
-│   ├── SCHEMA.md       ← format détaillé des questions
-│   ├── cm2/            ← un dossier par niveau scolaire
-│   │   ├── maths.js
-│   │   ├── francais.js
-│   │   └── ... (11 matières)
-│   ├── 6eme/           ← à peupler en livraison 2
-│   └── 5eme/           ← à peupler en livraison 2
+├── data/               ← les questions, une matière par fichier
+│   ├── curriculum-maths.js
+│   ├── curriculum-francais.js
+│   ├── curriculum-histoire.js
+│   ├── curriculum-sciences.js
+│   ├── curriculum-anglais.js
+│   ├── curriculum-emc.js
+│   ├── curriculum-svt.js
+│   ├── curriculum-techno.js
+│   ├── curriculum-physchim.js
+│   ├── curriculum-latin.js
+│   ├── curriculum-numerique.js
+│   └── curriculum.js   ← assemble les 11 matières dans l'ordre voulu
 │
 └── scripts/            ← la logique de l'application
     ├── config.js       ← couleurs par matière + profils des deux enfants
-    ├── state.js        ← état global S, utilitaires, XP, niveaux, badges, niveau scolaire courant
+    ├── state.js        ← état global S, utilitaires, XP, niveaux, badges
     ├── render.js       ← navigation et rendu de tous les écrans
-    └── app.js          ← réinit, export/import JSON, thème, confettis, clavier, init, migration
+    └── app.js          ← réinit, export/import JSON, thème, confettis, clavier, init
 ```
 
 ## Comment modifier le contenu
 
-**Ajouter ou modifier des questions** : ouvre le fichier de la matière concernée
-dans `data/{niveau}/{matière}.js`. Chaque question est un objet
-`{ text, options, answer, explication, ... }`. Voir `data/SCHEMA.md` pour le format
-complet (QCU, QCM, Vrai/Faux, texte libre).
+**Ajouter ou modifier des questions** : ouvre le fichier de la matière concernée dans
+`data/`. Chaque question est un objet `{ text, options, answer, explication, ... }`.
+Le format est documenté par les questions existantes.
 
-**Ajouter une nouvelle matière à un niveau existant** :
-1. Créer un fichier `data/{niveau}/NOUVELLE.js` sur le modèle des autres.
-2. Ajouter son id au tableau `subjects` de `LEVELS_CONFIG.{niveau}` dans `data/curriculum.js`.
-3. L'ajouter dans `index.html` avec une balise `<script src="...">`.
+**Ajouter une nouvelle matière** :
+1. Créer un fichier `data/curriculum-NOUVELLE.js` sur le modèle des autres.
+2. L'ajouter dans `index.html` avec une balise `<script src="...">`.
+3. L'ajouter dans `data/curriculum.js` (liste des ids ordonnés).
 4. Ajouter une entrée dans `STYLES` dans `scripts/config.js` (couleur + gradient).
-5. L'ajouter à la liste `ASSETS` de `sw.js` et **bumper `CACHE_VERSION`**.
-
-**Ajouter un nouveau niveau scolaire (ex: 4ème)** :
-1. Créer le dossier `data/4eme/` et y placer au moins une matière.
-2. Déclarer le niveau dans `LEVELS_CONFIG` et `LEVEL_IDS` dans `data/curriculum.js`.
-3. Ajouter les balises `<script>` correspondantes dans `index.html`.
-4. Mettre à jour `sw.js` (ASSETS + bump version).
-5. Dès qu'il y a ≥ 2 niveaux peuplés, le sélecteur de niveau apparaît
-   automatiquement dans l'app, et un popup d'onboarding s'affiche au 1er
-   lancement de chaque profil.
 
 **Désactiver temporairement une matière** : commenter sa balise `<script>` dans
-`index.html` ET la retirer de la liste `subjects` dans `data/curriculum.js`.
+`index.html` ET la retirer de la liste dans `data/curriculum.js`.
 
 **Changer les couleurs ou les noms des profils** : édite `scripts/config.js`.
 
@@ -79,33 +69,18 @@ complet (QCU, QCM, Vrai/Faux, texte libre).
 
 L'ordre des `<script>` dans `index.html` est strict :
 
-1. Les fichiers `data/{niveau}/*.js` (peu importe l'ordre entre eux).
-2. `data/curriculum.js` qui déclare le manifest LEVELS_CONFIG et les helpers.
+1. Les fichiers `data/curriculum-*.js` (peu importe l'ordre entre eux).
+2. `data/curriculum.js` qui les assemble.
 3. `scripts/config.js` (constantes).
 4. `scripts/state.js` (utilise les constantes).
 5. `scripts/render.js` (utilise l'état + utilitaires).
-6. `scripts/app.js` (migration + init final).
+6. `scripts/app.js` (init final).
 
 ## Données utilisateur
 
 Les progrès, niveaux, badges et historique sont stockés en local dans le navigateur
 (`localStorage`). Pour sauvegarder ou transférer, utiliser le bouton d'export
 JSON depuis l'écran d'historique.
-
-**Clés localStorage utilisées :**
-
-| Clé | Contenu |
-|---|---|
-| `cm2-progress-{profileId}-{level}` | progression par niveau scolaire (CM2, 6ème, 5ème) |
-| `cm2-customization-{profileId}` | personnalisation avatar (emoji + nom) |
-| `cm2-level-{profileId}` | niveau scolaire actif du profil |
-| `cm2-sessions` | toutes les sessions, chacune annotée avec son niveau d'origine |
-| `cm2-theme`, `cm2-sound` | préférences globales |
-| `cm2-migrated-levels` | marqueur de migration vers la structure multi-niveaux (set à `'1'`) |
-
-Au premier lancement de la version multi-niveaux, une migration silencieuse
-renomme les anciennes clés `cm2-progress-{id}` en `cm2-progress-{id}-cm2`
-et ajoute `level: 'cm2'` à toutes les sessions existantes. Idempotente.
 
 ## Bonnes pratiques
 
@@ -129,7 +104,7 @@ clair/sombre et à la couleur de la matière en cours.
 
 ### Ajouter une illustration à une question
 
-Dans le fichier de la matière (ex: `data/cm2/maths.js`), ajoute un champ
+Dans le fichier de la matière (ex: `data/curriculum-maths.js`), ajoute un champ
 `image` à la question :
 
 ```javascript

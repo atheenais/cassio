@@ -18,50 +18,11 @@ let S = {
 };
 
 /* ═══════════════════════════════════════════════════
-   NIVEAU SCOLAIRE COURANT (CM2, 6ème, 5ème...)
-   ═══════════════════════════════════════════════════
-   Le niveau courant est stocké par profil dans `cm2-level-{profileId}`.
-   Il est distinct de la customization (emoji, nom) volontairement :
-   - tous les profils ont un niveau (y compris l'invité)
-   - mais seuls Elias et Leïla peuvent personnaliser leur emoji/nom
-   Tant qu'il n'y a qu'un seul niveau peuplé, ce mécanisme est invisible
-   pour l'utilisateur (sélecteur masqué). */
-
-function getCurrentLevel() {
-  if (!S.profile) return DEFAULT_LEVEL;
-  const stored = localStorage.getItem(`cm2-level-${S.profile}`);
-  if (stored && LEVELS_CONFIG[stored]) return stored;
-  return DEFAULT_LEVEL;
-}
-
-function setCurrentLevel(levelId) {
-  if (!S.profile) return;
-  if (!LEVELS_CONFIG[levelId]) return;
-  localStorage.setItem(`cm2-level-${S.profile}`, levelId);
-  _invalidateCache('all'); // les caches progress/sessions sont liés au niveau
-}
-
-/* Indique si un profil a déjà choisi explicitement son niveau.
-   Sert à déclencher la popup d'onboarding au premier lancement (uniquement
-   si plusieurs niveaux sont peuplés). */
-function hasLevelChosen(profileId) {
-  return !!localStorage.getItem(`cm2-level-${profileId}`);
-}
-
-/* ═══════════════════════════════════════════════════
    UTILITAIRES
    ═══════════════════════════════════════════════════ */
-
-/* getSubject / getTopic acceptent un argument level optionnel.
-   Par défaut : niveau courant du profil actif.
-   Pour les écrans qui parcourent l'historique multi-niveaux (ex. session
-   stockée avec son level d'origine), passer le level explicitement. */
-function getSubject(id, level) {
-  const lvl = level || getCurrentLevel();
-  return getCurriculum(lvl).find(s => s.id === id);
-}
-function getTopic(sId, tId, level) {
-  const subj = getSubject(sId, level);
+function getSubject(id) { return CURRICULUM.find(s => s.id === id); }
+function getTopic(sId, tId) {
+  const subj = getSubject(sId);
   return subj ? subj.topics.find(t => t.id === tId) : undefined;
 }
 /* getProfile() retourne le profil enrichi avec sa personnalisation.
@@ -121,14 +82,12 @@ function shuffleArray(arr) {
   return a;
 }
 
-/* ─ Pioche n questions au hasard parmi TOUTES les matières et tous les thèmes
-   du niveau courant ─
+/* ─ Pioche n questions au hasard parmi TOUTES les matières et tous les thèmes ─
    Renvoie un tableau d'objets enrichis du subjId et topicId d'origine, utiles
    pour afficher l'origine de chaque question dans l'écran de score. */
 function pickRandomQuestions(n) {
   const pool = [];
-  const curriculum = getCurriculum(getCurrentLevel());
-  curriculum.forEach(s => s.topics.forEach(t => {
+  CURRICULUM.forEach(s => s.topics.forEach(t => {
     t.questions.forEach(q => pool.push({ ...q, _origSubjId: s.id, _origTopicId: t.id }));
   }));
   return shuffleArray(pool).slice(0, n);
@@ -185,7 +144,7 @@ function _invalidateCache(scope) {
   if (scope === 'sessions' || scope === 'all') _cache.sessions = null;
 }
 
-function progressKey() { return `cm2-progress-${S.profile}-${getCurrentLevel()}`; }
+function progressKey() { return `cm2-progress-${S.profile}`; }
 function getProgress() {
   const key = progressKey();
   if (_cache.progress[key] !== undefined) return _cache.progress[key];
@@ -246,14 +205,7 @@ function getSessions() {
 }
 function saveSession(sId, tId, score, total, hintsUsed = 0) {
   const sessions = getSessions();
-  sessions.push({
-    profile: S.profile,
-    level: getCurrentLevel(),    // niveau scolaire au moment du quiz (utile pour stats/badges par niveau)
-    timestamp: Date.now(),
-    subjId: sId,
-    topicId: tId,
-    score, total, hintsUsed
-  });
+  sessions.push({ profile: S.profile, timestamp: Date.now(), subjId: sId, topicId: tId, score, total, hintsUsed });
   if (sessions.length > 200) sessions.shift();
   localStorage.setItem('cm2-sessions', JSON.stringify(sessions));
   _invalidateCache('sessions');
@@ -344,11 +296,7 @@ const BADGES = [
   // Maîtrise — thèmes complétés
   { id: 'topics_10',  emoji: '🎓', name: 'Bon élève',  desc: '10 thèmes complétés',  check: c => c.topicsCompleted >= 10 },
   { id: 'topics_25',  emoji: '🏅', name: 'Expert',     desc: '25 thèmes complétés',  check: c => c.topicsCompleted >= 25 },
-  /* "Maître du niveau" : seuil dynamique calculé à partir du nombre de thèmes
-     du niveau courant. Le nom et la description sont aussi dynamiques :
-     "Maître de CM2" / "Maître de 6ème"... (voir computeBadgeContext). */
-  { id: 'topics_all', emoji: '👑', name: 'Maître du niveau', desc: 'Tous les thèmes du niveau complétés',
-    check: c => c.totalTopics > 0 && c.topicsCompleted >= c.totalTopics, dynamic: true }
+  { id: 'topics_all', emoji: '👑', name: 'Maître CM2', desc: 'Tous les 65 thèmes complétés', check: c => c.topicsCompleted >= 65 }
 ];
 
 /* Plus longue série de jours consécutifs avec ≥ 1 session */
@@ -401,13 +349,9 @@ function hasPlayedToday(sessions) {
   return sessions.some(s => new Date(s.timestamp).toDateString() === today);
 }
 
-/* Contexte global pour évaluer les badges.
-   Filtré par niveau courant (les badges sont par niveau ; recommencer un
-   niveau permet de les redébloquer). Les sessions du quiz aléatoire sont
-   conservées même si subjId == '__random__'. */
+/* Contexte global pour évaluer les badges */
 function computeBadgeContext() {
-  const level = getCurrentLevel();
-  const sessions = getSessions().filter(s => s.profile === S.profile && (s.level || DEFAULT_LEVEL) === level);
+  const sessions = getSessions().filter(s => s.profile === S.profile);
   const progress = getProgress();
   // On ne compte un thème comme "complété" que si son total stocké correspond
   // au nombre actuel de questions du thème (un ancien 5/5 sur un thème désormais
@@ -418,33 +362,13 @@ function computeBadgeContext() {
       if (isTopicFresh(sId, tId)) topicsCompleted++;
     }
   }
-  // Nombre total de thèmes disponibles dans le niveau courant — sert au seuil
-  // dynamique du badge "Maître du niveau".
-  const totalTopics = getCurriculum(level).reduce((n, s) => n + s.topics.length, 0);
   return {
     totalSessions:   sessions.length,
     perfectCount:    sessions.filter(s => s.score === s.total && s.total > 0).length,
     subjectsPlayed:  new Set(sessions.map(s => s.subjId)).size,
     topicsCompleted,
-    totalTopics,
     bestStreak:      computeBestStreak(sessions)
   };
-}
-
-/* Retourne le badge enrichi avec son nom/desc contextualisé pour les badges
-   marqués `dynamic: true`. Pour les autres, retourne le badge tel quel. */
-function getBadgeDisplay(badge) {
-  if (!badge.dynamic) return badge;
-  const lvl = getLevelConfig(getCurrentLevel());
-  const lvlName = lvl ? lvl.name : '';
-  if (badge.id === 'topics_all') {
-    return {
-      ...badge,
-      name: `Maître de ${lvlName}`,
-      desc: `Tous les thèmes de ${lvlName} complétés`
-    };
-  }
-  return badge;
 }
 
 /* Liste des badges actuellement débloqués pour le profil actif */

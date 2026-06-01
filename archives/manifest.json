@@ -1,0 +1,32 @@
+{
+  "name": "Cassio",
+  "short_name": "Cassio",
+  "description": "Cassio — Le programme du CM2 et de la 6ème en quiz : 11 matières, 650 questions, des illustrations, des séries à enchaîner et des badges à débloquer. Rapide, ludique, hors ligne. Sans inscription",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1729",
+  "theme_color": "#4f9cf9",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -8,7 +8,7 @@
    nouveaux fichiers. Sans ce changement de version, les utilisateurs déjà
    installés continueraient de voir l'ancienne version en cache. */
 
-const CACHE_VERSION = 'cm2-v11';
+const CACHE_VERSION = 'cm2-v10';
 
 /* Liste de tous les fichiers nécessaires au fonctionnement hors-ligne.
    Les chemins sont relatifs au scope du service worker (la racine de l'app). */
@@ -20,19 +20,18 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  // Données — niveau CM2
-  './data/cm2/maths.js',
-  './data/cm2/francais.js',
-  './data/cm2/histoire.js',
-  './data/cm2/sciences.js',
-  './data/cm2/anglais.js',
-  './data/cm2/emc.js',
-  './data/cm2/svt.js',
-  './data/cm2/techno.js',
-  './data/cm2/physchim.js',
-  './data/cm2/latin.js',
-  './data/cm2/numerique.js',
-  // Manifest curriculum (multi-niveaux)
+  // Données (une matière par fichier)
+  './data/curriculum-maths.js',
+  './data/curriculum-francais.js',
+  './data/curriculum-histoire.js',
+  './data/curriculum-sciences.js',
+  './data/curriculum-anglais.js',
+  './data/curriculum-emc.js',
+  './data/curriculum-svt.js',
+  './data/curriculum-techno.js',
+  './data/curriculum-physchim.js',
+  './data/curriculum-latin.js',
+  './data/curriculum-numerique.js',
   './data/curriculum.js',
   // Logique
   './scripts/config.js',

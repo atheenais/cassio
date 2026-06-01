@@ -602,55 +602,6 @@
     .btn-sm.accent { background: var(--subj-grad); border: none; color: white; }
     .btn-sm.accent:hover { opacity: .85; color: white; }
 
-    /* ── LEVEL SELECTOR (HOME) ──
-       Sélecteur de niveau scolaire (CM2, 6ème, 5ème…) affiché sur l'accueil
-       uniquement quand ≥ 2 niveaux ont du contenu chargé. Tant qu'on n'a que
-       CM2, le HTML n'est même pas généré — donc ce CSS est dormant. */
-    .level-selector {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-      padding: .75rem 1rem; margin-bottom: 1.1rem;
-    }
-    .level-selector-label { font-size: .8rem; color: var(--muted); margin-bottom: .5rem; }
-    .level-selector-label strong { color: var(--text); font-weight: 800; }
-    .level-pills { display: flex; flex-wrap: wrap; gap: .4rem; }
-    .level-pill {
-      font-family: 'Nunito', sans-serif; font-size: .85rem; font-weight: 700;
-      padding: .5rem .9rem; min-height: 40px; border-radius: 20px;
-      border: 1.5px solid var(--border); background: transparent;
-      color: var(--muted); cursor: pointer; transition: all .15s;
-      display: inline-flex; align-items: center; gap: .3rem;
-    }
-    .level-pill:hover { border-color: var(--blue); color: var(--text); }
-    .level-pill.active {
-      background: var(--subj-grad); border-color: transparent; color: white;
-      box-shadow: 0 2px 8px rgba(79, 156, 249, 0.25);
-    }
-    .level-pill.active:hover { color: white; opacity: .92; }
-
-    /* ── LEVEL ONBOARDING (1ER LANCEMENT) ──
-       Écran affiché lorsqu'un profil n'a pas encore choisi son niveau ET que
-       plusieurs niveaux sont disponibles. Sinon, ce code est inactif. */
-    .level-onboarding .app-header h1 { font-size: 1.6rem; }
-    .level-onboarding .app-header p { font-size: 1rem; margin-top: .5rem; }
-    .onboarding-level-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1rem; margin: 2rem 0 1rem;
-    }
-    .onboarding-level-card {
-      font-family: 'Nunito', sans-serif;
-      background: var(--card); border: 2px solid var(--border); border-radius: 16px;
-      padding: 1.5rem 1rem; cursor: pointer; transition: all .2s;
-      display: flex; flex-direction: column; align-items: center; gap: .5rem;
-      color: var(--text); min-height: 120px;
-    }
-    .onboarding-level-card:hover {
-      border-color: var(--blue); transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-    }
-    .onboarding-level-emoji { font-size: 2.5rem; line-height: 1; }
-    .onboarding-level-name { font-size: 1.1rem; font-weight: 800; }
-    .onboarding-level-hint { text-align: center; color: var(--muted); font-size: .85rem; margin-top: .5rem; }
-
     /* ── HISTORY SCREEN ── */
     .history-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
     .session-empty { text-align: center; color: var(--muted); padding: 3rem 1rem; font-size: .9rem; line-height: 1.8; }
