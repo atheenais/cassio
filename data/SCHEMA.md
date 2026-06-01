@@ -105,6 +105,19 @@ Quatre types existent : QCU (choix unique), QCM (choix multiple), Vrai/Faux, Tex
 }
 ```
 
+Les libellés affichés sont **"Vrai"** et **"Faux"** par défaut. Pour les personnaliser
+(par exemple "C'est correct" / "C'est faux"), tu peux ajouter un champ `options` :
+
+```js
+{
+  type: "vrai_faux",
+  text: "…",
+  options: ["C'est correct", "C'est faux"],  // optionnel, par défaut ["Vrai", "Faux"]
+  answer: 0,
+  explication: "…"
+}
+```
+
 ### Texte libre
 
 ```js

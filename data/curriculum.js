@@ -16,6 +16,10 @@ const LEVELS_CONFIG = {
     id: 'cm2',
     name: 'CM2',
     emoji: '📘',
+    /* Couleurs v14 : déterminent le rendu du pill actif dans le segmented control.
+       CM2 = bleu/violet, cohérent avec l'identité visuelle de l'app et le 📘. */
+    color: '#4f9cf9',
+    grad: 'linear-gradient(135deg, #4f9cf9, #a78bfa)',
     // Ordre d'affichage des matières dans l'accueil
     subjects: ['maths', 'francais', 'histoire', 'sciences', 'anglais', 'emc', 'svt', 'techno', 'physchim', 'latin', 'numerique']
   },
@@ -23,12 +27,18 @@ const LEVELS_CONFIG = {
     id: '6eme',
     name: '6ème',
     emoji: '📗',
-    subjects: ['maths', 'francais', 'histoire-geo'] // Livraison v12 : 3 matières × 4 thèmes × 10 questions
+    /* 6ème = vert/teal, cohérent avec le 📗. */
+    color: '#10b981',
+    grad: 'linear-gradient(135deg, #10b981, #2dd4bf)',
+    subjects: ['maths', 'francais', 'histoire-geo', 'svt', 'anglais'] // v17 : 5 matières peuplées
   },
   '5eme': {
     id: '5eme',
     name: '5ème',
     emoji: '📕',
+    /* 5ème = rouge/orange, cohérent avec le 📕. */
+    color: '#ef4444',
+    grad: 'linear-gradient(135deg, #ef4444, #f59e0b)',
     subjects: [] // À remplir lors de la livraison 2
   }
 };

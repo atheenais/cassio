@@ -282,6 +282,18 @@ function showCombo(streak) {
   setTimeout(() => el.remove(), 1300);
 }
 
+/* 5. Badge "Sans-faute parfait" doré, plus long et plus expressif que combo-badge.
+   Affiché ~1,8 s sur l'écran de score quand le quiz est terminé à 100%.
+   La taille et la durée justifient l'événement (vs combo-badge qui apparaît
+   pendant le quiz et doit rester discret pour ne pas perturber la lecture). */
+function showPerfectBadge() {
+  const el = document.createElement('div');
+  el.className = 'perfect-badge';
+  el.innerHTML = '🏆 Sans-faute parfait !';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1900);
+}
+
 /* ─ Son optionnel (Web Audio, aucun fichier externe) ─ */
 let _audioCtx = null;
 function soundEnabled() {
@@ -316,6 +328,76 @@ function playCorrectSound(streak = 1) {
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
     osc.connect(gain); gain.connect(ctx.destination);
     osc.start(now); osc.stop(now + 0.26);
+  } catch (e) { /* audio indisponible : on ignore */ }
+}
+
+/* Jingle de félicitations pour un sans-faute (v15+).
+   Mélodie ascendante "Tada !" type Do-Mi-Sol-Do' (C5-E5-G5-C6) :
+   - Quatre notes qui montent par arpège majeur, créant un sentiment de victoire
+   - Les trois premières notes sont courtes et staccato (effet "fanfare")
+   - La quatrième note est plus longue et soutenue pour la résolution finale
+   - Léger overlap entre les notes pour un effet "carillonné" plutôt que sec
+   - Deux oscillateurs par note (sine + triangle) pour un timbre riche mais doux
+   La fonction est isolée (pas couplée à un événement spécifique) pour pouvoir
+   être réutilisée ailleurs (badges futurs, jalons spéciaux). */
+function playPerfectScoreFanfare() {
+  if (!soundEnabled()) return;
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _audioCtx;
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+
+    // Notes : C5 (Do), E5 (Mi), G5 (Sol), C6 (Do octave) — arpège majeur ascendant
+    // Les fréquences exactes du tempérament égal A4 = 440 Hz.
+    const notes = [
+      { freq: 523.25, start: 0.00,  dur: 0.18 }, // Do
+      { freq: 659.25, start: 0.13,  dur: 0.18 }, // Mi (commence avant fin du Do → carillon)
+      { freq: 783.99, start: 0.26,  dur: 0.20 }, // Sol
+      { freq: 1046.5, start: 0.42,  dur: 0.55 }  // Do' (note finale soutenue, accent fort)
+    ];
+
+    notes.forEach((note, i) => {
+      const t0 = now + note.start;
+      const t1 = t0 + note.dur;
+      const isLast = i === notes.length - 1;
+
+      // Oscillateur principal (sine, son rond et doux)
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(note.freq, t0);
+
+      // Oscillateur d'harmonique (triangle, ajoute une "richesse" douce
+      // sans devenir agressif comme un sawtooth)
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(note.freq, t0);
+
+      // Enveloppe ADSR : attack rapide, decay doux, sustain modéré sur la dernière
+      const gain = ctx.createGain();
+      const peakGain = isLast ? 0.22 : 0.16; // dernière note un peu plus forte
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(peakGain, t0 + 0.025);   // attack
+      if (isLast) {
+        // Dernière note : sustain plus long puis fade out doux pour un sentiment de résolution
+        gain.gain.exponentialRampToValueAtTime(peakGain * 0.7, t0 + 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t1);
+      } else {
+        gain.gain.exponentialRampToValueAtTime(0.0001, t1);
+      }
+
+      // Mixer un peu de triangle (≈ 25%) avec le sine principal
+      const triGain = ctx.createGain();
+      triGain.gain.value = 0.25;
+
+      osc1.connect(gain);
+      osc2.connect(triGain);
+      triGain.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(t0); osc1.stop(t1 + 0.05);
+      osc2.start(t0); osc2.stop(t1 + 0.05);
+    });
   } catch (e) { /* audio indisponible : on ignore */ }
 }
 

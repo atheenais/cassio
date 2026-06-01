@@ -325,16 +325,22 @@ function renderCustomizeLevelSection() {
   const buttons = available.map(lvl => {
     const cfg = getLevelConfig(lvl);
     const isActive = lvl === current;
+    const activeStyle = isActive && cfg.color
+      ? `--lvl-grad:${cfg.grad}; --lvl-shadow: color-mix(in srgb, ${cfg.color} 35%, transparent);`
+      : '';
     return `<button type="button" class="level-pill ${isActive ? 'active' : ''}"
                     onclick="changeLevelFromCustomize('${lvl}')"
-                    aria-pressed="${isActive}">
+                    aria-pressed="${isActive}"
+                    style="${activeStyle}">
               ${cfg.emoji} ${cfg.name}
             </button>`;
   }).join('');
   return `
     <div class="customize-section">
       <label class="customize-label">🎓 Ma classe</label>
-      <div class="level-pills">${buttons}</div>
+      <div class="level-selector" role="group" aria-label="Niveau scolaire">
+        <div class="level-segmented">${buttons}</div>
+      </div>
     </div>`;
 }
 
@@ -384,25 +390,34 @@ function renderLevelCard() {
    Affiché uniquement quand au moins 2 niveaux ont du contenu chargé.
    Tant qu'on n'a que le CM2, ce sélecteur est silencieux (string vide).
    Quand on ajoutera 6ème ou 5ème en livraison 2, il apparaîtra automatiquement. */
+/* Sélecteur de niveau v14 — segmented control style iOS.
+   • Structure : wrapper centré .level-selector → .level-segmented (track) → .level-pill x N
+   • Le pill actif reçoit les variables CSS --lvl-grad et --lvl-shadow inline
+     dérivées de LEVELS_CONFIG, ce qui colore le fond selon le niveau actif
+     (CM2 = bleu, 6ème = vert, 5ème = rouge).
+   • Label "Niveau actuel : CM2" retiré : redondant avec le pill actif coloré. */
 function renderLevelSelector() {
   const available = getAvailableLevels();
   if (available.length < 2) return ''; // un seul niveau peuplé : pas de sélecteur
   const current = getCurrentLevel();
-  const currentConfig = getLevelConfig(current);
-  // Boutons pour chaque niveau disponible
   const buttons = available.map(lvl => {
     const cfg = getLevelConfig(lvl);
     const isActive = lvl === current;
+    // On injecte --lvl-grad uniquement sur le pill actif pour économiser les recalculs.
+    // L'ombre colorée utilise color-mix pour rester subtile (~35% d'opacité).
+    const activeStyle = isActive && cfg.color
+      ? `--lvl-grad:${cfg.grad}; --lvl-shadow: color-mix(in srgb, ${cfg.color} 35%, transparent);`
+      : '';
     return `<button class="level-pill ${isActive ? 'active' : ''}"
                     onclick="changeLevel('${lvl}')"
-                    aria-pressed="${isActive}">
+                    aria-pressed="${isActive}"
+                    style="${activeStyle}">
               ${cfg.emoji} ${cfg.name}
             </button>`;
   }).join('');
   return `
     <div class="level-selector" role="group" aria-label="Niveau scolaire">
-      <div class="level-selector-label">Niveau actuel : <strong>${currentConfig?.name || ''}</strong></div>
-      <div class="level-pills">${buttons}</div>
+      <div class="level-segmented">${buttons}</div>
     </div>`;
 }
 
@@ -981,8 +996,13 @@ function qValidate() {
   }
 
   // Feedback texte
+  // ⚠️ Bugfix v15 : pour vrai_faux, q.options peut être absent (le SCHEMA déclare
+  // qu'il est optionnel). Sans ce fallback, q.options[q.answer] levait une TypeError
+  // qui interrompait silencieusement qValidate → bouton Suivant désactivé et auto-passage HS.
+  // On reproduit ici le fallback déjà présent dans le rendu (ligne ~810).
   let bonneRep = '';
-  if (t === 'qcu' || t === 'vrai_faux') bonneRep = q.options[q.answer];
+  if (t === 'qcu') bonneRep = q.options[q.answer];
+  else if (t === 'vrai_faux') bonneRep = (q.options || ['Vrai', 'Faux'])[q.answer];
   else if (t === 'qcm') bonneRep = q.answer.map(i => q.options[i]).join(', ');
   else if (t === 'texte') bonneRep = Array.isArray(q.answer) ? q.answer[0] : q.answer;
 
@@ -1160,10 +1180,24 @@ function renderScore() {
     : '';
   const titlePrefix = S.reviewMode ? '🔁 Révision · ' : '';
 
-  // Confettis pour un sans-faute
-  if (S.correct === n && !S.__confettiFired) {
+  // Célébration sans-faute. Confettis toujours fired sur 10/10 (comportement
+  // historique), tandis que le jingle audio + badge doré ne se déclenchent
+  // qu'au premier passage (hors mode review : rattraper ses erreurs c'est
+  // bien mais ce n'est pas une victoire "premier coup").
+  // Le délai 250 ms aligne tout avec l'apparition de la grosse note "10/10"
+  // pour un effet "résultat → célébration" naturel.
+  // Le flag __confettiFired est partagé : empêche le re-déclenchement si
+  // l'élève quitte puis revient sur l'écran de score.
+  if (S.correct === n && n > 0 && !S.__confettiFired) {
     S.__confettiFired = true;
-    setTimeout(launchConfetti, 250);
+    const isFirstPass = !S.reviewMode;
+    setTimeout(() => {
+      launchConfetti();
+      if (isFirstPass) {
+        playPerfectScoreFanfare();
+        showPerfectBadge();
+      }
+    }, 250);
   } else if (S.correct !== n) {
     S.__confettiFired = false;
   }

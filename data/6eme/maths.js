@@ -1,5 +1,5 @@
 /* Matière : Mathématiques 🔢 (6ème)
-   4 thèmes × 10 questions = 40 questions */
+   10 thèmes × 10 questions = 100 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
 window.CURRICULUM_PARTS["6eme"] = window.CURRICULUM_PARTS["6eme"] || {};
 window.CURRICULUM_PARTS["6eme"]["maths"] = {
@@ -321,6 +321,479 @@ window.CURRICULUM_PARTS["6eme"]["maths"] = {
           answer: "55",
           hint: "Deux angles complémentaires donnent 90° en tout.",
           explication: "90 − 35 = 55°."
+        }
+      ]
+    },
+    {
+      id: "nombres-entiers",
+      name: "Nombres entiers",
+      emoji: "🔢",
+      desc: "Numération, lecture, écriture des grands nombres",
+      questions: [
+        {
+          text: "Comment s'écrit en chiffres « trois millions deux cent cinquante mille » ?",
+          options: ["3 025 000", "3 250 000", "32 500 000", "3 250"],
+          answer: 1,
+          hint: "Un million = 1 000 000. Pose les chiffres par tranches.",
+          explication: "3 millions + 250 milliers = 3 250 000."
+        },
+        {
+          text: "Combien y a-t-il de zéros dans un million ?",
+          options: ["3", "4", "5", "6"],
+          answer: 3,
+          hint: "Mille = 1 000 (3 zéros). Un million = mille milliers.",
+          explication: "1 000 000 : six zéros."
+        },
+        {
+          text: "Quel est le chiffre des centaines de mille dans 4 738 251 ?",
+          options: ["4", "7", "3", "8"],
+          answer: 1,
+          hint: "Les centaines de mille sont la 6e position en partant de la droite.",
+          explication: "Dans 4 738 251, le chiffre 7 occupe le rang des centaines de mille."
+        },
+        {
+          text: "Quel est l'ordre de grandeur de la population française ?",
+          options: ["7 millions", "67 millions", "670 millions", "6,7 milliards"],
+          answer: 1,
+          hint: "Pense à la population approximative en 2024.",
+          explication: "La France compte environ 67-68 millions d'habitants."
+        },
+        {
+          text: "Quel nombre est juste avant 10 000 ?",
+          options: ["9 990", "9 998", "9 999", "10 001"],
+          answer: 2,
+          hint: "« Juste avant » = le précédent entier.",
+          explication: "9 999 + 1 = 10 000. Donc 9 999 est juste avant."
+        },
+        {
+          type: "vrai_faux",
+          text: "Un milliard, c'est mille millions.",
+          answer: 0,
+          hint: "1 milliard = 1 000 000 000.",
+          explication: "VRAI. 1 milliard = 1 000 × 1 000 000 = 10⁹."
+        },
+        {
+          text: "Range ces nombres dans l'ordre croissant : 8 421 ; 8 412 ; 8 241 ; 8 142",
+          options: ["8 142 < 8 241 < 8 412 < 8 421", "8 421 < 8 412 < 8 241 < 8 142", "8 241 < 8 142 < 8 412 < 8 421", "8 142 < 8 412 < 8 241 < 8 421"],
+          answer: 0,
+          hint: "Compare chiffre par chiffre en partant de la gauche.",
+          explication: "Tous commencent par 8. Compare ensuite les centaines : 1 < 2 < 4 < 4 ; puis les dizaines."
+        },
+        {
+          type: "qcm",
+          text: "Quels nombres sont des entiers ?",
+          options: ["7", "3,5", "0", "−12"],
+          answer: [0, 2, 3],
+          hint: "Un entier n'a pas de virgule.",
+          explication: "7, 0 et −12 sont entiers. 3,5 est un décimal (non entier)."
+        },
+        {
+          text: "Combien font 100 × 1000 ?",
+          options: ["1 000", "10 000", "100 000", "1 000 000"],
+          answer: 2,
+          hint: "Multiplier par 100 ajoute 2 zéros, par 1000 en ajoute 3.",
+          explication: "100 × 1 000 = 100 000 (5 zéros)."
+        },
+        {
+          type: "texte",
+          text: "Écris en chiffres : « deux mille vingt-quatre ». (Sans espace.)",
+          answer: "2024",
+          hint: "2 milliers + 24 unités.",
+          explication: "« Deux mille vingt-quatre » = 2024."
+        }
+      ]
+    },
+    {
+      id: "calcul-mental",
+      name: "Calcul mental",
+      emoji: "🧠",
+      desc: "Opérations rapides, multiplications, divisions",
+      questions: [
+        {
+          text: "Combien font 25 × 4 ?",
+          options: ["75", "100", "125", "200"],
+          answer: 1,
+          hint: "25 × 4 = un quart de 400.",
+          explication: "25 × 4 = 100 (à retenir : 25 × 4 fait toujours 100)."
+        },
+        {
+          text: "Combien font 7 × 8 ?",
+          options: ["48", "54", "56", "64"],
+          answer: 2,
+          hint: "Une des tables les plus utiles : la table de 8.",
+          explication: "7 × 8 = 56."
+        },
+        {
+          text: "Combien font 144 ÷ 12 ?",
+          options: ["10", "11", "12", "14"],
+          answer: 2,
+          hint: "12 × 12 = ?",
+          explication: "12 × 12 = 144, donc 144 ÷ 12 = 12."
+        },
+        {
+          text: "Combien font 15 × 6 ?",
+          options: ["60", "75", "90", "96"],
+          answer: 2,
+          hint: "15 × 6 = 15 × 2 × 3 = 30 × 3.",
+          explication: "15 × 6 = 90."
+        },
+        {
+          text: "Combien font 250 + 175 ?",
+          options: ["325", "405", "415", "425"],
+          answer: 3,
+          hint: "250 + 175 = 250 + 150 + 25.",
+          explication: "250 + 175 = 425."
+        },
+        {
+          text: "Combien font 1000 − 234 ?",
+          options: ["666", "754", "766", "876"],
+          answer: 2,
+          hint: "Astuce : 999 − 234 + 1.",
+          explication: "1000 − 234 = 766."
+        },
+        {
+          type: "vrai_faux",
+          text: "Pour multiplier par 5, on peut multiplier par 10 puis diviser par 2.",
+          answer: 0,
+          hint: "10 ÷ 2 = 5.",
+          explication: "VRAI. C'est une astuce très utile : 48 × 5 = 480 ÷ 2 = 240."
+        },
+        {
+          text: "Combien font 8 × 25 ?",
+          options: ["150", "175", "200", "225"],
+          answer: 2,
+          hint: "8 × 25 = 4 × 2 × 25 = 4 × 50.",
+          explication: "8 × 25 = 200."
+        },
+        {
+          text: "Combien font 96 ÷ 8 ?",
+          options: ["8", "11", "12", "14"],
+          answer: 2,
+          hint: "Cherche combien de fois 8 entre dans 96.",
+          explication: "8 × 12 = 96, donc 96 ÷ 8 = 12."
+        },
+        {
+          type: "texte",
+          text: "Combien font 9 × 9 ?",
+          answer: "81",
+          hint: "Un carré classique à connaître par cœur.",
+          explication: "9 × 9 = 81."
+        }
+      ]
+    },
+    {
+      id: "divisibilite",
+      name: "Multiples et diviseurs",
+      emoji: "✖️",
+      desc: "Critères de divisibilité par 2, 3, 5, 9, 10",
+      questions: [
+        {
+          text: "Lequel de ces nombres est un multiple de 5 ?",
+          options: ["32", "47", "60", "73"],
+          answer: 2,
+          hint: "Un multiple de 5 finit par 0 ou 5.",
+          explication: "60 se termine par 0, c'est bien un multiple de 5 (5 × 12 = 60)."
+        },
+        {
+          text: "Lequel de ces nombres est divisible par 2 ?",
+          options: ["17", "29", "38", "55"],
+          answer: 2,
+          hint: "Un nombre est divisible par 2 si son chiffre des unités est pair.",
+          explication: "38 finit par 8 (pair), donc divisible par 2. Les autres finissent par un chiffre impair."
+        },
+        {
+          text: "Lequel de ces nombres est divisible par 3 ?",
+          options: ["14", "26", "27", "41"],
+          answer: 2,
+          hint: "Un nombre est divisible par 3 si la somme de ses chiffres est divisible par 3.",
+          explication: "2 + 7 = 9, divisible par 3. Donc 27 est divisible par 3 (3 × 9 = 27)."
+        },
+        {
+          text: "Combien de diviseurs a le nombre 12 ?",
+          options: ["3", "4", "5", "6"],
+          answer: 3,
+          hint: "Cherche les nombres qui divisent 12 sans reste : 1, 2, 3, 4, 6, 12.",
+          explication: "12 a 6 diviseurs : 1, 2, 3, 4, 6, 12."
+        },
+        {
+          type: "vrai_faux",
+          text: "Tous les multiples de 10 sont aussi des multiples de 5.",
+          answer: 0,
+          hint: "10 = 2 × 5. Tout multiple de 10 contient donc 5 comme facteur.",
+          explication: "VRAI. Tout multiple de 10 (10, 20, 30…) finit par 0 et est donc multiple de 5."
+        },
+        {
+          text: "Quel est le plus petit multiple commun de 4 et 6 ?",
+          options: ["10", "12", "18", "24"],
+          answer: 1,
+          hint: "Liste les multiples de chacun jusqu'à trouver le premier commun.",
+          explication: "Multiples de 4 : 4,8,12,16… Multiples de 6 : 6,12,18… Le premier commun est 12."
+        },
+        {
+          type: "qcm",
+          text: "Parmi ces nombres, lesquels sont divisibles par 9 ?",
+          options: ["27", "36", "45", "52"],
+          answer: [0, 1, 2],
+          hint: "Un nombre est divisible par 9 si la somme de ses chiffres est divisible par 9.",
+          explication: "27 (2+7=9), 36 (3+6=9), 45 (4+5=9) sont divisibles par 9. 52 (5+2=7) non."
+        },
+        {
+          text: "Le nombre 1 est un diviseur de…",
+          options: ["seulement 1", "tous les nombres", "seulement les nombres pairs", "seulement les nombres premiers"],
+          answer: 1,
+          hint: "Pense à ce que fait n ÷ 1.",
+          explication: "1 divise tous les nombres entiers (n ÷ 1 = n, sans reste)."
+        },
+        {
+          text: "Lequel de ces nombres N'EST PAS un multiple de 7 ?",
+          options: ["14", "21", "28", "32"],
+          answer: 3,
+          hint: "Récite la table de 7.",
+          explication: "14, 21, 28 sont dans la table de 7. 32 non (7 × 4 = 28, 7 × 5 = 35)."
+        },
+        {
+          type: "texte",
+          text: "Quel est le plus petit nombre divisible par 2, 3 et 5 à la fois ?",
+          answer: "30",
+          hint: "Cherche un multiple de 5 qui soit aussi pair et divisible par 3.",
+          explication: "2 × 3 × 5 = 30. C'est le plus petit nombre divisible par ces trois nombres premiers."
+        }
+      ]
+    },
+    {
+      id: "symetrie",
+      name: "Symétrie axiale",
+      emoji: "🪞",
+      desc: "Axes de symétrie, figures symétriques",
+      questions: [
+        {
+          text: "Combien d'axes de symétrie a un carré ?",
+          options: ["1", "2", "3", "4"],
+          answer: 3,
+          hint: "Pense aux médianes et aux diagonales.",
+          explication: "Le carré a 4 axes : 2 médianes (horizontale et verticale) + 2 diagonales."
+        },
+        {
+          text: "Combien d'axes de symétrie a un rectangle (non carré) ?",
+          options: ["1", "2", "3", "4"],
+          answer: 1,
+          hint: "Les diagonales du rectangle NE sont PAS des axes de symétrie.",
+          explication: "Le rectangle a 2 axes : la médiane horizontale et la médiane verticale (pas les diagonales)."
+        },
+        {
+          text: "Combien d'axes de symétrie a un triangle équilatéral ?",
+          options: ["1", "2", "3", "4"],
+          answer: 2,
+          hint: "Compte les axes joignant un sommet au milieu du côté opposé.",
+          explication: "Le triangle équilatéral a 3 axes de symétrie (un par sommet)."
+        },
+        {
+          text: "Combien d'axes de symétrie a un cercle ?",
+          options: ["1", "4", "8", "une infinité"],
+          answer: 3,
+          hint: "Tout diamètre divise le cercle en deux parties identiques.",
+          explication: "Le cercle a une infinité d'axes de symétrie : tous ses diamètres."
+        },
+        {
+          type: "vrai_faux",
+          text: "Si A' est le symétrique de A par rapport à une droite (d), alors A est aussi le symétrique de A' par rapport à (d).",
+          answer: 0,
+          hint: "La symétrie axiale est-elle réversible ?",
+          explication: "VRAI. La symétrie axiale est réciproque : si A' = sym(A), alors A = sym(A')."
+        },
+        {
+          text: "Quelle lettre majuscule a au moins un axe de symétrie ?",
+          options: ["F", "G", "P", "A"],
+          answer: 3,
+          hint: "L'axe est vertical pour cette lettre.",
+          explication: "« A » a un axe de symétrie vertical. F, G, P n'en ont pas."
+        },
+        {
+          type: "qcm",
+          text: "Parmi ces figures, lesquelles ont au moins un axe de symétrie ?",
+          options: ["losange", "triangle scalène (3 côtés différents)", "trapèze isocèle", "parallélogramme quelconque"],
+          answer: [0, 2],
+          hint: "Le losange et le trapèze isocèle ont au moins 1 axe ; le triangle scalène et le parallélogramme général n'en ont pas.",
+          explication: "Losange : 2 diagonales. Trapèze isocèle : 1 axe perpendiculaire aux côtés parallèles. Les deux autres n'ont aucun axe de symétrie."
+        },
+        {
+          text: "Si on plie une feuille selon un axe de symétrie, les deux moitiés…",
+          options: ["sont différentes", "se superposent exactement", "sont parallèles", "forment un angle droit"],
+          answer: 1,
+          hint: "C'est la définition même d'un axe de symétrie.",
+          explication: "Par définition, les deux moitiés d'une figure de part et d'autre d'un axe de symétrie se superposent."
+        },
+        {
+          text: "Le symétrique d'un point situé SUR l'axe de symétrie est…",
+          options: ["lui-même", "à 1 cm de l'axe", "à l'autre bout de la figure", "n'existe pas"],
+          answer: 0,
+          hint: "Un point sur l'axe ne se déplace pas.",
+          explication: "Un point situé sur l'axe est son propre symétrique : il reste en place."
+        },
+        {
+          type: "texte",
+          text: "Combien d'axes de symétrie a un hexagone régulier ? Réponds avec un nombre.",
+          answer: "6",
+          hint: "Un hexagone régulier a un axe par sommet + un axe par milieu de côté.",
+          explication: "L'hexagone régulier a 6 axes : 3 joignant les sommets opposés + 3 joignant les milieux des côtés opposés."
+        }
+      ]
+    },
+    {
+      id: "perimetre-aire",
+      name: "Périmètres et aires",
+      emoji: "📏",
+      desc: "Carré, rectangle, triangle, formules de base",
+      questions: [
+        {
+          text: "Quel est le périmètre d'un carré de côté 5 cm ?",
+          options: ["10 cm", "15 cm", "20 cm", "25 cm"],
+          answer: 2,
+          hint: "Périmètre carré = côté × 4.",
+          explication: "P = 4 × 5 = 20 cm."
+        },
+        {
+          text: "Quelle est l'aire d'un carré de côté 5 cm ?",
+          options: ["10 cm²", "20 cm²", "25 cm²", "100 cm²"],
+          answer: 2,
+          hint: "Aire carré = côté × côté.",
+          explication: "A = 5 × 5 = 25 cm²."
+        },
+        {
+          text: "Quel est le périmètre d'un rectangle de longueur 8 cm et de largeur 3 cm ?",
+          options: ["11 cm", "22 cm", "24 cm", "44 cm"],
+          answer: 1,
+          hint: "Périmètre rectangle = 2 × (L + l).",
+          explication: "P = 2 × (8 + 3) = 2 × 11 = 22 cm."
+        },
+        {
+          text: "Quelle est l'aire d'un rectangle de longueur 8 cm et de largeur 3 cm ?",
+          options: ["11 cm²", "22 cm²", "24 cm²", "32 cm²"],
+          answer: 2,
+          hint: "Aire rectangle = L × l.",
+          explication: "A = 8 × 3 = 24 cm²."
+        },
+        {
+          type: "vrai_faux",
+          text: "Le périmètre s'exprime en centimètres mais l'aire s'exprime en centimètres carrés (cm²).",
+          answer: 0,
+          hint: "Le périmètre est une longueur (1D), l'aire est une surface (2D).",
+          explication: "VRAI. Une longueur s'exprime en cm, une surface en cm² (carrés)."
+        },
+        {
+          text: "Quelle est l'aire d'un triangle de base 6 cm et de hauteur 4 cm ?",
+          options: ["10 cm²", "12 cm²", "20 cm²", "24 cm²"],
+          answer: 1,
+          hint: "Aire triangle = (base × hauteur) ÷ 2.",
+          explication: "A = (6 × 4) ÷ 2 = 24 ÷ 2 = 12 cm²."
+        },
+        {
+          text: "1 m² = ?",
+          options: ["10 cm²", "100 cm²", "1 000 cm²", "10 000 cm²"],
+          answer: 3,
+          hint: "1 m = 100 cm. Donc 1 m² = 100 × 100 cm².",
+          explication: "1 m × 1 m = 100 cm × 100 cm = 10 000 cm²."
+        },
+        {
+          text: "Un terrain rectangulaire mesure 50 m sur 20 m. Quel est son périmètre ?",
+          options: ["70 m", "100 m", "140 m", "1 000 m"],
+          answer: 2,
+          hint: "Périmètre = 2 × (L + l).",
+          explication: "P = 2 × (50 + 20) = 2 × 70 = 140 m."
+        },
+        {
+          type: "qcm",
+          text: "Quelles formules sont correctes ?",
+          options: ["Aire carré = côté²", "Périmètre rectangle = L × l", "Aire triangle = base × hauteur ÷ 2", "Périmètre carré = 4 × côté"],
+          answer: [0, 2, 3],
+          hint: "Attention : L × l donne une aire, pas un périmètre.",
+          explication: "L × l est la formule de l'aire d'un rectangle, pas de son périmètre. Les trois autres sont correctes."
+        },
+        {
+          type: "texte",
+          text: "Aire d'un rectangle de longueur 10 cm et largeur 5 cm ? Réponds avec un nombre en cm².",
+          answer: "50",
+          hint: "Aire = L × l.",
+          explication: "10 × 5 = 50 cm²."
+        }
+      ]
+    },
+    {
+      id: "donnees",
+      name: "Gestion de données",
+      emoji: "📈",
+      desc: "Tableaux, graphiques, fréquences",
+      questions: [
+        {
+          text: "Dans une classe de 25 élèves, 15 préfèrent le foot. Quelle fraction des élèves préfèrent le foot ?",
+          options: ["15/10", "15/25", "10/25", "25/15"],
+          answer: 1,
+          hint: "Le total va au dénominateur, la partie au numérateur.",
+          explication: "15 sur 25 = 15/25 (qui simplifie en 3/5)."
+        },
+        {
+          text: "Sur un diagramme en bâtons, la hauteur d'un bâton représente…",
+          options: ["la valeur ou l'effectif", "la couleur du sujet", "le rang alphabétique", "rien de précis"],
+          answer: 0,
+          hint: "Plus le bâton est haut, plus la valeur est grande.",
+          explication: "Sur un diagramme en bâtons, la hauteur (ou longueur) du bâton est proportionnelle à la valeur représentée."
+        },
+        {
+          text: "Une classe a fait un sondage sur les fruits préférés. 8 élèves préfèrent la pomme, 6 la banane, 5 la fraise et 1 le kiwi. Combien d'élèves ont participé ?",
+          options: ["18", "19", "20", "21"],
+          answer: 2,
+          hint: "Additionne tous les effectifs.",
+          explication: "8 + 6 + 5 + 1 = 20 élèves."
+        },
+        {
+          text: "Dans le même sondage (8 pommes, 6 bananes, 5 fraises, 1 kiwi), quel est le fruit préféré ?",
+          options: ["la pomme", "la banane", "la fraise", "le kiwi"],
+          answer: 0,
+          hint: "Cherche l'effectif le plus grand.",
+          explication: "La pomme avec 8 voix arrive en tête."
+        },
+        {
+          type: "vrai_faux",
+          text: "Dans un tableau de données, les colonnes peuvent représenter différentes catégories.",
+          answer: 0,
+          hint: "Les tableaux servent à organiser des données par catégories.",
+          explication: "VRAI. Un tableau organise les données en lignes et colonnes pour faciliter la lecture."
+        },
+        {
+          text: "Sur 50 élèves, 20 ont les yeux bleus. Quel pourcentage cela représente-t-il ?",
+          options: ["20%", "30%", "40%", "50%"],
+          answer: 2,
+          hint: "20 sur 50 = combien sur 100 ?",
+          explication: "20/50 = 40/100 = 40%."
+        },
+        {
+          text: "Quel type de graphique est le mieux adapté pour montrer l'évolution de la température au cours d'une journée ?",
+          options: ["camembert", "diagramme en bâtons", "courbe", "pictogramme"],
+          answer: 2,
+          hint: "Pour une évolution dans le temps, on relie les points.",
+          explication: "Une courbe (graphique linéaire) montre bien l'évolution continue d'une grandeur dans le temps."
+        },
+        {
+          type: "qcm",
+          text: "Que peut-on lire facilement sur un diagramme circulaire (camembert) ?",
+          options: ["la répartition en pourcentages", "la part de chaque catégorie", "l'évolution dans le temps", "le total exact"],
+          answer: [0, 1],
+          hint: "Le camembert sert à comparer des parts d'un tout, pas une évolution.",
+          explication: "Le camembert montre les parts et pourcentages. Pour l'évolution dans le temps, on préfère une courbe."
+        },
+        {
+          text: "Si 1/4 des élèves d'une classe portent des lunettes et qu'il y a 28 élèves, combien portent des lunettes ?",
+          options: ["4", "7", "14", "21"],
+          answer: 1,
+          hint: "Divise par 4.",
+          explication: "28 ÷ 4 = 7 élèves."
+        },
+        {
+          type: "texte",
+          text: "La moitié de 80 élèves prend le bus. Combien d'élèves prennent le bus ?",
+          answer: "40",
+          hint: "La moitié = divisé par 2.",
+          explication: "80 ÷ 2 = 40 élèves."
         }
       ]
     }
