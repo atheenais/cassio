@@ -561,79 +561,111 @@ function renderHome() {
   });
   const pct = totalTopics > 0 ? Math.round(doneTopics / totalTopics * 100) : 0;
 
+  /* Cartes matières signature v13 :
+     - emoji XL 38 px (font-size 2.4rem) avec halo coloré via drop-shadow
+     - pastille compteur "3/8" alignée à droite, dans la teinte de la matière
+     - fond en teinte douce via color-mix (la classe CSS s'en charge)
+     - le texte "3/8 complétés" sous la barre est conservé en HTML pour les
+       lecteurs d'écran mais masqué visuellement (.subj-prog-text { display: none }) */
   const cards = curriculum.map(s => {
     const style = STYLES[s.id];
     const done = doneBycSubject[s.id];
-    const subjPct = Math.round(done / s.topics.length * 100);
+    const total = s.topics.length;
+    const subjPct = total > 0 ? Math.round(done / total * 100) : 0;
     return `
       <div class="subject-card" style="--sc-color:${style.color}; --sc-grad:${style.grad};"
-           onclick="goSubject('${s.id}')">
-        <span class="subj-icon">${s.emoji}</span>
+           onclick="goSubject('${s.id}')"
+           role="button" aria-label="${s.name} — ${done} thèmes sur ${total} complétés">
+        <div class="subject-card-head">
+          <span class="subj-icon" aria-hidden="true">${s.emoji}</span>
+          <span class="subj-counter">${done}/${total}</span>
+        </div>
         <div class="subj-name">${s.name}</div>
-        <div class="subj-meta">${s.topics.length} thèmes · ${s.desc}</div>
+        <div class="subj-meta">${s.desc}</div>
         <div class="subj-prog-bar"><div class="subj-prog-fill" style="width:${subjPct}%"></div></div>
-        <div class="subj-prog-text">${done}/${s.topics.length} complétés</div>
+        <div class="subj-prog-text">${done}/${total} complétés</div>
       </div>`;
   }).join('');
 
   const prof = getProfile();
 
+  /* Carte identité fusionnée v13 :
+     remplace les anciens blocs profile-banner + level-card + home-overview.
+     Lignes :
+       1. cercle niveau XP + nom + ligne XP + boutons (📋 Historique, ✏️ Customize, ⇄ Changer)
+       2. barre XP
+       3. pied : progression globale (3/65 thèmes · 5%)
+     Si le compte est en mode invité, le bouton ✏️ est masqué (pas de personnalisation). */
+  const xp = computeTotalXP();
+  const info = getLevelInfo(xp);
+  const xpLine = info.isMax
+    ? `<strong>${info.xp.toLocaleString('fr-FR')} XP</strong> · NIVEAU MAX`
+    : `<strong>${info.intoLevel.toLocaleString('fr-FR')}</strong> / ${info.levelSpan.toLocaleString('fr-FR')} XP · niv. ${info.level + 1}`;
+  const fillPct = info.isMax ? 100 : info.pct;
+
+  const identityCard = `
+    <div class="home-identity">
+      <div class="home-identity-row1">
+        <div class="home-identity-level" aria-label="Niveau ${info.level}">
+          <div class="num">${info.level}</div>
+          <div class="lbl">NIV.</div>
+        </div>
+        <div class="home-identity-main">
+          <div class="home-identity-name">${prof.emoji} ${prof.name}</div>
+          <div class="home-identity-xp">${xpLine}</div>
+        </div>
+        <div class="home-identity-actions">
+          <button class="btn-sm accent icon-only" onclick="goHistory()"
+                  title="Voir mon historique" aria-label="Historique">📋</button>
+          ${!isGuest() ? '<button class="btn-sm icon-only" onclick="goCustomize()" title="Personnaliser mon profil" aria-label="Personnaliser">✏️</button>' : ''}
+          <button class="btn-sm icon-only" onclick="goProfile()"
+                  title="Changer de profil" aria-label="Changer de profil">⇄</button>
+        </div>
+      </div>
+      <div class="home-identity-bar"><div class="home-identity-bar-fill" style="width:${fillPct}%"></div></div>
+      <div class="home-identity-foot">
+        <span>🎓 <strong>${doneTopics}/${totalTopics}</strong> thèmes complétés</span>
+        <span class="pct">${pct}%</span>
+      </div>
+    </div>`;
+
+  /* Ordre v13 (vs v12) :
+     1. Header compact
+     2. Carte identité fusionnée (avatar+nom+XP+progression globale)
+     3. Sélecteur de niveau scolaire (CM2/6ème) si applicable
+     4. CTA quiz aléatoire COMPACT
+     5. Grille des matières (ACTION PRIORITAIRE ↑ au-dessus du pli)
+     6. Streak card (motivation, peut descendre dans le scroll)
+     7. Section badges
+     8. Actions data (export/import) ou actions invité */
   return `
     <div class="anim-slide">
-      <div class="app-header">
+      <div class="app-header compact">
         <div class="stars">
           <div class="star"></div><div class="star"></div><div class="star"></div>
           <div class="star"></div><div class="star"></div>
         </div>
         <h1>Cassio</h1>
-        <p>Programme officiel · Toutes matières</p>
       </div>
 
-      <div class="profile-banner">
-        <div class="profile-banner-left">
-          <span class="profile-avatar">${prof.emoji}</span>
-          <div>
-            <div class="profile-banner-name">${prof.name}</div>
-            <div class="profile-banner-sub">Ma progression</div>
-          </div>
-        </div>
-        <div class="profile-banner-right">
-          <button class="btn-sm accent" onclick="goHistory()">📋 Historique</button>
-          ${!isGuest() ? '<button class="btn-sm" onclick="goCustomize()" title="Personnaliser ton avatar et ton nom">✏️</button>' : ''}
-          <button class="btn-sm" onclick="goProfile()">Changer</button>
-        </div>
-      </div>
+      ${identityCard}
 
       ${renderLevelSelector()}
 
-      ${renderLevelCard()}
-
-      ${renderStreakCard()}
-
-      <div class="home-overview">
-        <div class="overview-icon">🎓</div>
-        <div class="overview-text">
-          <div class="lbl">Progression globale</div>
-          <div class="val">${doneTopics}/${totalTopics}</div>
-          <div class="sub">thèmes complétés</div>
-        </div>
-        <div class="overview-prog">
-          <div class="pct">${pct}%</div>
-          <div class="pct-lbl">complété</div>
-        </div>
-      </div>
-
-      <div class="random-cta" onclick="startRandomQuiz()">
-        <div class="random-cta-icon">🎲</div>
+      <div class="random-cta compact" onclick="startRandomQuiz()"
+           role="button" aria-label="Lancer un quiz aléatoire de 10 questions">
+        <div class="random-cta-icon" aria-hidden="true">🎲</div>
         <div class="random-cta-text">
           <div class="random-cta-title">Quiz aléatoire</div>
-          <div class="random-cta-sub">10 questions surprise piochées dans toutes les matières</div>
+          <div class="random-cta-sub">10 questions surprise toutes matières</div>
         </div>
-        <div class="random-cta-arrow">▶</div>
+        <div class="random-cta-arrow" aria-hidden="true">▶</div>
       </div>
 
       <div class="section-title">Choisir une matière</div>
       <div class="subjects-grid">${cards}</div>
+
+      ${renderStreakCard()}
 
       ${renderBadgesSection()}
 

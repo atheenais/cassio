@@ -1,4 +1,4 @@
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,7 +22,7 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
       /* Le padding-top utilise env(safe-area-inset-top) pour respecter la zone
          de la barre d'état système iOS (heure/wifi/batterie) en mode PWA installée.
@@ -31,7 +31,19 @@
       overflow-x: hidden; /* Sécurité : aucun élément ne doit créer de scroll horizontal sur mobile */
       background-image: radial-gradient(ellipse at 20% 10%, #1a2a5e44 0%, transparent 60%),
                         radial-gradient(ellipse at 80% 80%, #2d1a5e33 0%, transparent 60%);
+      -webkit-font-smoothing: antialiased; /* iOS : adoucit le rendu Plus Jakarta Sans */
+      -moz-osx-font-smoothing: grayscale;
     }
+
+    /* ── MODERNISATION TYPOGRAPHIQUE v13 ──
+       • letter-spacing négatif sur les titres : compacte les caractères pour un look 2024+
+       • chiffres tabulaires sur tout ce qui affiche des nombres (XP, scores, compteurs) :
+         alignement vertical parfait quand les chiffres défilent ou se mettent à jour
+       Ne s'applique pas aux paragraphes pour préserver la lisibilité. */
+    h1, h2, h3 { letter-spacing: -0.02em; }
+    .level-num, .xp-value, .stat-val, .score-val,
+    .topic-badge, .session-score, .badges-count, .pct, .val,
+    [data-tnum] { font-variant-numeric: tabular-nums; }
 
     .page { max-width: 680px; margin: 0 auto; }
 
@@ -65,12 +77,20 @@
     .star:nth-child(5) { animation-delay: 1.2s; background: var(--blue); }
 
     .app-header h1 {
-      font-size: 2rem; font-weight: 900;
+      font-size: 2rem; font-weight: 800;
       background: linear-gradient(135deg, var(--blue), var(--purple));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       margin-bottom: .3rem;
     }
     .app-header p { color: var(--muted); font-size: .9rem; }
+
+    /* ── HEADER COMPACT (accueil v13) ──
+       Variante uniquement utilisée sur l'écran d'accueil. Le profil et les autres
+       écrans conservent le header original. Économie verticale : ~140 px. */
+    .app-header.compact { padding: .5rem 0 .65rem; }
+    .app-header.compact .stars { gap: .3rem; margin-bottom: .35rem; }
+    .app-header.compact .star { width: 4px; height: 4px; }
+    .app-header.compact h1 { font-size: 1.4rem; margin-bottom: 0; }
 
     /* ── BREADCRUMB ──
        Le padding-right réserve l'espace pour les boutons flottants 🔊 et 🌙
@@ -99,10 +119,10 @@
     }
     .overview-icon { font-size: 2.2rem; }
     .overview-text .lbl { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-    .overview-text .val { font-size: 1.4rem; font-weight: 900; color: var(--blue); }
+    .overview-text .val { font-size: 1.4rem; font-weight: 800; color: var(--blue); }
     .overview-text .sub { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
     .overview-prog { flex: 1; text-align: right; }
-    .overview-prog .pct { font-size: 1.8rem; font-weight: 900; color: var(--green); }
+    .overview-prog .pct { font-size: 1.8rem; font-weight: 800; color: var(--green); }
     .overview-prog .pct-lbl { font-size: .72rem; color: var(--muted); }
 
     /* ── RANDOM QUIZ CTA (bouton "Quiz aléatoire" sur l'accueil) ── */
@@ -119,7 +139,7 @@
     .random-cta:active { transform: translateY(0); }
     .random-cta-icon { font-size: 2.2rem; }
     .random-cta-text { flex: 1; }
-    .random-cta-title { font-weight: 900; font-size: 1.05rem; }
+    .random-cta-title { font-weight: 800; font-size: 1.05rem; }
     .random-cta-sub { font-size: .82rem; opacity: .92; margin-top: .15rem; }
     .random-cta-arrow { font-size: 1.1rem; opacity: .85; }
 
@@ -133,24 +153,84 @@
     .subjects-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 2rem;
     }
-    @media (max-width: 440px) { .subjects-grid { grid-template-columns: 1fr; } }
+    /* v13 : on garde la grille 2 colonnes même sur petits écrans
+       (les cartes sont devenues plus compactes verticalement, l'emoji XL
+       offre déjà l'impact visuel — 1 colonne créerait trop d'espacement). */
+    @media (max-width: 360px) { .subjects-grid { gap: .5rem; } }
 
+    /* ── SUBJECT CARDS SIGNATURE (v13) ──
+       Refonte complète pour une reconnaissance visuelle immédiate :
+       • teinte douce de fond dans la couleur de la matière (~10% d'opacité)
+       • emoji XL (38 px) avec halo coloré via drop-shadow
+       • pastille de compteur "3/8" en couleur matière, alignée à droite
+       • barre de progression avec dégradé doux au lieu d'aplat
+       Les variables --sc-color et --sc-grad sont fournies inline depuis le JS.
+       L'opacité de la teinte est subtile pour ne pas saturer l'écran d'accueil
+       quand 8-11 matières sont affichées simultanément. */
     .subject-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-      padding: 1.25rem; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+      /* Fond : teinte douce dérivée de la couleur matière via color-mix.
+         Fallback (Safari < 16.4 et autres) : on retombe sur var(--card). */
+      background: var(--card);
+      background: color-mix(in srgb, var(--sc-color) 8%, var(--card));
+      border: 1px solid color-mix(in srgb, var(--sc-color) 25%, var(--border));
+      border-radius: 14px;
+      padding: .75rem .8rem; cursor: pointer; transition: all .2s;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
     }
-    .subject-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: var(--sc-grad); border-radius: 16px 16px 0 0;
+    .subject-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--sc-color);
+      box-shadow: 0 6px 18px color-mix(in srgb, var(--sc-color) 25%, transparent);
     }
-    .subject-card:hover { transform: translateY(-3px); border-color: var(--sc-color); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+    .subject-card:active { transform: translateY(0); }
 
-    .subj-icon { font-size: 2rem; margin-bottom: .75rem; display: block; }
-    .subj-name { font-size: 1rem; font-weight: 900; margin-bottom: .3rem; color: var(--sc-color); }
-    .subj-meta { font-size: .78rem; color: var(--muted); margin-bottom: .75rem; }
-    .subj-prog-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; margin-bottom: .4rem; }
-    .subj-prog-fill { height: 100%; background: var(--sc-grad); border-radius: 99px; transition: width .5s; }
-    .subj-prog-text { font-size: .75rem; color: var(--muted); text-align: right; }
+    /* Ligne 1 : emoji XL à gauche, pastille de compteur à droite */
+    .subject-card-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: .4rem; margin-bottom: .35rem;
+    }
+    .subj-icon {
+      font-size: 2.4rem; line-height: 1; margin: 0; display: block;
+      /* Halo coloré dans la couleur matière, donne du relief à l'emoji.
+         Acceptable en perf sur tous les iPhone récents (depuis 2018). */
+      filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--sc-color) 35%, transparent));
+    }
+    .subj-counter {
+      font-size: .72rem; font-weight: 700;
+      color: var(--sc-color);
+      background: color-mix(in srgb, var(--sc-color) 15%, transparent);
+      padding: .15rem .4rem; border-radius: 7px;
+      font-variant-numeric: tabular-nums; white-space: nowrap;
+      align-self: flex-start;
+    }
+
+    /* Nom + sous-titre matière */
+    .subj-name {
+      font-size: .9rem; font-weight: 800; margin-bottom: .1rem;
+      color: var(--text); letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+    .subj-meta {
+      font-size: .72rem; color: var(--muted);
+      margin-bottom: .55rem; line-height: 1.3;
+      /* Tronque proprement si la description est trop longue (rare mais sécurise) */
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .subj-prog-bar {
+      height: 4px;
+      background: color-mix(in srgb, var(--sc-color) 12%, transparent);
+      border-radius: 99px; overflow: hidden; margin-top: auto;
+    }
+    .subj-prog-fill {
+      height: 100%; background: var(--sc-grad);
+      border-radius: 99px; transition: width .5s;
+    }
+    /* Le texte "3/8 complétés" sous la barre est désormais redondant avec la pastille
+       — on le masque pour épurer. Préservé en HTML pour compat lecteur d'écran. */
+    .subj-prog-text { display: none; }
+
 
     /* ── SUBJECT HEADER ── */
     .subject-header {
@@ -159,7 +239,7 @@
       display: flex; align-items: center; gap: 1rem;
     }
     .subj-header-icon { font-size: 2.8rem; }
-    .subj-header-text h2 { font-size: 1.3rem; font-weight: 900; color: var(--subj-color); margin-bottom: .25rem; }
+    .subj-header-text h2 { font-size: 1.3rem; font-weight: 800; color: var(--subj-color); margin-bottom: .25rem; }
     .subj-header-text p { color: var(--muted); font-size: .88rem; }
 
     /* ── TOPIC CARDS ── */
@@ -193,7 +273,7 @@
     .topic-badge.s1 { color: var(--orange); border-color: rgba(251,146,60,.35); background: rgba(251,146,60,.08); }
 
     .btn-start {
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .85rem;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: .85rem;
       padding: .55rem 1.1rem; min-height: 40px; border-radius: 8px; border: none; cursor: pointer;
       background: var(--subj-grad); color: white; transition: all .15s;
       flex-shrink: 0; white-space: nowrap;
@@ -216,7 +296,7 @@
       padding: .75rem 1.25rem; margin-bottom: 1.25rem; font-size: .85rem;
     }
     .stat { display: flex; flex-direction: column; align-items: center; gap: .15rem; }
-    .stat-val { font-weight: 900; font-size: 1.2rem; color: var(--blue); }
+    .stat-val { font-weight: 800; font-size: 1.2rem; color: var(--blue); }
     .stat-lbl { color: var(--muted); font-size: .75rem; }
 
     /* ── QUIZ: PROGRESS ── */
@@ -241,7 +321,7 @@
 
     .q-top { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: 1.25rem; }
     .q-badge {
-      background: var(--subj-grad); color: white; font-weight: 900; font-size: .85rem;
+      background: var(--subj-grad); color: white; font-weight: 800; font-size: .85rem;
       width: 32px; height: 32px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;
     }
@@ -258,7 +338,7 @@
     /* Bouton "💡 Indice" : discret, encourage à réfléchir d'abord avant de demander l'aide */
     .hint-btn {
       display: inline-flex; align-items: center;
-      font-family: 'Nunito', sans-serif; font-weight: 600; font-size: .82rem;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: .82rem;
       background: transparent; border: 1px dashed var(--border); color: var(--muted);
       padding: .5rem .8rem; min-height: 36px; border-radius: 8px; cursor: pointer;
       margin-bottom: 1rem; transition: all .15s;
@@ -309,7 +389,7 @@
     .letter {
       width: 28px; height: 28px; border-radius: 6px; background: var(--border);
       display: flex; align-items: center; justify-content: center;
-      font-size: .8rem; font-weight: 900; flex-shrink: 0; transition: all .2s;
+      font-size: .8rem; font-weight: 800; flex-shrink: 0; transition: all .2s;
     }
     .option.selected { border-color: var(--subj-color); background: rgba(79,156,249,.1); }
     .option.selected .letter { background: var(--subj-color); color: white; }
@@ -352,7 +432,7 @@
     /* ── NAV BUTTONS ── */
     .nav { display: flex; justify-content: space-between; gap: .75rem; margin-top: 1.5rem; }
     .btn {
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .9rem;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: .9rem;
       padding: .7rem 1.4rem; border-radius: 10px; border: 2px solid var(--border);
       cursor: pointer; transition: all .15s; background: transparent; color: var(--text);
     }
@@ -389,9 +469,9 @@
       padding: 2.5rem 2rem; text-align: center; animation: slideIn .4s ease;
     }
     .trophy { font-size: 3.5rem; margin-bottom: 1rem; display: block; animation: bounce .6s ease; }
-    .score-panel h2 { font-size: 1.6rem; font-weight: 900; margin-bottom: .5rem; }
+    .score-panel h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: .5rem; }
     .big-score {
-      font-size: 5rem; font-weight: 900;
+      font-size: 5rem; font-weight: 800;
       background: linear-gradient(135deg, var(--yellow), var(--blue));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       line-height: 1; margin: .75rem 0;
@@ -401,7 +481,7 @@
 
     .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.5rem; }
     .result-tile { background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
-    .result-tile .val { font-size: 2rem; font-weight: 900; }
+    .result-tile .val { font-size: 2rem; font-weight: 800; }
     .result-tile .lbl { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
     .tile-ok .val { color: var(--green); }
     .tile-bad .val { color: var(--red); }
@@ -412,14 +492,14 @@
 
     .score-btns { display: flex; gap: .75rem; margin-top: 1.75rem; justify-content: center; flex-wrap: wrap; }
     .btn-primary {
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .95rem;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: .95rem;
       padding: .75rem 2rem; border-radius: 12px; border: none; cursor: pointer;
       background: var(--subj-grad); color: white;
       box-shadow: 0 4px 15px rgba(79,156,249,.3); transition: all .15s;
     }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,156,249,.4); }
     .btn-secondary {
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: .95rem;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: .95rem;
       padding: .75rem 2rem; border-radius: 12px; border: 2px solid var(--border);
       cursor: pointer; background: transparent; color: var(--text); transition: all .15s;
     }
@@ -452,7 +532,7 @@
     }
     .profile-card:hover { transform: translateY(-5px); border-color: var(--pc); box-shadow: 0 14px 40px rgba(0,0,0,.45); }
     .profile-emoji { font-size: 4.5rem; margin-bottom: .75rem; display: block; }
-    .profile-name { font-size: 1.3rem; font-weight: 900; color: var(--pc); }
+    .profile-name { font-size: 1.3rem; font-weight: 800; color: var(--pc); }
 
     /* ── BOUTON "MODE INVITÉ" sur l'écran de profil ──
        Style volontairement discret : c'est un bouton secondaire, pas un 3e profil. */
@@ -462,7 +542,7 @@
       max-width: 280px; width: fit-content;
       background: transparent; border: 1px dashed var(--border);
       border-radius: 14px; cursor: pointer;
-      font-family: 'Nunito', sans-serif; color: var(--muted);
+      font-family: 'Plus Jakarta Sans', sans-serif; color: var(--muted);
       transition: all .15s;
     }
     .guest-btn:hover {
@@ -486,7 +566,7 @@
       box-shadow: 0 8px 24px rgba(79,156,249,.18);
     }
     .customize-preview-emoji { font-size: 4.5rem; line-height: 1; }
-    .customize-preview-name { font-size: 1.4rem; font-weight: 900; color: var(--text); }
+    .customize-preview-name { font-size: 1.4rem; font-weight: 800; color: var(--text); }
 
     .customize-section { margin-bottom: 1.5rem; }
     .customize-label {
@@ -522,7 +602,7 @@
       padding: .85rem 1rem; min-height: 44px;
       background: var(--card); border: 1px solid var(--border);
       border-radius: 12px; color: var(--text);
-      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1rem; font-weight: 700;
       transition: border-color .15s;
     }
     .customize-input:focus {
@@ -550,7 +630,7 @@
     body.light .guest-banner { background: rgba(100,116,139,.1); color: #64748b; }
     .guest-banner-label { white-space: nowrap; flex-shrink: 0; margin-right: auto; }
     .guest-banner-btn {
-      font-family: 'Nunito', sans-serif; font-size: .72rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .72rem; font-weight: 700;
       padding: .4rem .65rem; min-height: 36px; border-radius: 8px;
       border: 1px solid rgba(148,163,184,.4);
       background: transparent; color: inherit; cursor: pointer;
@@ -589,11 +669,11 @@
     }
     .profile-banner-left { display: flex; align-items: center; gap: .6rem; }
     .profile-avatar { font-size: 1.6rem; }
-    .profile-banner-name { font-size: .95rem; font-weight: 900; }
+    .profile-banner-name { font-size: .95rem; font-weight: 800; }
     .profile-banner-sub { font-size: .72rem; color: var(--muted); }
     .profile-banner-right { display: flex; gap: .5rem; align-items: center; }
     .btn-sm {
-      font-family: 'Nunito', sans-serif; font-size: .75rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .75rem; font-weight: 700;
       padding: .55rem 1rem; min-height: 40px; border-radius: 8px; border: 1px solid var(--border);
       cursor: pointer; background: transparent; color: var(--muted); transition: all .15s;
       display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
@@ -601,6 +681,77 @@
     .btn-sm:hover { border-color: var(--blue); color: var(--blue); }
     .btn-sm.accent { background: var(--subj-grad); border: none; color: white; }
     .btn-sm.accent:hover { opacity: .85; color: white; }
+
+    /* ── BTN ICÔNE COMPACT (v13) ──
+       Variante carrée pour les boutons réduits à une seule icône (📋, ⇄).
+       Utilisé dans la carte d'identité fusionnée pour gagner de la place. */
+    .btn-sm.icon-only {
+      padding: .4rem .55rem; min-width: 38px; min-height: 38px;
+      font-size: .9rem; flex-shrink: 0;
+    }
+
+    /* ── CARTE IDENTITÉ FUSIONNÉE (HOME v13) ──
+       Une seule carte regroupe ce qui était auparavant trois blocs séparés :
+         - profile-banner (avatar + nom + boutons)
+         - level-card     (cercle XP + barre)
+         - home-overview  (progression globale 3/65 + %)
+       Économie verticale sur mobile : ~250-300 px. */
+    .home-identity {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: .85rem 1rem; margin-bottom: .85rem;
+      position: relative; overflow: hidden;
+    }
+    /* Bandeau coloré de la carte XP : conservé pour préserver l'aspect "level-card" */
+    .home-identity::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--yellow), #ec4899);
+    }
+    .home-identity-row1 {
+      display: flex; align-items: center; gap: .65rem; margin-bottom: .55rem;
+    }
+    .home-identity-level {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--yellow); color: #1a1a2e;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      flex-shrink: 0; font-variant-numeric: tabular-nums;
+    }
+    .home-identity-level .num { font-size: 1.1rem; font-weight: 800; line-height: 1; }
+    .home-identity-level .lbl { font-size: .5rem; font-weight: 700; letter-spacing: .04em; }
+    .home-identity-main { flex: 1; min-width: 0; }
+    .home-identity-name { font-size: .95rem; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+    .home-identity-xp { font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: .1rem; }
+    .home-identity-xp strong { color: var(--text); font-weight: 700; }
+    .home-identity-actions { display: flex; gap: .3rem; flex-shrink: 0; }
+
+    /* Barre XP */
+    .home-identity-bar {
+      height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: .55rem;
+    }
+    .home-identity-bar-fill {
+      height: 100%; background: linear-gradient(90deg, var(--yellow), #fb923c);
+      border-radius: 3px; transition: width .6s ease;
+    }
+
+    /* Pied : progression globale intégrée, discrète, séparée par une bordure */
+    .home-identity-foot {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: .5rem; border-top: 1px solid var(--border);
+      font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums;
+    }
+    .home-identity-foot strong { color: var(--blue); font-weight: 800; }
+    .home-identity-foot .pct { color: var(--green); font-weight: 800; }
+
+    /* ── RANDOM CTA COMPACT (HOME v13) ──
+       Variante réduite du CTA "Quiz aléatoire" pour gagner ~60 px d'espace
+       vertical. Le gradient et l'impact visuel sont conservés. */
+    .random-cta.compact {
+      padding: .65rem .95rem; margin-bottom: .85rem;
+      gap: .65rem;
+    }
+    .random-cta.compact .random-cta-icon { font-size: 1.6rem; }
+    .random-cta.compact .random-cta-title { font-size: .95rem; }
+    .random-cta.compact .random-cta-sub { font-size: .72rem; margin-top: .05rem; }
+    .random-cta.compact .random-cta-arrow { font-size: 1rem; }
 
     /* ── LEVEL SELECTOR (HOME) ──
        Sélecteur de niveau scolaire (CM2, 6ème, 5ème…) affiché sur l'accueil
@@ -614,7 +765,7 @@
     .level-selector-label strong { color: var(--text); font-weight: 800; }
     .level-pills { display: flex; flex-wrap: wrap; gap: .4rem; }
     .level-pill {
-      font-family: 'Nunito', sans-serif; font-size: .85rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; font-weight: 700;
       padding: .5rem .9rem; min-height: 40px; border-radius: 20px;
       border: 1.5px solid var(--border); background: transparent;
       color: var(--muted); cursor: pointer; transition: all .15s;
@@ -637,7 +788,7 @@
       gap: 1rem; margin: 2rem 0 1rem;
     }
     .onboarding-level-card {
-      font-family: 'Nunito', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       background: var(--card); border: 2px solid var(--border); border-radius: 16px;
       padding: 1.5rem 1rem; cursor: pointer; transition: all .2s;
       display: flex; flex-direction: column; align-items: center; gap: .5rem;
@@ -664,7 +815,7 @@
     .session-subj { font-size: .75rem; color: var(--muted); }
     .session-date { font-size: .7rem; color: var(--muted); margin-top: .1rem; }
     .session-right { text-align: right; flex-shrink: 0; }
-    .session-score { font-size: 1rem; font-weight: 900; }
+    .session-score { font-size: 1rem; font-weight: 800; }
     .session-score.s3 { color: var(--green); }
     .session-score.s2 { color: var(--yellow); }
     .session-score.s1 { color: var(--orange); }
@@ -684,7 +835,7 @@
     }
     .evo-svg { width: 100%; height: auto; display: block; overflow: visible; }
     .evo-svg .ev-grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2,3; opacity: .55; }
-    .evo-svg .ev-axis { fill: var(--muted); font-size: 10px; font-family: 'Nunito', sans-serif; font-weight: 700; }
+    .evo-svg .ev-axis { fill: var(--muted); font-size: 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
     .evo-svg .ev-area { fill: url(#evGrad); opacity: .25; }
     .evo-svg .ev-line { fill: none; stroke: var(--blue); stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
     .evo-svg .ev-dot  { stroke: var(--card); stroke-width: 2; cursor: help; }
@@ -720,7 +871,7 @@
       border: 2px solid var(--border); background: transparent;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; transition: all .15s;
-      font-size: .9rem; color: transparent; font-weight: 900;
+      font-size: .9rem; color: transparent; font-weight: 800;
     }
     .option.qcm-opt.selected .checkbox { background: var(--subj-color); border-color: var(--subj-color); color: white; }
     .option.qcm-opt.selected .checkbox::after { content: '✓'; }
@@ -738,7 +889,7 @@
       text-align: center; justify-content: center; min-height: 90px;
     }
     .option.vf-opt .vf-icon {
-      font-size: 1.8rem; font-weight: 900; line-height: 1;
+      font-size: 1.8rem; font-weight: 800; line-height: 1;
       width: 38px; height: 38px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       background: var(--border); transition: all .2s;
@@ -753,7 +904,7 @@
     .text-input-wrap { margin-top: .25rem; }
     .text-input {
       width: 100%; padding: .9rem 1.1rem;
-      font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 1.05rem;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1.05rem;
       border: 2px solid var(--border); border-radius: 12px;
       background: rgba(255,255,255,.04); color: var(--text);
       transition: all .15s; outline: none;
@@ -806,10 +957,10 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       flex-shrink: 0; box-shadow: 0 4px 14px rgba(251,146,60,.35);
     }
-    .level-circle-num { font-size: 1.4rem; font-weight: 900; color: #2c1810; line-height: 1; }
-    .level-circle-lbl { font-size: .55rem; font-weight: 900; color: #2c1810; text-transform: uppercase; letter-spacing: .05em; margin-top: 1px; }
+    .level-circle-num { font-size: 1.4rem; font-weight: 800; color: #2c1810; line-height: 1; }
+    .level-circle-lbl { font-size: .55rem; font-weight: 800; color: #2c1810; text-transform: uppercase; letter-spacing: .05em; margin-top: 1px; }
     .level-info { flex: 1; min-width: 0; }
-    .level-name { font-size: .95rem; font-weight: 900; margin-bottom: .15rem; }
+    .level-name { font-size: .95rem; font-weight: 800; margin-bottom: .15rem; }
     .level-xp { font-size: .75rem; color: var(--muted); }
     .level-xp strong { color: var(--text); }
 
@@ -844,7 +995,7 @@
     }
     .streak-zero .streak-flame { filter: none; opacity: .8; }
     .streak-text { flex: 1; min-width: 0; }
-    .streak-title { font-size: 1rem; font-weight: 900; margin-bottom: .15rem; }
+    .streak-title { font-size: 1rem; font-weight: 800; margin-bottom: .15rem; }
     .streak-active .streak-title { color: var(--orange); }
     .streak-done .streak-title { color: var(--green); }
     .streak-sub { font-size: .78rem; color: var(--muted); line-height: 1.4; }
@@ -880,7 +1031,7 @@
     }
     .level-max-tag {
       display: inline-block; padding: .15rem .55rem; border-radius: 99px;
-      font-size: .65rem; font-weight: 900; color: #2c1810;
+      font-size: .65rem; font-weight: 800; color: #2c1810;
       background: linear-gradient(135deg, var(--yellow), var(--orange));
       margin-left: .35rem;
     }
@@ -894,7 +1045,7 @@
       display: flex; align-items: baseline; justify-content: space-between;
       margin-bottom: .85rem; gap: .5rem;
     }
-    .badges-title { font-size: .95rem; font-weight: 900; }
+    .badges-title { font-size: .95rem; font-weight: 800; }
     .badges-count { font-size: .75rem; color: var(--muted); font-weight: 700; }
     .badges-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
@@ -925,19 +1076,19 @@
       animation: badgeUnlockIn .65s cubic-bezier(.34,1.56,.64,1) both;
     }
     .badge-unlock-wrap .lbl {
-      font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .1em;
+      font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em;
       color: var(--yellow); margin-bottom: .65rem;
     }
     .badge-unlock-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
     .badge-unlock-item { display: flex; flex-direction: column; align-items: center; min-width: 90px; }
     .badge-unlock-item .emj { font-size: 2.4rem; animation: bounce .8s ease infinite alternate; }
-    .badge-unlock-item .nm  { font-size: .8rem; font-weight: 900; margin-top: .3rem; }
+    .badge-unlock-item .nm  { font-size: .8rem; font-weight: 800; margin-top: .3rem; }
     .badge-unlock-item .ds  { font-size: .68rem; color: var(--muted); margin-top: .1rem; }
 
     .xp-gained {
       display: inline-block; padding: .35rem .8rem; border-radius: 99px;
       background: linear-gradient(135deg, var(--yellow), var(--orange)); color: #2c1810;
-      font-weight: 900; font-size: .85rem; margin: .5rem 0 .35rem;
+      font-weight: 800; font-size: .85rem; margin: .5rem 0 .35rem;
       box-shadow: 0 4px 12px rgba(251,146,60,.3);
     }
 
@@ -989,7 +1140,7 @@
     .float-xp {
       position: absolute; z-index: 50;
       transform: translateX(-50%);
-      font-weight: 900; font-size: 1.1rem;
+      font-weight: 800; font-size: 1.1rem;
       color: var(--green);
       text-shadow: 0 2px 6px rgba(0,0,0,.3);
       pointer-events: none;
@@ -1022,7 +1173,7 @@
       position: fixed; top: 18%; left: 50%; z-index: 120;
       transform: translateX(-50%);
       padding: .5rem 1.1rem; border-radius: 99px;
-      font-weight: 900; font-size: 1rem; color: #fff;
+      font-weight: 800; font-size: 1rem; color: #fff;
       box-shadow: 0 6px 20px rgba(0,0,0,.3);
       pointer-events: none; white-space: nowrap;
       animation: combo-anim 1.25s ease-out forwards;
