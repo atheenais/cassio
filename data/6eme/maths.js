@@ -276,14 +276,14 @@ window.CURRICULUM_PARTS["6eme"]["maths"] = {
           text: "Comment appelle-t-on un angle qui mesure 50° ?",
           options: ["aigu", "droit", "obtus", "plat"],
           answer: 0,
-          hint: "Un angle aigu est plus petit qu'un angle droit.",
+          hint: "Compare 50° à un angle droit (90°) : il est plus petit.",
           explication: "Un angle aigu mesure entre 0° et 90°. Donc 50° est aigu."
         },
         {
           text: "Comment appelle-t-on un angle qui mesure 120° ?",
           options: ["aigu", "droit", "obtus", "plat"],
           answer: 2,
-          hint: "Un angle obtus est plus grand qu'un angle droit mais plus petit qu'un angle plat.",
+          hint: "120° se situe entre un angle droit (90°) et un angle plat (180°).",
           explication: "Un angle obtus mesure entre 90° et 180°. Donc 120° est obtus."
         },
         {

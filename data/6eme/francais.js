@@ -32,7 +32,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
           text: "Quelle est la classe du mot « rapidement » ?",
           options: ["nom", "verbe", "adjectif", "adverbe"],
           answer: 3,
-          hint: "Les mots qui finissent en -ment sont souvent des adverbes.",
+          hint: "Ce mot est invariable et précise comment se fait l'action.",
           explication: "« rapidement » est un adverbe : il indique de quelle manière l'action est faite."
         },
         {
@@ -97,21 +97,21 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
           text: "« Je chante » est conjugué à quel temps ?",
           options: ["présent", "imparfait", "passé simple", "futur"],
           answer: 0,
-          hint: "Le présent indique ce qui se passe maintenant.",
+          hint: "L'action se déroule au moment où l'on parle.",
           explication: "« Je chante » = présent de l'indicatif (action actuelle)."
         },
         {
           text: "« Nous mangions » est conjugué à quel temps ?",
           options: ["présent", "imparfait", "passé simple", "futur"],
           answer: 1,
-          hint: "La terminaison -ions est typique de l'imparfait à « nous ».",
+          hint: "C'est un temps du passé qui exprime une action qui dure ou une habitude.",
           explication: "« mangions » = imparfait (action qui durait dans le passé)."
         },
         {
           text: "Quelle est la terminaison du verbe « finir » à la 3e personne du pluriel au présent ?",
           options: ["-ent", "-issent", "-ont", "-aient"],
           answer: 1,
-          hint: "Les verbes du 2e groupe (finir, choisir…) prennent -issent.",
+          hint: "Conjugue un autre verbe du 2e groupe à voix haute : « ils grandiss… », « ils choisiss… ».",
           explication: "« ils finissent » : verbe du 2e groupe au présent → -issent."
         },
         {
@@ -125,7 +125,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
           text: "« Il alla » est conjugué à quel temps ?",
           options: ["présent", "imparfait", "passé simple", "futur"],
           answer: 2,
-          hint: "Le passé simple est très utilisé dans les récits écrits.",
+          hint: "Ce temps du passé se rencontre presque uniquement dans les récits écrits, jamais à l'oral.",
           explication: "« Il alla » = passé simple du verbe aller (action ponctuelle dans le passé)."
         },
         {
@@ -147,14 +147,14 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
           text: "Conjugue « avoir » à la 3e personne du pluriel au présent.",
           options: ["Ils avaient", "Ils ont", "Ils auront", "Ils eurent"],
           answer: 1,
-          hint: "C'est l'auxiliaire qu'on entend dans « ils ont mangé ».",
+          hint: "C'est l'auxiliaire qui sert à former le passé composé de « manger ».",
           explication: "« Ils ont » = présent du verbe avoir."
         },
         {
           text: "Quelle est la terminaison du verbe « parler » à la 1re personne du pluriel au présent ?",
           options: ["-ons", "-ions", "-erons", "-ent"],
           answer: 0,
-          hint: "Au présent, « nous » prend -ons pour la plupart des verbes.",
+          hint: "Attention à ne pas confondre avec la terminaison de l'imparfait.",
           explication: "« Nous parlons » : terminaison -ons au présent."
         },
         {
@@ -411,7 +411,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
       questions: [
         {
           text: "Quelle est la 1re personne du singulier du verbe « faire » au présent ?",
-          options: ["Je fais", "Je fait", "Je fais", "Je fes"],
+          options: ["Je fais", "Je fait", "Je faits", "Je fes"],
           answer: 0,
           hint: "Faire prend un -s à « je » au présent.",
           explication: "« Je fais » est la forme correcte au présent."
@@ -420,7 +420,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
           text: "« Nous allons » est le verbe…",
           options: ["aller", "avoir", "être", "faire"],
           answer: 0,
-          hint: "Le verbe aller est très irrégulier.",
+          hint: "Le sens indique un déplacement. Cherche l'infinitif correspondant.",
           explication: "« Nous allons » = présent du verbe aller."
         },
         {
@@ -434,7 +434,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
           text: "« Tu prends » est le verbe…",
           options: ["prier", "prêcher", "prendre", "prouver"],
           answer: 2,
-          hint: "« Prendre » a un -d intercalé à certaines personnes.",
+          hint: "Quel infinitif correspond ? Pense au sens : saisir quelque chose.",
           explication: "« Tu prends » = présent du verbe prendre (2e personne du singulier)."
         },
         {
@@ -755,7 +755,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
         },
         {
           text: "Quel est le pluriel de « bijou » ?",
-          options: ["bijous", "bijoux", "bijous", "bijos"],
+          options: ["bijous", "bijoux", "bijoues", "bijos"],
           answer: 1,
           hint: "« Hibou, caillou, chou, genou, joujou, pou, bijou » : ces 7 mots prennent un -x.",
           explication: "Bijou est un des 7 mots en -ou qui font leur pluriel en -oux (« bijoux »)."
@@ -769,7 +769,7 @@ window.CURRICULUM_PARTS["6eme"]["francais"] = {
         },
         {
           text: "Choisis : « Il ___ deux frères. »",
-          options: ["a", "à", "as", "à"],
+          options: ["a", "à", "as", "ah"],
           answer: 0,
           hint: "Verbe avoir à la 3e personne du singulier.",
           explication: "« Il a deux frères » : « a » est le verbe avoir conjugué (sans accent)."

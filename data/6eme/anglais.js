@@ -61,7 +61,7 @@ window.CURRICULUM_PARTS["6eme"]["anglais"] = {
           text: "Comment dit-on « Merci » ?",
           options: ["Sorry", "Hello", "Thank you", "Please"],
           answer: 2,
-          hint: "Plus formellement : « Thank you very much ».",
+          hint: "Pense à ce qu'on dit en anglais quand on reçoit un cadeau.",
           explication: "« Thank you » = merci. Plus familier : « Thanks »."
         },
         {
@@ -282,7 +282,7 @@ window.CURRICULUM_PARTS["6eme"]["anglais"] = {
         },
         {
           text: "Comment dit-on « janvier » ?",
-          options: ["January", "Jenuary", "Genuary", "Jenuary"],
+          options: ["January", "Jenuary", "Genuary", "Januari"],
           answer: 0,
           hint: "Comme en français mais en anglais !",
           explication: "« January » = janvier. Les mois prennent une majuscule en anglais."

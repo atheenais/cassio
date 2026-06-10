@@ -77,7 +77,7 @@ window.CURRICULUM_PARTS["6eme"]["svt"] = {
           text: "Comment appelle-t-on un animal qui mange à la fois des plantes et de la viande ?",
           options: ["carnivore", "herbivore", "omnivore", "insectivore"],
           answer: 2,
-          hint: "L'humain est par exemple omnivore.",
+          hint: "Pense aux humains : ils mangent de tout.",
           explication: "Un omnivore mange de tout (viande et végétaux). Carnivore = viande, herbivore = plantes uniquement."
         },
         {

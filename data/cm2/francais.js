@@ -227,7 +227,7 @@ window.CURRICULUM_PARTS["cm2"]["francais"] = {
         },
         {
           text: "Quel est le féminin de l'adjectif « heureux » ?",
-          options: ["heureuse","heureuxe","heureuse","heureus"],
+          options: ["heureuse","heureuxe","heureusse","heureus"],
           answer: 0,
           explication: "Les adjectifs en -eux font leur féminin en -euse : heureux → heureuse, joyeux → joyeuse."
         }
