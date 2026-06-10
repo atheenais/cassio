@@ -8,6 +8,7 @@ const STYLES = {
   'histoire-geo': { color: '#0d9488', grad: 'linear-gradient(135deg, #0d9488, #2dd4bf)' }, // matière 6ème (histoire + géo)
   sciences:    { color: '#fbbf24', grad: 'linear-gradient(135deg, #fbbf24, #fb923c)' },
   anglais:   { color: '#a78bfa', grad: 'linear-gradient(135deg, #a78bfa, #6366f1)' },
+  espagnol:  { color: '#f97316', grad: 'linear-gradient(135deg, #f97316, #facc15)' },
   emc:       { color: '#ec4899', grad: 'linear-gradient(135deg, #ec4899, #8b5cf6)' },
   svt:       { color: '#10b981', grad: 'linear-gradient(135deg, #10b981, #84cc16)' },
   techno:    { color: '#475569', grad: 'linear-gradient(135deg, #475569, #06b6d4)' },
