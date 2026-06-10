@@ -14,7 +14,8 @@ let S = {
   hintsUsed: 0,        // nombre d'indices révélés pendant la session courante (impacte le bonus XP "sans-faute parfait")
   liveQuestions: null,  // copie mélangée des questions du quiz courant
   reviewMode: false,    // true en mode révision des erreurs (pas de sauvegarde de progression)
-  randomMode: false     // true en mode "Quiz aléatoire" multi-thèmes (pas de sauvegarde de progression par thème)
+  randomMode: false,    // true en mode "Quiz aléatoire" multi-thèmes (pas de sauvegarde de progression par thème)
+  weakMode: false       // true en mode "Mes points faibles" (repioche des questions ratées)
 };
 
 /* ═══════════════════════════════════════════════════
@@ -108,6 +109,21 @@ function saveCustomization(profileId, emoji, name) {
 
 function isGuest() { return S.profile === 'guest'; }
 
+/* Renvoie les infos d'affichage d'une pseudo-matière (Quiz aléatoire / Points
+   faibles) à partir de son subjId de session, ou null si c'est une vraie matière.
+   Centralise les libellés pour l'historique, la légende et la liste des sessions. */
+function pseudoSubjInfo(subjId) {
+  if (subjId === RANDOM_SUBJ_ID) {
+    return { styleId: 'random', emoji: '🎲', label: '🎲 Quiz aléatoire',
+             legendLabel: '🎲 Aléatoire', topicName: 'Quiz aléatoire', subjName: 'Multi-matières' };
+  }
+  if (subjId === WEAK_SUBJ_ID) {
+    return { styleId: 'weak', emoji: '🎯', label: '🎯 Mes points faibles',
+             legendLabel: '🎯 Points faibles', topicName: 'Mes points faibles', subjName: 'Révision ciblée' };
+  }
+  return null;
+}
+
 /* ─ Types de questions ─ */
 function qType(q) { return q.type || 'qcu'; }
 
@@ -129,7 +145,7 @@ function pickRandomQuestions(n) {
   const pool = [];
   const curriculum = getCurriculum(getCurrentLevel());
   curriculum.forEach(s => s.topics.forEach(t => {
-    t.questions.forEach(q => pool.push({ ...q, _origSubjId: s.id, _origTopicId: t.id }));
+    t.questions.forEach((q, i) => pool.push({ ...q, _origSubjId: s.id, _origTopicId: t.id, _origQi: i }));
   }));
   return shuffleArray(pool).slice(0, n);
 }
@@ -145,6 +161,156 @@ function prepareQuestion(q) {
   else             newAnswer = perm.indexOf(q.answer);
   return { ...q, options: newOptions, answer: newAnswer };
 }
+
+/* ═══════════════════════════════════════════════════
+   MÉMOIRE DES ERREURS — Mode "Mes points faibles"
+   ═══════════════════════════════════════════════════
+   Stocke les questions ratées par profil et par niveau pour permettre un
+   quiz de révision ciblé. Pondération par fréquence (Niveau 2) : une question
+   ratée N fois pèse N fois plus dans la pioche, modulée par la récence.
+
+   Clé localStorage : cm2-mistakes-{profileId}-{level}
+   Chaque entrée : { sId, tId, qi, qHint, wrongCount, lastWrongAt }
+     - sId, tId, qi : identifient la question (matière / thème / index)
+     - qHint : 40 premiers caractères du texte, garde-fou si le contenu change
+               (si à la repioche le texte ne correspond plus à l'index, on ignore
+                l'entrée — évite de présenter une question jamais ratée après un
+                réordonnancement du fichier de données)
+     - wrongCount : nombre de fois ratée (sert à la pondération)
+     - lastWrongAt : timestamp de la dernière erreur (sert au facteur de récence)
+
+   Décisions actées :
+   - Identification par index (qi) + garde-fou texte
+   - Seuil d'apparition du CTA : 10 erreurs uniques (avec complément "thèmes fragiles")
+   - Pondération Niveau 2, démarrage de la mémoire à partir de cette version (pas de rétroactif)
+*/
+
+function _mistakesKey() {
+  return `cm2-mistakes-${S.profile}-${getCurrentLevel()}`;
+}
+
+function getMistakes() {
+  if (!S.profile) return [];
+  try {
+    const raw = localStorage.getItem(_mistakesKey());
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveMistakes(list) {
+  if (!S.profile || S.profile === 'guest') return; // pas de persistance pour l'invité
+  try { localStorage.setItem(_mistakesKey(), JSON.stringify(list)); } catch (e) { /* quota plein : on ignore */ }
+}
+
+/* Enregistre une erreur. Si la question est déjà connue, incrémente wrongCount
+   et rafraîchit lastWrongAt. Sinon crée une nouvelle entrée. */
+function recordMistake(sId, tId, qi, questionText) {
+  if (!S.profile || S.profile === 'guest') return;
+  if (sId === RANDOM_SUBJ_ID || tId === RANDOM_SUBJ_ID) return; // sécurité : jamais d'ID random
+  const list = getMistakes();
+  const existing = list.find(m => m.sId === sId && m.tId === tId && m.qi === qi);
+  if (existing) {
+    existing.wrongCount = (existing.wrongCount || 1) + 1;
+    existing.lastWrongAt = Date.now();
+  } else {
+    list.push({
+      sId, tId, qi,
+      qHint: String(questionText || '').slice(0, 40),
+      wrongCount: 1,
+      lastWrongAt: Date.now()
+    });
+  }
+  saveMistakes(list);
+}
+
+/* Retire une question de la mémoire (réussie en mode points faibles). */
+function clearMistake(sId, tId, qi) {
+  if (!S.profile || S.profile === 'guest') return;
+  const list = getMistakes().filter(m => !(m.sId === sId && m.tId === tId && m.qi === qi));
+  saveMistakes(list);
+}
+
+/* Résout une entrée de mémoire vers la question réelle du curriculum.
+   Renvoie null si la question n'existe plus OU si le garde-fou texte ne
+   correspond plus (contenu réordonné depuis l'enregistrement de l'erreur). */
+function resolveMistake(m) {
+  const topic = getTopic(m.sId, m.tId);
+  if (!topic || !topic.questions || m.qi >= topic.questions.length) return null;
+  const q = topic.questions[m.qi];
+  if (!q) return null;
+  // Garde-fou : le début du texte doit toujours correspondre
+  if (m.qHint && String(q.text || '').slice(0, 40) !== m.qHint) return null;
+  return { ...q, _origSubjId: m.sId, _origTopicId: m.tId, _origQi: m.qi };
+}
+
+/* Facteur de récence : une erreur récente pèse plus qu'une vieille erreur. */
+function _recencyFactor(lastWrongAt) {
+  const days = (Date.now() - (lastWrongAt || 0)) / (1000 * 60 * 60 * 24);
+  if (days <= 7) return 1.0;
+  if (days <= 30) return 0.7;
+  return 0.4;
+}
+
+/* Compte le nombre d'erreurs uniques actuellement en mémoire (résolvables). */
+function countWeakQuestions() {
+  return getMistakes().filter(m => resolveMistake(m) !== null).length;
+}
+
+/* Construit les questions du quiz "points faibles".
+   1. Pioche pondérée parmi les erreurs mémorisées (poids = wrongCount × récence)
+   2. Si moins de n erreurs disponibles, complète avec des questions issues des
+      "thèmes fragiles" (thèmes commencés avec un score < 80%), pour que le mode
+      soit utilisable même avant d'avoir accumulé beaucoup d'erreurs.
+   Renvoie un tableau de questions enrichies (_origSubjId / _origTopicId). */
+function pickWeakQuestions(n) {
+  const count = n || 10;
+  const mistakes = getMistakes();
+
+  // Résoudre + calculer le poids de chaque erreur encore valide
+  const weighted = [];
+  mistakes.forEach(m => {
+    const q = resolveMistake(m);
+    if (q) weighted.push({ q, weight: (m.wrongCount || 1) * _recencyFactor(m.lastWrongAt), m });
+  });
+
+  // Pioche pondérée sans remise
+  const picked = [];
+  const pool = weighted.slice();
+  while (picked.length < count && pool.length > 0) {
+    const total = pool.reduce((sum, e) => sum + e.weight, 0);
+    let r = Math.random() * total;
+    let idx = 0;
+    for (let i = 0; i < pool.length; i++) {
+      r -= pool[i].weight;
+      if (r <= 0) { idx = i; break; }
+    }
+    picked.push(pool[idx].q);
+    pool.splice(idx, 1);
+  }
+
+  // Complément "thèmes fragiles" si pas assez d'erreurs en mémoire
+  if (picked.length < count) {
+    const already = new Set(picked.map(q => `${q._origSubjId}/${q._origTopicId}/${q.text}`));
+    const fragiles = [];
+    const progress = getProgress();
+    getCurriculum(getCurrentLevel()).forEach(s => {
+      s.topics.forEach(t => {
+        const p = progress[s.id] && progress[s.id][t.id];
+        // Thème "fragile" : déjà tenté mais réussi à moins de 80%
+        if (p && p.total > 0 && (p.score / p.total) < 0.8) {
+          t.questions.forEach((q, i) => {
+            const key = `${s.id}/${t.id}/${q.text}`;
+            if (!already.has(key)) fragiles.push({ ...q, _origSubjId: s.id, _origTopicId: t.id, _origQi: i });
+          });
+        }
+      });
+    });
+    shuffleArray(fragiles).slice(0, count - picked.length).forEach(q => picked.push(q));
+  }
+
+  return picked;
+}
+
 
 function normalizeText(s) {
   return String(s).toLowerCase().trim()

@@ -118,7 +118,7 @@ function resetGuestProgress() {
 function goHome() {
   clearQuizTimers();
   S.screen = 'home'; S.subjId = null; S.topicId = null;
-  S.randomMode = false; S.reviewMode = false;
+  S.randomMode = false; S.reviewMode = false; S.weakMode = false;
   applySubjStyle(null);
   // Si le profil n'a pas encore choisi son niveau et que plusieurs niveaux sont
   // disponibles, on bascule sur l'écran d'onboarding du niveau. Sinon, le niveau
@@ -137,8 +137,15 @@ function startQuiz(sId, tId) {
   S.screen = 'quiz'; S.subjId = sId; S.topicId = tId;
   S.reviewMode = false;
   S.randomMode = false;
-  // Mélange : ordre des questions + ordre des options dans chaque question
-  initQuizState(shuffleArray(getTopic(sId, tId).questions).map(prepareQuestion));
+  S.weakMode = false;
+  // Mélange : ordre des questions + ordre des options dans chaque question.
+  // On tague chaque question de son index original (_origQi) et de son origine
+  // (_origSubjId/_origTopicId) AVANT le mélange, pour alimenter la mémoire des
+  // erreurs même dans un quiz par thème classique.
+  const tagged = getTopic(sId, tId).questions.map((q, i) => ({
+    ...q, _origSubjId: sId, _origTopicId: tId, _origQi: i
+  }));
+  initQuizState(shuffleArray(tagged).map(prepareQuestion));
   applySubjStyle(sId);
   renderQuizScreen();
 }
@@ -175,8 +182,28 @@ function startRandomQuiz(n) {
   S.topicId = null;
   S.reviewMode = false;
   S.randomMode = true;
+  S.weakMode = false;
   initQuizState(picked.map(prepareQuestion));
   applySubjStyle('random');
+  renderQuizScreen();
+}
+
+/* ── Mode "Mes points faibles" : repioche les questions ratées (pondérées par
+   fréquence × récence), complétées par des thèmes fragiles si besoin. ── */
+function startWeakQuiz(n) {
+  clearQuizTimers();
+  const count = n || 10;
+  const picked = pickWeakQuestions(count);
+  if (picked.length === 0) return; // garde-fou : ne devrait pas arriver (CTA masqué sinon)
+  S.screen = 'quiz';
+  S.subjId = 'weak';
+  S.topicId = null;
+  S.reviewMode = false;
+  S.randomMode = true;  // réutilise la logique "multi-thèmes" (pas de progression par thème, breadcrumb spécial)
+  S.weakMode = true;    // marqueur spécifique pour le score et le retrait des erreurs corrigées
+  S.__weakBefore = countWeakQuestions(); // nb d'erreurs en mémoire avant ce quiz
+  initQuizState(picked.map(prepareQuestion));
+  applySubjStyle('weak');
   renderQuizScreen();
 }
 
@@ -189,9 +216,13 @@ function goScore() {
     const beforeIds = computeBadgesUnlocked().map(b => b.id);
     const wasFirstToday = isFirstSessionToday();
     S.xpGained = computeSessionXP(S.correct, n, wasFirstToday, S.hintsUsed || 0);
-    // En mode aléatoire : pas de progression par thème, mais on garde la session pour l'historique/XP
-    const savedSubjId = S.randomMode ? RANDOM_SUBJ_ID : S.subjId;
-    const savedTopicId = S.randomMode ? RANDOM_SUBJ_ID : S.topicId;
+    // En mode aléatoire ou points faibles : pas de progression par thème,
+    // mais on garde la session pour l'historique/XP. On distingue les deux via
+    // un ID dédié pour chacun.
+    const isPseudo = S.randomMode || S.weakMode;
+    const pseudoId = S.weakMode ? WEAK_SUBJ_ID : RANDOM_SUBJ_ID;
+    const savedSubjId = isPseudo ? pseudoId : S.subjId;
+    const savedTopicId = isPseudo ? pseudoId : S.topicId;
     saveSession(savedSubjId, savedTopicId, S.correct, n, S.hintsUsed || 0);
     const after = computeBadgesUnlocked();
     S.newBadges = after.filter(b => !beforeIds.includes(b.id));
@@ -667,15 +698,28 @@ function renderHome() {
 
       ${renderLevelSelector()}
 
-      <div class="random-cta compact" onclick="startRandomQuiz()"
-           role="button" aria-label="Lancer un quiz aléatoire de 10 questions">
-        <div class="random-cta-icon" aria-hidden="true">🎲</div>
-        <div class="random-cta-text">
-          <div class="random-cta-title">Quiz aléatoire</div>
-          <div class="random-cta-sub">10 questions surprise toutes matières</div>
-        </div>
-        <div class="random-cta-arrow" aria-hidden="true">▶</div>
-      </div>
+      ${(() => {
+        // Le CTA "Mes points faibles" n'apparaît qu'à partir de 10 erreurs uniques
+        // mémorisées (avec complément "thèmes fragiles" géré dans pickWeakQuestions).
+        const weakCount = countWeakQuestions();
+        const showWeak = weakCount >= 10;
+        const randomCta = `
+          <div class="dual-cta random-cta" onclick="startRandomQuiz()"
+               role="button" aria-label="Lancer un quiz aléatoire de 10 questions">
+            <div class="dual-cta-icon" aria-hidden="true">🎲</div>
+            <div class="dual-cta-title">Quiz aléatoire</div>
+            <div class="dual-cta-sub">10 questions surprise</div>
+          </div>`;
+        const weakCta = showWeak ? `
+          <div class="dual-cta weak-cta" onclick="startWeakQuiz()"
+               role="button" aria-label="Réviser mes points faibles">
+            <div class="dual-cta-icon" aria-hidden="true">🎯</div>
+            <div class="dual-cta-title">Mes points faibles</div>
+            <div class="dual-cta-sub">Revois tes erreurs</div>
+          </div>` : '';
+        // Si un seul CTA : il prend toute la largeur (la grille s'adapte).
+        return `<div class="cta-grid${showWeak ? '' : ' single'}">${randomCta}${weakCta}</div>`;
+      })()}
 
       <div class="section-title">Choisir une matière</div>
       <div class="subjects-grid">${cards}</div>
@@ -845,7 +889,7 @@ function renderQuizScreen() {
         <span class="crumb" onclick="goHome()">🏠</span>
         <span class="sep">›</span>
         ${S.randomMode
-          ? `<span class="current-crumb">🎲 Quiz aléatoire${S.reviewMode ? ' · 🔁 Révision' : ''}</span>`
+          ? `<span class="current-crumb">${S.weakMode ? '🎯 Mes points faibles' : '🎲 Quiz aléatoire'}${S.reviewMode ? ' · 🔁 Révision' : ''}</span>`
           : `<span class="crumb" onclick="goSubject('${S.subjId}')">${subj.name}</span>
              <span class="sep">›</span>
              <span class="current-crumb">${S.reviewMode ? '🔁 Révision · ' : ''}${topic.name}</span>`
@@ -1014,12 +1058,29 @@ function qValidate() {
     // ── Animations de récompense (sobres) ──
     S.streak = (S.streak || 0) + 1;
     rewardCorrect(S.cur, S.streak);
+    // ── Mémoire des erreurs : en mode points faibles, une bonne réponse
+    //    retire la question de la liste (l'enfant l'a maîtrisée). ──
+    if (S.weakMode) {
+      const sId = q._origSubjId, tId = q._origTopicId;
+      if (sId && tId && typeof q._origQi === 'number') clearMistake(sId, tId, q._origQi);
+    }
   } else {
     S.wrong++;
     fb.className = 'feedback show bad';
     fb.innerHTML = `❌ Pas tout à fait. Bonne réponse : <strong>${bonneRep}</strong><div class="expl">${q.explication}</div>`;
     dot.classList.remove('current'); dot.classList.add('wrong-dot');
     S.streak = 0; // la série se brise à la première erreur
+    // ── Mémoire des erreurs : on enregistre toute question ratée (hors review).
+    //    Vaut pour le quiz par thème, le quiz aléatoire ET le mode points faibles
+    //    lui-même (une question encore ratée voit son wrongCount augmenter). ──
+    if (!S.reviewMode) {
+      const sId = q._origSubjId || S.subjId;
+      const tId = q._origTopicId || S.topicId;
+      const qi  = (typeof q._origQi === 'number') ? q._origQi : null;
+      if (sId && tId && qi !== null && sId !== RANDOM_SUBJ_ID) {
+        recordMistake(sId, tId, qi, q.text);
+      }
+    }
   }
 
   qUpdateStats();
@@ -1190,7 +1251,9 @@ function renderScore() {
   // l'élève quitte puis revient sur l'écran de score.
   if (S.correct === n && n > 0 && !S.__confettiFired) {
     S.__confettiFired = true;
-    const isFirstPass = !S.reviewMode;
+    // Jingle + badge doré réservés à une vraie victoire "premier coup" :
+    // ni en review, ni en mode points faibles (qui est de la révision ciblée).
+    const isFirstPass = !S.reviewMode && !S.weakMode;
     setTimeout(() => {
       launchConfetti();
       if (isFirstPass) {
@@ -1203,12 +1266,13 @@ function renderScore() {
   }
 
   // Titre, breadcrumb et boutons d'action diffèrent selon le mode
+  const pseudoLabel = S.weakMode ? '🎯 Mes points faibles' : '🎲 Quiz aléatoire';
   const screenTitle = S.randomMode
-    ? `${titlePrefix}🎲 Quiz aléatoire`
+    ? `${titlePrefix}${pseudoLabel}`
     : `${titlePrefix}${topic.name}`;
 
   const breadcrumbBody = S.randomMode
-    ? `<span class="current-crumb">🎲 Quiz aléatoire — Résultats</span>`
+    ? `<span class="current-crumb">${pseudoLabel} — Résultats</span>`
     : `<span class="crumb" onclick="goSubject('${S.subjId}')">${subj.name}</span>
        <span class="sep">›</span>
        <span class="current-crumb">Résultats</span>`;
@@ -1240,6 +1304,18 @@ function renderScore() {
           const isPerfect = S.correct === n && n > 0;
           const hintsUsed = S.hintsUsed || 0;
           let subMsg = '';
+          // En mode points faibles : message tourné "révision" plutôt que "exploit".
+          if (S.weakMode) {
+            const after = countWeakQuestions();
+            const corrected = Math.max(0, (S.__weakBefore || 0) - after);
+            if (corrected > 0) {
+              const word = corrected === 1 ? 'erreur corrigée' : 'erreurs corrigées';
+              subMsg = `<div class="xp-sub xp-sub-info">🎯 ${corrected} ${word} — elles sortent de ta liste de révision !</div>`;
+            } else {
+              subMsg = `<div class="xp-sub xp-sub-info">🎯 Continue : ces questions restent dans ta liste pour la prochaine fois.</div>`;
+            }
+            return `<div class="xp-gained">+ ${S.xpGained} XP gagnés</div>${subMsg}`;
+          }
           if (isPerfect && hintsUsed === 0) {
             subMsg = `<div class="xp-sub xp-sub-perfect">🌟 Sans-faute parfait — bonus +20 XP !</div>`;
           } else if (isPerfect && hintsUsed > 0) {
@@ -1335,12 +1411,13 @@ function renderEvolutionChart(sessionsChrono) {
 
   // Cercles colorés par matière (avec <title> pour tooltip natif)
   const dots = pts.map(p => {
-    const isRandom = p.s.subjId === RANDOM_SUBJ_ID;
-    const style = STYLES[p.s.subjId] || (isRandom ? STYLES.random : STYLES.maths);
+    const pseudo = pseudoSubjInfo(p.s.subjId); // {label, styleId} si pseudo-matière, sinon null
+    const isPseudo = pseudo !== null;
+    const style = STYLES[p.s.subjId] || (isPseudo ? STYLES[pseudo.styleId] : STYLES.maths);
     const sessLevel = p.s.level || DEFAULT_LEVEL;
-    const subj = isRandom ? null : getSubject(p.s.subjId, sessLevel);
-    const topic = isRandom ? null : getTopic(p.s.subjId, p.s.topicId, sessLevel);
-    const labelLeft = isRandom ? '🎲 Quiz aléatoire' : `${subj ? subj.name : '?'} – ${topic ? topic.name : '?'}`;
+    const subj = isPseudo ? null : getSubject(p.s.subjId, sessLevel);
+    const topic = isPseudo ? null : getTopic(p.s.subjId, p.s.topicId, sessLevel);
+    const labelLeft = isPseudo ? pseudo.label : `${subj ? subj.name : '?'} – ${topic ? topic.name : '?'}`;
     const label = `${labelLeft} : ${p.s.score}/${p.s.total} (${Math.round(p.pct)}%) · ${formatDate(p.s.timestamp)}`;
     return `<circle class="ev-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5"
               fill="${style.color}">
@@ -1351,9 +1428,10 @@ function renderEvolutionChart(sessionsChrono) {
   // Légende : uniquement les matières effectivement présentes dans ce jeu de sessions
   const presentSubjIds = [...new Set(sessionsChrono.map(s => s.subjId))];
   const legend = presentSubjIds.map(id => {
-    if (id === RANDOM_SUBJ_ID) {
-      const style = STYLES.random;
-      return `<span class="evo-leg-item"><span class="evo-leg-dot" style="background:${style.color}"></span>🎲 Aléatoire</span>`;
+    const pseudo = pseudoSubjInfo(id);
+    if (pseudo) {
+      const style = STYLES[pseudo.styleId];
+      return `<span class="evo-leg-item"><span class="evo-leg-dot" style="background:${style.color}"></span>${pseudo.legendLabel}</span>`;
     }
     const subj = getSubject(id);
     const style = STYLES[id];
@@ -1404,17 +1482,18 @@ function renderHistory() {
   const items = sessionsList.length === 0
     ? `<div class="session-empty">Aucune session pour l'instant.<br>Lance un quiz pour voir ton historique ici !</div>`
     : sessionsList.map(s => {
-        const isRandom = s.subjId === RANDOM_SUBJ_ID;
+        const pseudo = pseudoSubjInfo(s.subjId);
+        const isPseudo = pseudo !== null;
         const sessLevel = s.level || DEFAULT_LEVEL;
-        const subj = isRandom ? null : getSubject(s.subjId, sessLevel);
-        const topic = isRandom ? null : getTopic(s.subjId, s.topicId, sessLevel);
-        // Filtrer les sessions corrompues (matière/thème disparus) mais GARDER les sessions random
-        if (!isRandom && (!subj || !topic)) return '';
+        const subj = isPseudo ? null : getSubject(s.subjId, sessLevel);
+        const topic = isPseudo ? null : getTopic(s.subjId, s.topicId, sessLevel);
+        // Filtrer les sessions corrompues (matière/thème disparus) mais GARDER les sessions pseudo
+        if (!isPseudo && (!subj || !topic)) return '';
         const stars = getStars(s.score, s.total);
         const cls = stars === 3 ? 's3' : stars === 2 ? 's2' : 's1';
-        const emoji = isRandom ? '🎲' : subj.emoji;
-        const topicName = isRandom ? 'Quiz aléatoire' : topic.name;
-        const subjName = isRandom ? 'Multi-matières' : subj.name;
+        const emoji = isPseudo ? pseudo.emoji : subj.emoji;
+        const topicName = isPseudo ? pseudo.topicName : topic.name;
+        const subjName = isPseudo ? pseudo.subjName : subj.name;
         return `
           <div class="session-item">
             <div class="session-emoji">${emoji}</div>

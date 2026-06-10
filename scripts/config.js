@@ -16,11 +16,15 @@ const STYLES = {
   latin:     { color: '#d97706', grad: 'linear-gradient(135deg, #d97706, #b45309)' },
   numerique: { color: '#06b6d4', grad: 'linear-gradient(135deg, #06b6d4, #8b5cf6)' },
   /* Pseudo-matière pour le mode "Quiz aléatoire" multi-thèmes */
-  random:    { color: '#8b5cf6', grad: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }
+  random:    { color: '#8b5cf6', grad: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
+  /* Pseudo-matière pour le mode "Mes points faibles" */
+  weak:      { color: '#0ea5e9', grad: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }
 };
 
 /* Identifiant spécial utilisé pour marquer une session "Quiz aléatoire" */
 const RANDOM_SUBJ_ID = '__random__';
+/* Identifiant spécial utilisé pour marquer une session "Mes points faibles" */
+const WEAK_SUBJ_ID = '__weak__';
 
 /* ═══════════════════════════════════════════════════
    PROFILS

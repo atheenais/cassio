@@ -143,6 +143,45 @@
     .random-cta-sub { font-size: .82rem; opacity: .92; margin-top: .15rem; }
     .random-cta-arrow { font-size: 1.1rem; opacity: .85; }
 
+    /* ── DOUBLE CTA (v20) : Quiz aléatoire + Mes points faibles côte à côte ──
+       Grille 2 colonnes. Si un seul CTA (pas assez d'erreurs pour les points
+       faibles), la classe .single repasse en 1 colonne pleine largeur. */
+    .cta-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .65rem;
+      margin-bottom: 1.5rem;
+    }
+    .cta-grid.single { grid-template-columns: 1fr; }
+    .dual-cta {
+      border-radius: 14px; padding: .85rem .9rem;
+      cursor: pointer; transition: transform .15s, box-shadow .15s;
+      color: #fff; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: .15rem;
+      min-height: 92px; justify-content: center;
+    }
+    .dual-cta:active { transform: translateY(0); }
+    .dual-cta-icon { font-size: 1.7rem; margin-bottom: .1rem; }
+    .dual-cta-title { font-weight: 800; font-size: .98rem; letter-spacing: -0.01em; }
+    .dual-cta-sub { font-size: .76rem; opacity: .92; }
+    /* Quiz aléatoire : violet/rose (identité historique) */
+    .dual-cta.random-cta {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      box-shadow: 0 4px 14px rgba(139, 92, 246, .35);
+      margin-bottom: 0; padding: .85rem .9rem; /* neutralise les valeurs de .random-cta */
+    }
+    .dual-cta.random-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(139, 92, 246, .5); }
+    /* Mes points faibles : bleu/cyan (concentration, précision) */
+    .dual-cta.weak-cta {
+      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+      box-shadow: 0 4px 14px rgba(14, 165, 233, .35);
+    }
+    .dual-cta.weak-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(14, 165, 233, .5); }
+    /* La grille .single fait que le CTA aléatoire seul reprend une mise en page horizontale */
+    .cta-grid.single .dual-cta {
+      flex-direction: row; align-items: center; gap: .7rem; min-height: 0;
+    }
+    .cta-grid.single .dual-cta-icon { margin-bottom: 0; font-size: 1.8rem; }
+    .cta-grid.single .dual-cta-title { font-size: 1.05rem; }
+
     /* Petit emoji indiquant la matière d'origine d'une question dans le récap du score (mode aléatoire) */
     .recap-origin {
       display: inline-flex; align-items: center; justify-content: center;
