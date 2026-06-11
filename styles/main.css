@@ -235,13 +235,15 @@
          Acceptable en perf sur tous les iPhone récents (depuis 2018). */
       filter: drop-shadow(0 2px 4px color-mix(in srgb, var(--sc-color) 35%, transparent));
     }
+    .subj-head-right { display: flex; flex-direction: column; align-items: flex-end; gap: .2rem; }
+    .subj-new { font-size: .58rem; font-weight: 800; color: var(--green); text-transform: uppercase; letter-spacing: .05em; line-height: 1; }
     .subj-counter {
       font-size: .72rem; font-weight: 700;
       color: var(--sc-color);
       background: color-mix(in srgb, var(--sc-color) 15%, transparent);
       padding: .15rem .4rem; border-radius: 7px;
       font-variant-numeric: tabular-nums; white-space: nowrap;
-      align-self: flex-start;
+      align-self: flex-end;
     }
 
     /* Nom + sous-titre matière */
@@ -778,7 +780,9 @@
       font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums;
     }
     .home-identity-foot strong { color: var(--blue); font-weight: 800; }
+    .home-identity-foot-right { display: flex; align-items: center; gap: .45rem; }
     .home-identity-foot .pct { color: var(--green); font-weight: 800; }
+    .perfect-stat { font-size: .72rem; font-weight: 700; color: var(--yellow); font-variant-numeric: tabular-nums; }
 
     /* ── RANDOM CTA COMPACT (HOME v13) ──
        Variante réduite du CTA "Quiz aléatoire" pour gagner ~60 px d'espace
@@ -851,6 +855,11 @@
     }
     .level-pill.active:hover { color: white; background: var(--lvl-grad, linear-gradient(135deg, #4f9cf9, #a78bfa)); opacity: .92; }
     .level-pill.active:active { opacity: .85; }
+    .pill-new-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green); flex-shrink: 0; margin-left: .05rem; margin-bottom: 1px;
+      vertical-align: middle;
+    }
 
     /* ── LEVEL ONBOARDING (1ER LANCEMENT) ──
        Écran affiché lorsqu'un profil n'a pas encore choisi son niveau ET que

@@ -44,6 +44,28 @@ const ALL_PROFILES = PROFILES.concat([GUEST_PROFILE]);
 
 /* Choix d'emojis pour la personnalisation d'avatar. Variés et adaptés enfant.
    Les emojis par défaut 👦 et 👧 sont inclus pour permettre de revenir au look d'origine. */
+/* Matières récemment enrichies — badge "Nouveau" affiché jusqu'à la date indiquée.
+   Format : '{ "levelId|subjId": "YYYY-MM-DD" }'
+   Passé la date, le badge disparaît automatiquement sans toucher au code. */
+const NEW_UNTIL = {
+  '6eme|svt':      '2026-10-01',
+  '6eme|anglais':  '2026-10-01',
+  '6eme|espagnol': '2026-10-01',
+};
+
+function isSubjectNew(levelId, subjId) {
+  const until = NEW_UNTIL[levelId + '|' + subjId];
+  if (!until) return false;
+  return new Date().toISOString().slice(0, 10) < until;
+}
+
+function hasNewSubjects(levelId) {
+  return Object.keys(NEW_UNTIL).some(k => {
+    const [lvl, subj] = k.split('|');
+    return lvl === levelId && isSubjectNew(lvl, subj);
+  });
+}
+
 const AVATAR_EMOJIS = [
   '👦', '👧', '🧒',
   '🦊', '🐱', '🐶', '🐧', '🐼', '🦁', '🐯',

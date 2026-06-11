@@ -8,7 +8,7 @@
    nouveaux fichiers. Sans ce changement de version, les utilisateurs déjà
    installés continueraient de voir l'ancienne version en cache. */
 
-const CACHE_VERSION = 'cassio-v21';
+const CACHE_VERSION = 'cassio-v22';
 
 /* Liste de tous les fichiers nécessaires au fonctionnement hors-ligne.
    Les chemins sont relatifs au scope du service worker (la racine de l'app). */
@@ -75,14 +75,15 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
+  const isFontReq = url.hostname === 'fonts.gstatic.com' || url.hostname === 'fonts.googleapis.com';
+  if (url.origin !== self.location.origin && !isFontReq) return;
 
   event.respondWith(
     caches.match(req).then(cached => {
       if (cached) return cached;
       return fetch(req).then(resp => {
-        // On ne met en cache que les réponses valides
-        if (resp && resp.status === 200 && resp.type === 'basic') {
+        // On met en cache les réponses same-origin (basic) et cross-origin avec CORS (polices)
+        if (resp && resp.status === 200 && (resp.type === 'basic' || resp.type === 'cors')) {
           const clone = resp.clone();
           caches.open(CACHE_VERSION).then(cache => cache.put(req, clone));
         }
