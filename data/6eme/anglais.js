@@ -482,6 +482,322 @@ window.CURRICULUM_PARTS["6eme"]["anglais"] = {
           explication: "« Teacher » = professeur, enseignant en anglais."
         }
       ]
+    },
+    {
+      id: "food-drinks",
+      name: "Food & drinks",
+      emoji: "🍎",
+      desc: "Nourriture, boissons, repas",
+      questions: [
+        {
+          text: "Comment dit-on « pomme » en anglais ?",
+          options: ["orange", "apple", "banana", "grape"],
+          answer: 1,
+          hint: "Ce mot a donné son nom à une célèbre marque informatique.",
+          explication: "« Apple » = pomme. « Orange » = orange, « banana » = banane, « grape » = raisin."
+        },
+        {
+          text: "Que veut dire « I'm hungry » ?",
+          options: ["J'ai soif", "J'ai faim", "Je suis fatigué", "Je suis heureux"],
+          answer: 1,
+          hint: "« Hungry » = affamé.",
+          explication: "« I'm hungry » = J'ai faim. L'opposé : « I'm thirsty » = J'ai soif."
+        },
+        {
+          text: "Comment dit-on « eau » en anglais ?",
+          options: ["milk", "juice", "water", "coffee"],
+          answer: 2,
+          hint: "Mot de 5 lettres, la boisson la plus importante.",
+          explication: "« Water » = eau. « Milk » = lait, « juice » = jus."
+        },
+        {
+          text: "Que veut dire « bread » ?",
+          options: ["beurre", "pain", "fromage", "lait"],
+          answer: 1,
+          hint: "Aliment de base qu'on mange le matin avec du beurre.",
+          explication: "« Bread » = pain. « Butter » = beurre, « cheese » = fromage."
+        },
+        {
+          text: "Comment dit-on « le petit-déjeuner » ?",
+          options: ["lunch", "dinner", "breakfast", "snack"],
+          answer: 2,
+          hint: "Repas du matin qui « brise » le jeûne de la nuit.",
+          explication: "« Breakfast » = petit-déjeuner (littéralement « briser le jeûne »). « Lunch » = déjeuner, « dinner » = dîner."
+        },
+        {
+          type: "vrai_faux",
+          text: "« Chicken » signifie « poulet » en anglais.",
+          answer: 0,
+          hint: "On peut aussi l'entendre pour désigner la poule.",
+          explication: "VRAI. « Chicken » = poulet (viande) ou poule. Ce mot désigne à la fois l'animal et sa viande."
+        },
+        {
+          text: "Comment dit-on « Je voudrais un jus d'orange » ?",
+          options: ["I would like an orange juice", "I want orange drink please I", "Give me orange drink", "I have orange juice"],
+          answer: 0,
+          hint: "« I would like » est la formule polie pour commander.",
+          explication: "« I would like an orange juice » est la formule polie. Moins formel : « Can I have an orange juice? »"
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des fruits ?",
+          options: ["apple", "banana", "potato", "strawberry"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots est un légume.",
+          explication: "Apple (pomme), banana (banane), strawberry (fraise) sont des fruits. Potato (pomme de terre) est un légume."
+        },
+        {
+          text: "Que veut dire « to drink » ?",
+          options: ["manger", "boire", "cuisiner", "goûter"],
+          answer: 1,
+          hint: "Action qu'on fait avec un verre à la main.",
+          explication: "« To drink » = boire. « To eat » = manger."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « lait » en anglais ?",
+          answer: ["milk", "Milk"],
+          hint: "Trois lettres, boisson blanche.",
+          explication: "« Milk » = lait."
+        }
+      ]
+    },
+    {
+      id: "my-house",
+      name: "My house",
+      emoji: "🏠",
+      desc: "Pièces de la maison, mobilier",
+      questions: [
+        {
+          text: "Comment dit-on « cuisine » (pièce de la maison) en anglais ?",
+          options: ["bedroom", "kitchen", "bathroom", "living room"],
+          answer: 1,
+          hint: "C'est la pièce où on prépare les repas.",
+          explication: "« Kitchen » = cuisine. Attention : « cuisine » en anglais ne désigne pas la pièce mais la gastronomie."
+        },
+        {
+          text: "Que veut dire « bedroom » ?",
+          options: ["salle de bain", "salon", "chambre à coucher", "cuisine"],
+          answer: 2,
+          hint: "« Bed » = lit + « room » = pièce.",
+          explication: "« Bedroom » = chambre à coucher. Formé de « bed » (lit) + « room » (pièce)."
+        },
+        {
+          text: "Comment dit-on « salle de bain » ?",
+          options: ["living room", "bathroom", "kitchen", "garden"],
+          answer: 1,
+          hint: "« Bath » = bain + « room » = pièce.",
+          explication: "« Bathroom » = salle de bain."
+        },
+        {
+          text: "Que veut dire « living room » ?",
+          options: ["chambre", "cuisine", "salon / salle de séjour", "couloir"],
+          answer: 2,
+          hint: "Pièce principale où la famille se réunit.",
+          explication: "« Living room » = salon / salle de séjour, la pièce principale de la maison."
+        },
+        {
+          text: "Comment dit-on « fenêtre » en anglais ?",
+          options: ["door", "window", "wall", "floor"],
+          answer: 1,
+          hint: "Windows est aussi le nom d'un système informatique.",
+          explication: "« Window » = fenêtre. « Door » = porte, « wall » = mur, « floor » = sol/plancher."
+        },
+        {
+          type: "vrai_faux",
+          text: "« Garden » signifie « jardin » en anglais.",
+          answer: 0,
+          hint: "Même racine que le mot français « jardin ».",
+          explication: "VRAI. « Garden » = jardin. Les deux mots ont la même origine étymologique."
+        },
+        {
+          text: "Que veut dire « stairs » ?",
+          options: ["portes", "fenêtres", "escaliers", "murs"],
+          answer: 2,
+          hint: "On les monte et on les descend pour changer d'étage.",
+          explication: "« Stairs » = escaliers. « I go up the stairs » = je monte l'escalier."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des pièces de la maison ?",
+          options: ["kitchen", "bedroom", "tree", "bathroom"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots désigne un arbre.",
+          explication: "Kitchen (cuisine), bedroom (chambre), bathroom (salle de bain) sont des pièces. Tree = arbre."
+        },
+        {
+          text: "Comment dit-on « porte » en anglais ?",
+          options: ["window", "wall", "door", "roof"],
+          answer: 2,
+          hint: "On l'ouvre pour entrer ou sortir.",
+          explication: "« Door » = porte. « Window » = fenêtre, « wall » = mur, « roof » = toit."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « chambre à coucher » en anglais ? (Un mot)",
+          answer: ["bedroom", "Bedroom"],
+          hint: "« Bed » (lit) + « room » (pièce).",
+          explication: "« Bedroom » = chambre à coucher, formé de « bed » (lit) + « room » (pièce)."
+        }
+      ]
+    },
+    {
+      id: "body-parts",
+      name: "Body parts",
+      emoji: "🧍",
+      desc: "Les parties du corps",
+      questions: [
+        {
+          text: "Que veut dire « head » ?",
+          options: ["main", "pied", "tête", "dos"],
+          answer: 2,
+          hint: "Partie du corps tout en haut.",
+          explication: "« Head » = tête."
+        },
+        {
+          text: "Comment dit-on « main » (partie du corps) en anglais ?",
+          options: ["foot", "hand", "arm", "leg"],
+          answer: 1,
+          hint: "Handbag = sac à main.",
+          explication: "« Hand » = main. « Arm » = bras, « foot » = pied, « leg » = jambe."
+        },
+        {
+          text: "Que veut dire « eye » ?",
+          options: ["oreille", "nez", "œil", "bouche"],
+          answer: 2,
+          hint: "Les yeux au pluriel : « eyes ».",
+          explication: "« Eye » = œil. Au pluriel : « eyes »."
+        },
+        {
+          text: "Comment dit-on « jambe » en anglais ?",
+          options: ["arm", "hand", "foot", "leg"],
+          answer: 3,
+          hint: "Partie du corps qu'on utilise pour courir.",
+          explication: "« Leg » = jambe. « Arm » = bras."
+        },
+        {
+          text: "Que veut dire « mouth » ?",
+          options: ["nez", "bouche", "oreille", "dent"],
+          answer: 1,
+          hint: "Sert à parler et à manger.",
+          explication: "« Mouth » = bouche. « Nose » = nez, « ear » = oreille."
+        },
+        {
+          type: "vrai_faux",
+          text: "« Nose » signifie « nez » en anglais.",
+          answer: 0,
+          hint: "Il se prononce « nôze ».",
+          explication: "VRAI. « Nose » = nez."
+        },
+        {
+          text: "Comment dit-on « dos » (partie du corps) en anglais ?",
+          options: ["chest", "back", "shoulder", "neck"],
+          answer: 1,
+          hint: "Sac à dos = backpack (littéralement « paquet dans le dos »).",
+          explication: "« Back » = dos. « Backpack » = sac à dos."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des parties du visage ?",
+          options: ["eye", "nose", "knee", "mouth"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots désigne une articulation de la jambe.",
+          explication: "Eye (œil), nose (nez), mouth (bouche) sont sur le visage. Knee = genou."
+        },
+        {
+          text: "Que veut dire « finger » ?",
+          options: ["pied", "bras", "doigt", "coude"],
+          answer: 2,
+          hint: "On en a dix sur les mains.",
+          explication: "« Finger » = doigt (de la main). « Toe » = doigt de pied."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « bras » en anglais ?",
+          answer: ["arm", "Arm"],
+          hint: "Trois lettres.",
+          explication: "« Arm » = bras. Au pluriel : « arms »."
+        }
+      ]
+    },
+    {
+      id: "clothes-colours",
+      name: "Clothes & colours",
+      emoji: "👕",
+      desc: "Vêtements et couleurs",
+      questions: [
+        {
+          text: "Comment dit-on « rouge » en anglais ?",
+          options: ["blue", "green", "red", "yellow"],
+          answer: 2,
+          hint: "Couleur du feu et des pompiers.",
+          explication: "« Red » = rouge. « Blue » = bleu, « green » = vert, « yellow » = jaune."
+        },
+        {
+          text: "Comment dit-on « pantalon » en anglais ?",
+          options: ["skirt", "trousers", "shoes", "coat"],
+          answer: 1,
+          hint: "Vêtement qui couvre les deux jambes.",
+          explication: "« Trousers » = pantalon (anglais britannique). Aux États-Unis on dit « pants »."
+        },
+        {
+          text: "Que veut dire « blue » ?",
+          options: ["rouge", "vert", "bleu", "noir"],
+          answer: 2,
+          hint: "Couleur du ciel et de la mer.",
+          explication: "« Blue » = bleu."
+        },
+        {
+          text: "Comment dit-on « chaussures » en anglais ?",
+          options: ["socks", "gloves", "shoes", "hat"],
+          answer: 2,
+          hint: "On les porte aux pieds pour sortir.",
+          explication: "« Shoes » = chaussures. « Socks » = chaussettes, « hat » = chapeau."
+        },
+        {
+          text: "Que veut dire « coat » ?",
+          options: ["robe", "jupe", "manteau", "chapeau"],
+          answer: 2,
+          hint: "On le met quand il fait froid pour sortir.",
+          explication: "« Coat » = manteau. « Dress » = robe, « skirt » = jupe."
+        },
+        {
+          type: "vrai_faux",
+          text: "« Black » signifie « noir » et « white » signifie « blanc ».",
+          answer: 0,
+          hint: "Ce sont les deux couleurs opposées.",
+          explication: "VRAI. « Black » = noir, « white » = blanc."
+        },
+        {
+          text: "Comment dit-on « Je porte un t-shirt vert » ?",
+          options: ["I wear a green T-shirt", "I am a green T-shirt", "I have green clothes T-shirt", "My T-shirt is wearing green"],
+          answer: 0,
+          hint: "Verbe « to wear » = porter un vêtement.",
+          explication: "« I wear a green T-shirt » : « to wear » = porter un vêtement. L'adjectif de couleur se place avant le nom."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des couleurs ?",
+          options: ["red", "green", "shirt", "yellow"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots est un vêtement.",
+          explication: "Red (rouge), green (vert), yellow (jaune) sont des couleurs. Shirt = chemise."
+        },
+        {
+          text: "Que veut dire « skirt » ?",
+          options: ["pantalon", "veste", "jupe", "robe"],
+          answer: 2,
+          hint: "Vêtement féminin qui couvre le bas du corps sans séparer les jambes.",
+          explication: "« Skirt » = jupe. « Dress » = robe, « trousers » = pantalon."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « vert » en anglais ?",
+          answer: ["green", "Green"],
+          hint: "Couleur de l'herbe.",
+          explication: "« Green » = vert."
+        }
+      ]
     }
   ]
 };

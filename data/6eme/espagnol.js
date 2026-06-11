@@ -485,6 +485,322 @@ window.CURRICULUM_PARTS["6eme"]["espagnol"] = {
           explication: "« El libro » = le livre."
         }
       ]
+    },
+    {
+      id: "animales",
+      name: "Los animales",
+      emoji: "🐾",
+      desc: "Animaux courants et animaux de compagnie",
+      questions: [
+        {
+          text: "Que veut dire « perro » ?",
+          options: ["chat", "chien", "cheval", "lapin"],
+          answer: 1,
+          hint: "Animal domestique courant, ami de l'homme.",
+          explication: "« Perro » = chien. « Gato » = chat."
+        },
+        {
+          text: "Comment dit-on « chat » en espagnol ?",
+          options: ["perro", "conejo", "gato", "pájaro"],
+          answer: 2,
+          hint: "Ressemble un peu au mot anglais « cat ».",
+          explication: "« Gato » = chat. « Gata » pour une chatte."
+        },
+        {
+          text: "Que signifie « caballo » ?",
+          options: ["vache", "mouton", "cheval", "cochon"],
+          answer: 2,
+          hint: "Animal qu'on monte pour se déplacer.",
+          explication: "« Caballo » = cheval."
+        },
+        {
+          text: "Comment dit-on « oiseau » en espagnol ?",
+          options: ["pez", "pájaro", "ratón", "vaca"],
+          answer: 1,
+          hint: "Animal qui vole et qui chante.",
+          explication: "« Pájaro » = oiseau. La « j » espagnole se prononce de façon gutturale."
+        },
+        {
+          text: "Que veut dire « vaca » ?",
+          options: ["chèvre", "mouton", "cochon", "vache"],
+          answer: 3,
+          hint: "Animal de la ferme qui donne du lait.",
+          explication: "« Vaca » = vache."
+        },
+        {
+          type: "vrai_faux",
+          text: "« Pez » signifie « poisson » en espagnol.",
+          answer: 0,
+          hint: "On dit « un pez de colores » pour un poisson rouge.",
+          explication: "VRAI. « Pez » = poisson (dans l'eau). « Pescado » désigne le poisson dans l'assiette."
+        },
+        {
+          text: "Comment dit-on « lapin » en espagnol ?",
+          options: ["ratón", "conejo", "pájaro", "rana"],
+          answer: 1,
+          hint: "Petit animal aux grandes oreilles.",
+          explication: "« Conejo » = lapin."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des animaux domestiques courants ?",
+          options: ["perro", "gato", "mesa", "conejo"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots est un meuble.",
+          explication: "« Perro » (chien), « gato » (chat), « conejo » (lapin) sont des animaux. « Mesa » = table."
+        },
+        {
+          text: "Comment dit-on « j'ai un chien » en espagnol ?",
+          options: ["Soy un perro", "Me llamo perro", "Tengo un perro", "Hay un perro mío"],
+          answer: 2,
+          hint: "On utilise le verbe « tener » (avoir).",
+          explication: "« Tengo un perro » = j'ai un chien. « Tener » = avoir."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « chien » en espagnol ? (Un mot)",
+          answer: ["perro", "Perro"],
+          hint: "Cinq lettres avec deux « r » — qui se roulent en espagnol.",
+          explication: "« Perro » = chien. Le double « rr » en espagnol se prononce de façon roulée."
+        }
+      ]
+    },
+    {
+      id: "el-tiempo",
+      name: "El tiempo y los días",
+      emoji: "⛅",
+      desc: "La météo et les jours de la semaine",
+      questions: [
+        {
+          text: "Comment dit-on « il fait beau » en espagnol ?",
+          options: ["Hace frío", "Hace calor", "Hace buen tiempo", "Llueve"],
+          answer: 2,
+          hint: "« Bueno » = bon, « tiempo » = temps.",
+          explication: "« Hace buen tiempo » = il fait beau (littéralement « il fait bon temps »)."
+        },
+        {
+          text: "Que veut dire « Llueve » ?",
+          options: ["Il neige", "Il fait froid", "Il pleut", "Il y a du vent"],
+          answer: 2,
+          hint: "Pense au mot « lluvia » qui signifie « pluie ».",
+          explication: "« Llueve » = il pleut. « Lluvia » = la pluie."
+        },
+        {
+          text: "Comment dit-on « lundi » en espagnol ?",
+          options: ["martes", "miércoles", "lunes", "jueves"],
+          answer: 2,
+          hint: "Son nom vient de « luna » (la Lune).",
+          explication: "« Lunes » = lundi. Ce jour doit son nom à la Lune (« luna »)."
+        },
+        {
+          text: "Quel jour de la semaine est « viernes » ?",
+          options: ["mercredi", "jeudi", "vendredi", "samedi"],
+          answer: 2,
+          hint: "Son nom vient de Vénus, déesse romaine.",
+          explication: "« Viernes » = vendredi. Il doit son nom à la planète Vénus (Veneris dies en latin)."
+        },
+        {
+          text: "Comment dit-on « il fait froid » en espagnol ?",
+          options: ["Hace calor", "Hace frío", "Hace sol", "Hace viento"],
+          answer: 1,
+          hint: "« Frío » ressemble au mot français « froid ».",
+          explication: "« Hace frío » = il fait froid. « Frío » = froid."
+        },
+        {
+          type: "vrai_faux",
+          text: "« Domingo » signifie « dimanche » en espagnol.",
+          answer: 0,
+          hint: "Son nom vient du latin « Dominicus » (le jour du Seigneur).",
+          explication: "VRAI. « Domingo » = dimanche."
+        },
+        {
+          text: "Comment dit-on « il y a du soleil » en espagnol ?",
+          options: ["Hace viento", "Hace calor", "Hace sol", "Nieva"],
+          answer: 2,
+          hint: "« Sol » = soleil.",
+          explication: "« Hace sol » = il y a du soleil. « Sol » = soleil."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots sont des jours de la semaine ?",
+          options: ["lunes", "martes", "enero", "sábado"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots est un mois.",
+          explication: "« Lunes » (lundi), « martes » (mardi), « sábado » (samedi) sont des jours. « Enero » = janvier (mois)."
+        },
+        {
+          text: "Que veut dire « Nieva » ?",
+          options: ["Il fait soleil", "Il fait froid", "Il neige", "Il y a du vent"],
+          answer: 2,
+          hint: "Pense au mot « nieve » qui signifie « neige ».",
+          explication: "« Nieva » = il neige. « Nieve » = la neige."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « il fait beau » en espagnol ? (Trois mots : Hace ___ tiempo)",
+          answer: ["buen", "Buen"],
+          hint: "L'adjectif qui signifie « bon » devant un nom masculin.",
+          explication: "« Hace buen tiempo » = il fait beau. « Buen » est la forme de « bueno » devant un nom masculin."
+        }
+      ]
+    },
+    {
+      id: "alimentos",
+      name: "Los alimentos",
+      emoji: "🥘",
+      desc: "Nourriture courante et repas",
+      questions: [
+        {
+          text: "Que veut dire « el pan » ?",
+          options: ["le lait", "le pain", "le fromage", "le beurre"],
+          answer: 1,
+          hint: "Aliment de base qu'on mange à chaque repas.",
+          explication: "« El pan » = le pain. Très consommé en Espagne et dans les pays hispanophones."
+        },
+        {
+          text: "Comment dit-on « l'eau » en espagnol ?",
+          options: ["la leche", "el zumo", "el agua", "la sopa"],
+          answer: 2,
+          hint: "La boisson la plus importante pour la vie.",
+          explication: "« El agua » = l'eau. En espagnol, « agua » est féminin mais prend l'article « el » pour des raisons de sonorité."
+        },
+        {
+          text: "Que signifie « la leche » ?",
+          options: ["le jus", "l'eau", "le lait", "la soupe"],
+          answer: 2,
+          hint: "Boisson blanche produite par les vaches.",
+          explication: "« La leche » = le lait."
+        },
+        {
+          text: "Comment dit-on « je mange » en espagnol ?",
+          options: ["Bebo", "Tengo", "Como", "Hablo"],
+          answer: 2,
+          hint: "Verbe « comer » (manger) conjugué à la 1re personne.",
+          explication: "« Como » = je mange. Vient du verbe « comer » (manger). « Bebo » = je bois."
+        },
+        {
+          text: "Que veut dire « la fruta » ?",
+          options: ["le légume", "le fruit", "la viande", "le gâteau"],
+          answer: 1,
+          hint: "Très proche du mot français.",
+          explication: "« La fruta » = le fruit."
+        },
+        {
+          type: "vrai_faux",
+          text: "« El desayuno » signifie « le petit-déjeuner ».",
+          answer: 0,
+          hint: "C'est le premier repas de la journée.",
+          explication: "VRAI. « El desayuno » = le petit-déjeuner. « Desayunar » = prendre le petit-déjeuner."
+        },
+        {
+          text: "Comment dit-on « je bois du jus d'orange » en espagnol ?",
+          options: ["Bebo zumo de naranja", "Como zumo de naranja", "Tengo zumo naranja", "Hablo zumo naranja"],
+          answer: 0,
+          hint: "Verbe « beber » (boire) → « bebo » à la 1re personne.",
+          explication: "« Bebo zumo de naranja » = je bois du jus d'orange. « Beber » = boire, « naranja » = orange."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des aliments ou des boissons ?",
+          options: ["el pan", "la leche", "la silla", "la fruta"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots désigne un meuble.",
+          explication: "Pan (pain), leche (lait), fruta (fruit) sont des aliments. Silla = chaise."
+        },
+        {
+          text: "Que veut dire « tengo hambre » ?",
+          options: ["j'ai soif", "j'ai faim", "j'ai chaud", "j'ai froid"],
+          answer: 1,
+          hint: "« Hambre » = la faim.",
+          explication: "« Tengo hambre » = j'ai faim (littéralement « j'ai de la faim »)."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « le pain » en espagnol ? (Deux mots avec l'article)",
+          answer: ["el pan", "El pan"],
+          hint: "Article masculin singulier « el » + aliment de base.",
+          explication: "« El pan » = le pain."
+        }
+      ]
+    },
+    {
+      id: "la-casa",
+      name: "La casa",
+      emoji: "🏠",
+      desc: "Les pièces et le mobilier de la maison",
+      questions: [
+        {
+          text: "Que veut dire « la cocina » ?",
+          options: ["la chambre", "la salle de bain", "la cuisine", "le salon"],
+          answer: 2,
+          hint: "Pièce où l'on prépare les repas. Le verbe « cocinar » = cuisiner.",
+          explication: "« La cocina » = la cuisine."
+        },
+        {
+          text: "Comment dit-on « la chambre à coucher » en espagnol ?",
+          options: ["el baño", "la cocina", "el dormitorio", "el salón"],
+          answer: 2,
+          hint: "« Dormir » = dormir → la pièce où l'on dort.",
+          explication: "« El dormitorio » = la chambre à coucher. De « dormir » (dormir)."
+        },
+        {
+          text: "Que signifie « el baño » ?",
+          options: ["la cuisine", "la salle de bain", "le couloir", "le grenier"],
+          answer: 1,
+          hint: "« Baño » ressemble au mot français « bain ».",
+          explication: "« El baño » = la salle de bain. « Bañarse » = se baigner."
+        },
+        {
+          text: "Comment dit-on « le salon » (pièce principale) en espagnol ?",
+          options: ["el dormitorio", "la cocina", "el salón", "el pasillo"],
+          answer: 2,
+          hint: "Pièce où la famille se réunit — mot très proche du français.",
+          explication: "« El salón » = le salon / la salle de séjour."
+        },
+        {
+          text: "Que veut dire « la cama » ?",
+          options: ["la table", "le lit", "la chaise", "la fenêtre"],
+          answer: 1,
+          hint: "On y dort la nuit.",
+          explication: "« La cama » = le lit."
+        },
+        {
+          type: "vrai_faux",
+          text: "« El jardín » signifie « le jardin » en espagnol.",
+          answer: 0,
+          hint: "Ces deux mots ont la même origine latine.",
+          explication: "VRAI. « El jardín » = le jardin."
+        },
+        {
+          text: "Comment dit-on « la porte » en espagnol ?",
+          options: ["la ventana", "la pared", "la puerta", "el techo"],
+          answer: 2,
+          hint: "On l'ouvre pour entrer ou sortir.",
+          explication: "« La puerta » = la porte. « La ventana » = la fenêtre, « la pared » = le mur."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces mots désignent des pièces de la maison ?",
+          options: ["la cocina", "el dormitorio", "el árbol", "el baño"],
+          answer: [0, 1, 3],
+          hint: "L'un de ces mots désigne un élément de la nature.",
+          explication: "Cocina (cuisine), dormitorio (chambre), baño (salle de bain) sont des pièces. Árbol = arbre."
+        },
+        {
+          text: "Comment dit-on « j'habite dans une maison » en espagnol ?",
+          options: ["Tengo una casa", "Vivo en una casa", "Soy una casa", "Me llamo casa"],
+          answer: 1,
+          hint: "Verbe « vivir » (vivre / habiter) conjugué à la 1re personne : « vivo ».",
+          explication: "« Vivo en una casa » = j'habite dans une maison. « Vivir » = vivre/habiter."
+        },
+        {
+          type: "texte",
+          text: "Comment dit-on « la cuisine » (pièce de la maison) en espagnol ? (Deux mots avec l'article)",
+          answer: ["la cocina", "La cocina"],
+          hint: "Article féminin « la » + lieu où l'on prépare les repas.",
+          explication: "« La cocina » = la cuisine. Du verbe « cocinar » (cuisiner)."
+        }
+      ]
     }
   ]
 };

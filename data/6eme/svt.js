@@ -483,6 +483,322 @@ window.CURRICULUM_PARTS["6eme"]["svt"] = {
           explication: "La photosynthèse est le processus par lequel les plantes vertes transforment l'eau et le CO₂ en matière organique grâce à la lumière du Soleil."
         }
       ]
+    },
+    {
+      id: "roches-sols",
+      name: "Roches et sols",
+      emoji: "🪨",
+      desc: "Minéraux, types de roches, formation des sols",
+      questions: [
+        {
+          text: "Comment appelle-t-on les scientifiques qui étudient les roches ?",
+          options: ["biologistes", "géologues", "astronomes", "chimistes"],
+          answer: 1,
+          hint: "« Géo » vient du grec qui signifie « Terre ».",
+          explication: "Les géologues étudient les roches, les minéraux et la structure de la Terre."
+        },
+        {
+          text: "Comment appelle-t-on une substance naturelle solide non vivante qui compose les roches ?",
+          options: ["un nutriment", "un gaz", "un minéral", "un plasma"],
+          answer: 2,
+          hint: "Le quartz, le mica et le feldspath en sont des exemples.",
+          explication: "Un minéral est une substance naturelle solide, d'origine non vivante, qui compose les roches (quartz, calcite, feldspath…)."
+        },
+        {
+          text: "Comment s'appelle la roche très dure formée par le refroidissement lent du magma en profondeur ?",
+          options: ["le calcaire", "le granit", "le marbre", "le sable"],
+          answer: 1,
+          hint: "Roche grise avec des taches, très utilisée en construction.",
+          explication: "Le granit est une roche magmatique formée par le refroidissement lent du magma en profondeur."
+        },
+        {
+          text: "Qu'est-ce que l'humus ?",
+          options: ["une roche volcanique", "la matière organique issue de la décomposition d'êtres vivants dans le sol", "un type de minéral", "une couche de roche dure en surface"],
+          answer: 1,
+          hint: "C'est la partie sombre et fertile du sol.",
+          explication: "L'humus est la matière organique résultant de la décomposition des végétaux et animaux morts. Il rend le sol fertile."
+        },
+        {
+          text: "Quelle roche volcanique est si poreuse qu'elle peut flotter sur l'eau ?",
+          options: ["le granit", "le basalte", "la pierre ponce", "le calcaire"],
+          answer: 2,
+          hint: "Elle est pleine de petits trous — des bulles de gaz piégées.",
+          explication: "La pierre ponce est une roche volcanique très poreuse (pleine de bulles) : si légère qu'elle flotte sur l'eau."
+        },
+        {
+          type: "vrai_faux",
+          text: "Le calcaire peut se former à partir de l'accumulation de coquillages et de coraux.",
+          answer: 0,
+          hint: "Ces organismes marins ont un squelette riche en calcium.",
+          explication: "VRAI. Le calcaire peut se former par accumulation de restes d'organismes marins (coquillages, coraux) riches en carbonate de calcium."
+        },
+        {
+          text: "Quel est le minéral le plus courant dans le sable de plage ?",
+          options: ["le sel", "le quartz", "le fer", "l'argile"],
+          answer: 1,
+          hint: "Minéral transparent ou blanc, très résistant à l'érosion.",
+          explication: "Le quartz (silice) est le minéral le plus abondant dans le sable. Il est très résistant à l'érosion."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels de ces éléments composent un sol ?",
+          options: ["des minéraux (argile, sable)", "de l'humus (matière organique)", "de l'eau et de l'air", "des roches fondues (magma)"],
+          answer: [0, 1, 2],
+          hint: "Le magma est en profondeur, bien loin sous les sols de surface.",
+          explication: "Un sol est composé de minéraux (sable, argile), d'humus, d'eau et d'air. Le magma n'est pas dans les sols de surface."
+        },
+        {
+          text: "Comment appelle-t-on la destruction progressive des roches par l'eau, le vent et les variations de température ?",
+          options: ["la photosynthèse", "l'érosion", "la digestion", "la fermentation"],
+          answer: 1,
+          hint: "Ce phénomène sculpte les paysages (falaises, canyons).",
+          explication: "L'érosion est la dégradation des roches par les agents naturels : eau, vent, gel/dégel. Elle façonne les paysages."
+        },
+        {
+          type: "texte",
+          text: "Comment appelle-t-on la matière sombre et fertile du sol, issue de la décomposition des organismes morts ? (Un mot)",
+          answer: ["humus", "Humus", "l'humus"],
+          hint: "Rend le sol riche en nutriments pour les plantes.",
+          explication: "L'humus est la matière organique du sol, essentielle à la fertilité et à la croissance des plantes."
+        }
+      ]
+    },
+    {
+      id: "cellule",
+      name: "La cellule",
+      emoji: "🔬",
+      desc: "Structure cellulaire, cellule animale et végétale",
+      questions: [
+        {
+          text: "Qu'est-ce qu'une cellule ?",
+          options: ["une molécule d'eau", "la plus petite unité de vie", "un organe du corps", "un type de tissu"],
+          answer: 1,
+          hint: "C'est la « brique » de base de tout être vivant.",
+          explication: "La cellule est la plus petite unité structurale et fonctionnelle du vivant. Tout organisme est formé d'une ou plusieurs cellules."
+        },
+        {
+          text: "Quelle partie de la cellule contient l'ADN (l'information génétique) ?",
+          options: ["la membrane", "le cytoplasme", "le noyau", "la paroi"],
+          answer: 2,
+          hint: "C'est le « centre de commande » de la cellule.",
+          explication: "Le noyau contient l'ADN, le programme génétique de la cellule."
+        },
+        {
+          text: "Comment appelle-t-on la fine enveloppe qui délimite la cellule ?",
+          options: ["le noyau", "la membrane cellulaire", "la paroi", "le cytoplasme"],
+          answer: 1,
+          hint: "Elle contrôle les échanges entre la cellule et son environnement.",
+          explication: "La membrane cellulaire (ou plasmique) est la fine enveloppe qui délimite la cellule et régule les échanges."
+        },
+        {
+          text: "Quelle structure est présente dans la cellule végétale mais PAS dans la cellule animale ?",
+          options: ["le noyau", "la membrane cellulaire", "la paroi cellulosique", "le cytoplasme"],
+          answer: 2,
+          hint: "Elle donne sa rigidité à la cellule végétale.",
+          explication: "La paroi cellulosique (rigide) est propre aux cellules végétales. Les cellules animales n'en ont pas."
+        },
+        {
+          text: "Comment appelle-t-on les organites verts des cellules végétales qui réalisent la photosynthèse ?",
+          options: ["les mitochondries", "les chloroplastes", "les ribosomes", "les vacuoles"],
+          answer: 1,
+          hint: "Ils contiennent la chlorophylle qui capte la lumière solaire.",
+          explication: "Les chloroplastes sont les organites verts des cellules végétales : ils réalisent la photosynthèse grâce à la chlorophylle."
+        },
+        {
+          type: "vrai_faux",
+          text: "Les bactéries sont des cellules sans vrai noyau délimité par une membrane.",
+          answer: 0,
+          hint: "On les appelle cellules « procaryotes ».",
+          explication: "VRAI. Les bactéries sont des cellules procaryotes : elles ne possèdent pas de noyau délimité par une membrane."
+        },
+        {
+          text: "Comment appelle-t-on la substance gélatineuse qui remplit la cellule autour du noyau ?",
+          options: ["l'ADN", "la sève", "le cytoplasme", "la lymphe"],
+          answer: 2,
+          hint: "Il contient tous les organites de la cellule.",
+          explication: "Le cytoplasme est le contenu semi-liquide de la cellule, dans lequel baignent le noyau et les organites."
+        },
+        {
+          type: "qcm",
+          text: "Lesquelles de ces structures sont présentes dans TOUTES les cellules (animales ET végétales) ?",
+          options: ["le noyau", "la membrane cellulaire", "les chloroplastes", "le cytoplasme"],
+          answer: [0, 1, 3],
+          hint: "Les chloroplastes sont réservés aux cellules végétales.",
+          explication: "Noyau, membrane cellulaire et cytoplasme sont communs à toutes les cellules. Les chloroplastes sont spécifiques aux végétaux."
+        },
+        {
+          text: "À quoi sert l'ADN dans la cellule ?",
+          options: ["à produire de l'énergie", "à porter l'information génétique (programme de la cellule)", "à protéger la cellule des virus", "à fabriquer du glucose"],
+          answer: 1,
+          hint: "Il contient les « instructions » pour fabriquer toutes les protéines.",
+          explication: "L'ADN est le support de l'information génétique : il contient les instructions pour le fonctionnement et la reproduction de la cellule."
+        },
+        {
+          type: "texte",
+          text: "Comment appelle-t-on les organites verts des cellules végétales qui réalisent la photosynthèse ? (Un mot)",
+          answer: ["chloroplastes", "Chloroplastes", "les chloroplastes", "chloroplaste"],
+          hint: "Du grec « chloro » (vert) + « plastos » (formé).",
+          explication: "Les chloroplastes sont les organites verts de la cellule végétale, sièges de la photosynthèse."
+        }
+      ]
+    },
+    {
+      id: "eau-nature",
+      name: "L'eau dans la nature",
+      emoji: "💧",
+      desc: "Cycle de l'eau, états, eau douce et salée",
+      questions: [
+        {
+          text: "Quels sont les 3 états de l'eau ?",
+          options: ["solide, liquide, plasma", "solide, liquide, gazeux", "liquide, gazeux, magnétique", "solide, dense, gazeux"],
+          answer: 1,
+          hint: "Glace, eau liquide, vapeur d'eau.",
+          explication: "L'eau existe sous 3 états : solide (glace), liquide (eau), gazeux (vapeur d'eau)."
+        },
+        {
+          text: "Comment appelle-t-on le passage de l'eau liquide à l'état de vapeur ?",
+          options: ["la condensation", "la solidification", "l'évaporation", "la précipitation"],
+          answer: 2,
+          hint: "Ce qui arrive à une flaque d'eau par temps chaud.",
+          explication: "L'évaporation est le passage de l'eau liquide à l'état gazeux (vapeur). Elle se produit sous l'effet de la chaleur."
+        },
+        {
+          text: "Quelle proportion de l'eau sur Terre est de l'eau salée (mers et océans) ?",
+          options: ["environ 10 %", "environ 50 %", "environ 75 %", "environ 97 %"],
+          answer: 3,
+          hint: "L'eau douce est très rare à l'échelle de la planète.",
+          explication: "Environ 97 % de l'eau sur Terre est salée (mers et océans). Seulement 3 % est de l'eau douce."
+        },
+        {
+          text: "Comment appelle-t-on le passage de la vapeur d'eau à l'état liquide (formation des nuages et de la rosée) ?",
+          options: ["l'évaporation", "la condensation", "la filtration", "l'infiltration"],
+          answer: 1,
+          hint: "C'est l'inverse de l'évaporation.",
+          explication: "La condensation est le passage de la vapeur d'eau à l'état liquide. C'est ce qui forme les nuages et la rosée."
+        },
+        {
+          text: "D'où provient principalement l'eau que nous buvons au robinet ?",
+          options: ["des mers et des océans directement", "des nappes souterraines et des rivières", "de la vapeur d'eau industrielle", "de la pluie collectée directement"],
+          answer: 1,
+          hint: "Elle est puisée sous terre ou dans les cours d'eau, puis traitée.",
+          explication: "L'eau potable provient principalement des nappes souterraines et des rivières. Elle est traitée avant distribution."
+        },
+        {
+          type: "vrai_faux",
+          text: "Le cycle de l'eau est alimenté principalement par l'énergie du Soleil.",
+          answer: 0,
+          hint: "C'est le Soleil qui fait s'évaporer l'eau des océans.",
+          explication: "VRAI. L'énergie solaire provoque l'évaporation de l'eau, ce qui est le moteur principal du cycle de l'eau."
+        },
+        {
+          text: "Que se passe-t-il quand l'eau de pluie s'infiltre dans le sol ?",
+          options: ["elle disparaît", "elle alimente les nappes souterraines", "elle monte vers les nuages", "elle devient salée"],
+          answer: 1,
+          hint: "C'est ainsi que se rechargent les réserves d'eau sous terre.",
+          explication: "L'eau de pluie s'infiltre dans le sol pour alimenter les nappes phréatiques (souterraines), réservoirs naturels d'eau douce."
+        },
+        {
+          type: "qcm",
+          text: "Lesquels sont des réservoirs naturels d'eau douce ?",
+          options: ["les glaciers", "les nappes souterraines", "les océans", "les lacs"],
+          answer: [0, 1, 3],
+          hint: "Les océans contiennent de l'eau salée.",
+          explication: "Les glaciers, nappes souterraines et lacs contiennent de l'eau douce. Les océans contiennent de l'eau salée."
+        },
+        {
+          text: "Comment appelle-t-on l'eau traitée et propre à la consommation humaine ?",
+          options: ["eau distillée", "eau potable", "eau minérale uniquement", "eau brute"],
+          answer: 1,
+          hint: "Celle qui coule au robinet après traitement.",
+          explication: "L'eau potable est une eau purifiée et contrôlée, propre à la consommation humaine sans risque pour la santé."
+        },
+        {
+          type: "texte",
+          text: "Comment appelle-t-on le passage de l'eau liquide à l'état solide ? (Un mot)",
+          answer: ["solidification", "Solidification", "congélation", "Congélation", "la solidification", "la congélation"],
+          hint: "C'est ce qui se passe dans un congélateur.",
+          explication: "La solidification (ou congélation) est le passage de l'eau liquide à l'état solide (glace), à 0 °C."
+        }
+      ]
+    },
+    {
+      id: "soleil-saisons",
+      name: "Soleil et saisons",
+      emoji: "🌞",
+      desc: "Mouvements de la Terre, jours/nuits, saisons",
+      questions: [
+        {
+          text: "Qu'est-ce qui tourne autour de quoi dans notre système solaire ?",
+          options: ["le Soleil tourne autour de la Terre", "la Terre tourne autour du Soleil", "la Lune tourne autour du Soleil", "le Soleil tourne autour de la Lune"],
+          answer: 1,
+          hint: "C'est ce que Copernic a démontré au XVIe siècle.",
+          explication: "C'est la Terre qui tourne autour du Soleil (révolution), et non l'inverse."
+        },
+        {
+          text: "Combien de temps dure la rotation de la Terre sur elle-même ?",
+          options: ["12 heures", "24 heures (1 jour)", "365 jours", "28 jours"],
+          answer: 1,
+          hint: "C'est ce mouvement qui crée l'alternance jour/nuit.",
+          explication: "La Terre tourne sur elle-même en 24 heures environ. Ce mouvement crée l'alternance jour/nuit."
+        },
+        {
+          text: "Combien de temps met la Terre pour faire un tour complet autour du Soleil ?",
+          options: ["24 heures", "28 jours", "365 jours (1 an)", "100 jours"],
+          answer: 2,
+          hint: "C'est la durée d'une année.",
+          explication: "La révolution de la Terre autour du Soleil dure 365 jours et 6 heures environ (d'où les années bissextiles)."
+        },
+        {
+          text: "Comment appelle-t-on le mouvement de la Terre autour du Soleil ?",
+          options: ["la rotation", "la révolution", "l'oscillation", "la translation"],
+          answer: 1,
+          hint: "À ne pas confondre avec la rotation (mouvement sur elle-même).",
+          explication: "La révolution est le mouvement de la Terre autour du Soleil. La rotation est le mouvement de la Terre sur son axe."
+        },
+        {
+          text: "Pourquoi les saisons changent-elles au cours de l'année ?",
+          options: ["à cause de la distance variable Terre-Soleil", "à cause de l'inclinaison de l'axe de la Terre", "à cause de la rotation de la Lune", "parce que le Soleil change de taille"],
+          answer: 1,
+          hint: "L'axe de la Terre est incliné d'environ 23,5°.",
+          explication: "Les saisons sont dues à l'inclinaison de l'axe de la Terre (23,5°). Selon la position dans sa révolution, un hémisphère reçoit plus ou moins de lumière."
+        },
+        {
+          type: "vrai_faux",
+          text: "En été, les jours sont plus longs qu'en hiver dans l'hémisphère nord.",
+          answer: 0,
+          hint: "Observe la durée de la nuit en été et en hiver.",
+          explication: "VRAI. En été, la France reçoit la lumière solaire plus longtemps (jusqu'à 16 h de jour). En hiver, les journées sont très courtes."
+        },
+        {
+          text: "Comment appelle-t-on le moment de l'année où le jour et la nuit ont exactement la même durée ?",
+          options: ["le solstice", "l'équinoxe", "l'apogée", "le zénith"],
+          answer: 1,
+          hint: "Il y en a deux par an : vers le 21 mars et le 23 septembre.",
+          explication: "L'équinoxe (de printemps ou d'automne) est le moment où la durée du jour est égale à celle de la nuit (12 h chacune)."
+        },
+        {
+          type: "qcm",
+          text: "Quelles affirmations sur le Soleil sont correctes ?",
+          options: ["c'est une étoile", "il est au centre de notre système solaire", "il tourne autour de la Terre", "il fournit l'énergie nécessaire à la vie sur Terre"],
+          answer: [0, 1, 3],
+          hint: "C'est la Terre qui tourne autour du Soleil, pas l'inverse.",
+          explication: "Le Soleil est une étoile, au centre du système solaire. C'est la Terre qui en fait le tour. Il fournit lumière et chaleur indispensables à la vie."
+        },
+        {
+          text: "Lors du solstice d'hiver (environ le 21 décembre en France), que se passe-t-il ?",
+          options: ["les jours sont les plus longs", "la nuit est la plus longue de l'année", "le jour et la nuit durent 12 h chacun", "le Soleil se lève plein nord"],
+          answer: 1,
+          hint: "C'est le point opposé du solstice d'été.",
+          explication: "Au solstice d'hiver, la nuit est la plus longue de l'année dans l'hémisphère nord. C'est l'inverse du solstice d'été (21 juin)."
+        },
+        {
+          type: "texte",
+          text: "Comment appelle-t-on le mouvement de la Terre sur elle-même (qui dure 24 h) ? (Un mot)",
+          answer: ["rotation", "Rotation", "la rotation"],
+          hint: "Même famille que « rotatif » ou « rotonde ».",
+          explication: "La rotation est le mouvement de la Terre sur son propre axe, en 24 heures. C'est elle qui crée le jour et la nuit."
+        }
+      ]
     }
   ]
 };
