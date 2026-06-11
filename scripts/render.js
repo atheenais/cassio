@@ -443,7 +443,7 @@ function renderLevelSelector() {
                     onclick="changeLevel('${lvl}')"
                     aria-pressed="${isActive}"
                     style="${activeStyle}">
-              ${cfg.emoji} ${cfg.name}
+              ${cfg.emoji} ${cfg.name}${hasNewSubjects(lvl) ? ' <span class="pill-new-dot" aria-hidden="true"></span>' : ''}
             </button>`;
   }).join('');
   return `
@@ -588,6 +588,7 @@ function renderBadgesSection() {
 function renderHome() {
   // Calcul unique : une seule lecture de progress, un seul parcours du curriculum.
   // On construit une map { sId: count } des thèmes complétés au format actuel.
+  const { perfectCount } = computeBadgeContext();
   const curriculum = getCurriculum(getCurrentLevel());
   const progress = getProgress();
   const doneBycSubject = {};
@@ -624,7 +625,10 @@ function renderHome() {
            role="button" aria-label="${s.name} — ${done} thèmes sur ${total} complétés">
         <div class="subject-card-head">
           <span class="subj-icon" aria-hidden="true">${s.emoji}</span>
-          <span class="subj-counter">${done}/${total}</span>
+          <div class="subj-head-right">
+            ${isSubjectNew(getCurrentLevel(), s.id) ? '<span class="subj-new">Nouveau</span>' : ''}
+            <span class="subj-counter">${done}/${total}</span>
+          </div>
         </div>
         <div class="subj-name">${s.name}</div>
         <div class="subj-meta">${s.desc}</div>
@@ -671,7 +675,10 @@ function renderHome() {
       <div class="home-identity-bar"><div class="home-identity-bar-fill" style="width:${fillPct}%"></div></div>
       <div class="home-identity-foot">
         <span>🎓 <strong>${doneTopics}/${totalTopics}</strong> thèmes complétés</span>
-        <span class="pct">${pct}%</span>
+        <div class="home-identity-foot-right">
+          ${perfectCount > 0 ? `<span class="perfect-stat">⭐ ${perfectCount} sans-faute${perfectCount > 1 ? 's' : ''}</span>` : ''}
+          <span class="pct">${pct}%</span>
+        </div>
       </div>
     </div>`;
 
