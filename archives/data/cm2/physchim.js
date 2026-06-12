@@ -1,7 +1,8 @@
 /* Matière : Physique-Chimie ⚗️
    4 thèmes × 10 questions = 40 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["physchim"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["physchim"] = {
   id: "physchim",
   name: "Physique-Chimie",
   emoji: "⚗️",

@@ -105,8 +105,11 @@ function exitGuestMode() {
 }
 function resetGuestProgress() {
   if (!confirm('Effacer toute la progression du mode invité ? Les profils Elias et Leïla ne seront pas touchés.')) return;
-  localStorage.removeItem('cm2-progress-guest');
-  // On retire aussi les sessions du profil invité
+  // Supprime la progression de l'invité sur TOUS les niveaux scolaires
+  LEVEL_IDS.forEach(lvl => localStorage.removeItem(`cm2-progress-guest-${lvl}`));
+  // Réinitialise aussi son niveau courant (re-popup d'onboarding au prochain quiz)
+  localStorage.removeItem('cm2-level-guest');
+  // On retire les sessions du profil invité
   const others = getSessions().filter(s => s.profile !== 'guest');
   localStorage.setItem('cm2-sessions', JSON.stringify(others));
   _invalidateCache('all');
@@ -115,8 +118,12 @@ function resetGuestProgress() {
 function goHome() {
   clearQuizTimers();
   S.screen = 'home'; S.subjId = null; S.topicId = null;
-  S.randomMode = false; S.reviewMode = false;
+  S.randomMode = false; S.reviewMode = false; S.weakMode = false;
   applySubjStyle(null);
+  // Si le profil n'a pas encore choisi son niveau et que plusieurs niveaux sont
+  // disponibles, on bascule sur l'écran d'onboarding du niveau. Sinon, le niveau
+  // est inscrit silencieusement et on reste sur l'accueil.
+  maybeShowLevelOnboarding();
   render();
 }
 function goSubject(id) {
@@ -130,8 +137,15 @@ function startQuiz(sId, tId) {
   S.screen = 'quiz'; S.subjId = sId; S.topicId = tId;
   S.reviewMode = false;
   S.randomMode = false;
-  // Mélange : ordre des questions + ordre des options dans chaque question
-  initQuizState(shuffleArray(getTopic(sId, tId).questions).map(prepareQuestion));
+  S.weakMode = false;
+  // Mélange : ordre des questions + ordre des options dans chaque question.
+  // On tague chaque question de son index original (_origQi) et de son origine
+  // (_origSubjId/_origTopicId) AVANT le mélange, pour alimenter la mémoire des
+  // erreurs même dans un quiz par thème classique.
+  const tagged = getTopic(sId, tId).questions.map((q, i) => ({
+    ...q, _origSubjId: sId, _origTopicId: tId, _origQi: i
+  }));
+  initQuizState(shuffleArray(tagged).map(prepareQuestion));
   applySubjStyle(sId);
   renderQuizScreen();
 }
@@ -168,8 +182,28 @@ function startRandomQuiz(n) {
   S.topicId = null;
   S.reviewMode = false;
   S.randomMode = true;
+  S.weakMode = false;
   initQuizState(picked.map(prepareQuestion));
   applySubjStyle('random');
+  renderQuizScreen();
+}
+
+/* ── Mode "Mes points faibles" : repioche les questions ratées (pondérées par
+   fréquence × récence), complétées par des thèmes fragiles si besoin. ── */
+function startWeakQuiz(n) {
+  clearQuizTimers();
+  const count = n || 10;
+  const picked = pickWeakQuestions(count);
+  if (picked.length === 0) return; // garde-fou : ne devrait pas arriver (CTA masqué sinon)
+  S.screen = 'quiz';
+  S.subjId = 'weak';
+  S.topicId = null;
+  S.reviewMode = false;
+  S.randomMode = true;  // réutilise la logique "multi-thèmes" (pas de progression par thème, breadcrumb spécial)
+  S.weakMode = true;    // marqueur spécifique pour le score et le retrait des erreurs corrigées
+  S.__weakBefore = countWeakQuestions(); // nb d'erreurs en mémoire avant ce quiz
+  initQuizState(picked.map(prepareQuestion));
+  applySubjStyle('weak');
   renderQuizScreen();
 }
 
@@ -182,9 +216,13 @@ function goScore() {
     const beforeIds = computeBadgesUnlocked().map(b => b.id);
     const wasFirstToday = isFirstSessionToday();
     S.xpGained = computeSessionXP(S.correct, n, wasFirstToday, S.hintsUsed || 0);
-    // En mode aléatoire : pas de progression par thème, mais on garde la session pour l'historique/XP
-    const savedSubjId = S.randomMode ? RANDOM_SUBJ_ID : S.subjId;
-    const savedTopicId = S.randomMode ? RANDOM_SUBJ_ID : S.topicId;
+    // En mode aléatoire ou points faibles : pas de progression par thème,
+    // mais on garde la session pour l'historique/XP. On distingue les deux via
+    // un ID dédié pour chacun.
+    const isPseudo = S.randomMode || S.weakMode;
+    const pseudoId = S.weakMode ? WEAK_SUBJ_ID : RANDOM_SUBJ_ID;
+    const savedSubjId = isPseudo ? pseudoId : S.subjId;
+    const savedTopicId = isPseudo ? pseudoId : S.topicId;
     saveSession(savedSubjId, savedTopicId, S.correct, n, S.hintsUsed || 0);
     const after = computeBadgesUnlocked();
     S.newBadges = after.filter(b => !beforeIds.includes(b.id));
@@ -212,6 +250,7 @@ function render() {
     banner.hidden = !showBanner;
   }
   if (S.screen === 'profile')   { app.innerHTML = renderProfile();   }
+  if (S.screen === 'level-onboarding') { app.innerHTML = renderLevelOnboarding(); }
   if (S.screen === 'customize') { app.innerHTML = renderCustomize(); }
   if (S.screen === 'home')      { app.innerHTML = renderHome();      }
   if (S.screen === 'subject') { app.innerHTML = renderSubject();  }
@@ -296,11 +335,54 @@ function renderCustomize() {
                autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
 
+      ${renderCustomizeLevelSection()}
+
       <div class="customize-actions">
         ${!isFirstTime ? '<button class="btn-sm" onclick="customizeCancel()">Annuler</button>' : ''}
         <button class="btn-sm accent" onclick="customizeSave()">${isFirstTime ? "C'est parti !" : 'Valider'}</button>
       </div>
     </div>`;
+}
+
+/* Section "Choisir ma classe" sur l'écran de personnalisation.
+   N'apparaît que si au moins 2 niveaux ont du contenu chargé (sinon, c'est inutile :
+   un seul niveau est forcément le bon). Le choix prend effet immédiatement (pas besoin
+   d'attendre "Valider") car il modifie une clé localStorage indépendante de la
+   personnalisation. C'est cohérent avec le sélecteur de l'accueil. */
+function renderCustomizeLevelSection() {
+  const available = getAvailableLevels();
+  if (available.length < 2) return ''; // un seul niveau peuplé : pas la peine
+  const current = getCurrentLevel();
+  const buttons = available.map(lvl => {
+    const cfg = getLevelConfig(lvl);
+    const isActive = lvl === current;
+    const activeStyle = isActive && cfg.color
+      ? `--lvl-grad:${cfg.grad}; --lvl-shadow: color-mix(in srgb, ${cfg.color} 35%, transparent);`
+      : '';
+    return `<button type="button" class="level-pill ${isActive ? 'active' : ''}"
+                    onclick="changeLevelFromCustomize('${lvl}')"
+                    aria-pressed="${isActive}"
+                    style="${activeStyle}">
+              ${cfg.emoji} ${cfg.name}
+            </button>`;
+  }).join('');
+  return `
+    <div class="customize-section">
+      <label class="customize-label">🎓 Ma classe</label>
+      <div class="level-selector" role="group" aria-label="Niveau scolaire">
+        <div class="level-segmented">${buttons}</div>
+      </div>
+    </div>`;
+}
+
+/* Changement de niveau depuis l'écran personnalisation.
+   Comportement : on persiste le choix immédiatement et on re-rend la même page
+   pour mettre à jour le pill actif. La validation/annulation de la personnalisation
+   (emoji, nom) reste indépendante : changer de classe est toujours conservé. */
+function changeLevelFromCustomize(levelId) {
+  if (levelId === getCurrentLevel()) return;
+  setCurrentLevel(levelId);
+  render(); // reste sur l'écran customize, met juste à jour le pill actif
 }
 
 /* Échappe les caractères HTML dangereux dans le nom affiché */
@@ -331,6 +413,95 @@ function renderLevelCard() {
         </div>
       </div>
     </div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   SÉLECTEUR DE NIVEAU SCOLAIRE
+   ═══════════════════════════════════════════════════
+   Affiché uniquement quand au moins 2 niveaux ont du contenu chargé.
+   Tant qu'on n'a que le CM2, ce sélecteur est silencieux (string vide).
+   Quand on ajoutera 6ème ou 5ème en livraison 2, il apparaîtra automatiquement. */
+/* Sélecteur de niveau v14 — segmented control style iOS.
+   • Structure : wrapper centré .level-selector → .level-segmented (track) → .level-pill x N
+   • Le pill actif reçoit les variables CSS --lvl-grad et --lvl-shadow inline
+     dérivées de LEVELS_CONFIG, ce qui colore le fond selon le niveau actif
+     (CM2 = bleu, 6ème = vert, 5ème = rouge).
+   • Label "Niveau actuel : CM2" retiré : redondant avec le pill actif coloré. */
+function renderLevelSelector() {
+  const available = getAvailableLevels();
+  if (available.length < 2) return ''; // un seul niveau peuplé : pas de sélecteur
+  const current = getCurrentLevel();
+  const buttons = available.map(lvl => {
+    const cfg = getLevelConfig(lvl);
+    const isActive = lvl === current;
+    // On injecte --lvl-grad uniquement sur le pill actif pour économiser les recalculs.
+    // L'ombre colorée utilise color-mix pour rester subtile (~35% d'opacité).
+    const activeStyle = isActive && cfg.color
+      ? `--lvl-grad:${cfg.grad}; --lvl-shadow: color-mix(in srgb, ${cfg.color} 35%, transparent);`
+      : '';
+    return `<button class="level-pill ${isActive ? 'active' : ''}"
+                    onclick="changeLevel('${lvl}')"
+                    aria-pressed="${isActive}"
+                    style="${activeStyle}">
+              ${cfg.emoji} ${cfg.name}${hasNewSubjects(lvl) ? ' <span class="pill-new-dot" aria-hidden="true"></span>' : ''}
+            </button>`;
+  }).join('');
+  return `
+    <div class="level-selector" role="group" aria-label="Niveau scolaire">
+      <div class="level-segmented">${buttons}</div>
+    </div>`;
+}
+
+/* Changer de niveau scolaire pour le profil courant.
+   Si le niveau est le même que l'actuel, ne fait rien. Sinon, persiste le choix
+   et re-rend l'accueil pour afficher les matières du nouveau niveau. */
+function changeLevel(levelId) {
+  if (levelId === getCurrentLevel()) return;
+  setCurrentLevel(levelId);
+  goHome();
+}
+
+/* Popup d'onboarding au 1er lancement d'un profil quand plusieurs niveaux sont
+   peuplés. Tant qu'on n'a qu'un seul niveau (CM2), la popup ne se déclenche pas.
+   À déclencher depuis render() après que S.profile a été défini. */
+function maybeShowLevelOnboarding() {
+  if (!S.profile) return;
+  if (hasLevelChosen(S.profile)) return;
+  const available = getAvailableLevels();
+  if (available.length < 2) {
+    // Un seul niveau : on l'inscrit silencieusement sans déranger l'enfant
+    setCurrentLevel(available[0] || DEFAULT_LEVEL);
+    return;
+  }
+  // Plusieurs niveaux disponibles : on affiche un écran intermédiaire
+  S.screen = 'level-onboarding';
+}
+
+function renderLevelOnboarding() {
+  const prof = getProfile();
+  const available = getAvailableLevels();
+  const cards = available.map(lvl => {
+    const cfg = getLevelConfig(lvl);
+    return `
+      <button class="onboarding-level-card" onclick="chooseInitialLevel('${lvl}')">
+        <span class="onboarding-level-emoji">${cfg.emoji}</span>
+        <span class="onboarding-level-name">${cfg.name}</span>
+      </button>`;
+  }).join('');
+  return `
+    <div class="anim-slide level-onboarding">
+      <div class="app-header">
+        <h1>👋 Salut ${prof.name} !</h1>
+        <p>En quelle classe es-tu cette année ?</p>
+      </div>
+      <div class="onboarding-level-grid">${cards}</div>
+      <p class="onboarding-level-hint">Tu pourras changer à tout moment depuis l'accueil.</p>
+    </div>`;
+}
+
+function chooseInitialLevel(levelId) {
+  setCurrentLevel(levelId);
+  goHome();
 }
 
 /* Carte "série de jours consécutifs" affichée sur l'accueil.
@@ -393,12 +564,15 @@ function renderBadgesSection() {
   const unlockedIds = new Set();
   BADGES.forEach(b => { if (b.check(ctx)) unlockedIds.add(b.id); });
   const tiles = BADGES.map(b => {
+    // getBadgeDisplay applique le nom/desc dynamique pour les badges marqués `dynamic: true`
+    // (par ex. "Maître du niveau" devient "Maître de CM2" / "Maître de 6ème").
+    const display = getBadgeDisplay(b);
     const isUnlocked = unlockedIds.has(b.id);
     const cls = isUnlocked ? 'unlocked' : 'locked';
-    const tooltip = `${b.name} — ${b.desc}${isUnlocked ? ' ✓' : ''}`;
+    const tooltip = `${display.name} — ${display.desc}${isUnlocked ? ' ✓' : ''}`;
     return `<div class="badge-tile ${cls}" title="${tooltip.replace(/"/g, '&quot;')}">
-              <span class="badge-emoji">${b.emoji}</span>
-              <div class="badge-name">${b.name}</div>
+              <span class="badge-emoji">${display.emoji}</span>
+              <div class="badge-name">${display.name}</div>
             </div>`;
   }).join('');
   return `
@@ -414,10 +588,12 @@ function renderBadgesSection() {
 function renderHome() {
   // Calcul unique : une seule lecture de progress, un seul parcours du curriculum.
   // On construit une map { sId: count } des thèmes complétés au format actuel.
+  const { perfectCount } = computeBadgeContext();
+  const curriculum = getCurriculum(getCurrentLevel());
   const progress = getProgress();
   const doneBycSubject = {};
   let totalTopics = 0, doneTopics = 0;
-  CURRICULUM.forEach(s => {
+  curriculum.forEach(s => {
     totalTopics += s.topics.length;
     let done = 0;
     const subjProgress = progress[s.id];
@@ -432,77 +608,130 @@ function renderHome() {
   });
   const pct = totalTopics > 0 ? Math.round(doneTopics / totalTopics * 100) : 0;
 
-  const cards = CURRICULUM.map(s => {
+  /* Cartes matières signature v13 :
+     - emoji XL 38 px (font-size 2.4rem) avec halo coloré via drop-shadow
+     - pastille compteur "3/8" alignée à droite, dans la teinte de la matière
+     - fond en teinte douce via color-mix (la classe CSS s'en charge)
+     - le texte "3/8 complétés" sous la barre est conservé en HTML pour les
+       lecteurs d'écran mais masqué visuellement (.subj-prog-text { display: none }) */
+  const cards = curriculum.map(s => {
     const style = STYLES[s.id];
     const done = doneBycSubject[s.id];
-    const subjPct = Math.round(done / s.topics.length * 100);
+    const total = s.topics.length;
+    const subjPct = total > 0 ? Math.round(done / total * 100) : 0;
     return `
       <div class="subject-card" style="--sc-color:${style.color}; --sc-grad:${style.grad};"
-           onclick="goSubject('${s.id}')">
-        <span class="subj-icon">${s.emoji}</span>
+           onclick="goSubject('${s.id}')"
+           role="button" aria-label="${s.name} — ${done} thèmes sur ${total} complétés">
+        <div class="subject-card-head">
+          <span class="subj-icon" aria-hidden="true">${s.emoji}</span>
+          <div class="subj-head-right">
+            ${isSubjectNew(getCurrentLevel(), s.id) ? '<span class="subj-new">Nouveau</span>' : ''}
+            <span class="subj-counter">${done}/${total}</span>
+          </div>
+        </div>
         <div class="subj-name">${s.name}</div>
-        <div class="subj-meta">${s.topics.length} thèmes · ${s.desc}</div>
+        <div class="subj-meta">${s.desc}</div>
         <div class="subj-prog-bar"><div class="subj-prog-fill" style="width:${subjPct}%"></div></div>
-        <div class="subj-prog-text">${done}/${s.topics.length} complétés</div>
+        <div class="subj-prog-text">${done}/${total} complétés</div>
       </div>`;
   }).join('');
 
   const prof = getProfile();
 
+  /* Carte identité fusionnée v13 :
+     remplace les anciens blocs profile-banner + level-card + home-overview.
+     Lignes :
+       1. cercle niveau XP + nom + ligne XP + boutons (📋 Historique, ✏️ Customize, ⇄ Changer)
+       2. barre XP
+       3. pied : progression globale (3/65 thèmes · 5%)
+     Si le compte est en mode invité, le bouton ✏️ est masqué (pas de personnalisation). */
+  const xp = computeTotalXP();
+  const info = getLevelInfo(xp);
+  const xpLine = info.isMax
+    ? `<strong>${info.xp.toLocaleString('fr-FR')} XP</strong> · NIVEAU MAX`
+    : `<strong>${info.intoLevel.toLocaleString('fr-FR')}</strong> / ${info.levelSpan.toLocaleString('fr-FR')} XP · niv. ${info.level + 1}`;
+  const fillPct = info.isMax ? 100 : info.pct;
+
+  const identityCard = `
+    <div class="home-identity">
+      <div class="home-identity-row1">
+        <div class="home-identity-level" aria-label="Niveau ${info.level}">
+          <div class="num">${info.level}</div>
+          <div class="lbl">NIV.</div>
+        </div>
+        <div class="home-identity-main">
+          <div class="home-identity-name">${prof.emoji} ${prof.name}</div>
+          <div class="home-identity-xp">${xpLine}</div>
+        </div>
+        <div class="home-identity-actions">
+          <button class="btn-sm accent icon-only" onclick="goHistory()"
+                  title="Voir mon historique" aria-label="Historique">📋</button>
+          ${!isGuest() ? '<button class="btn-sm icon-only" onclick="goCustomize()" title="Personnaliser mon profil" aria-label="Personnaliser">✏️</button>' : ''}
+          <button class="btn-sm icon-only" onclick="goProfile()"
+                  title="Changer de profil" aria-label="Changer de profil">⇄</button>
+        </div>
+      </div>
+      <div class="home-identity-bar"><div class="home-identity-bar-fill" style="width:${fillPct}%"></div></div>
+      <div class="home-identity-foot">
+        <span>🎓 <strong>${doneTopics}/${totalTopics}</strong> thèmes complétés</span>
+        <div class="home-identity-foot-right">
+          ${perfectCount > 0 ? `<span class="perfect-stat">⭐ ${perfectCount} sans-faute${perfectCount > 1 ? 's' : ''}</span>` : ''}
+          <span class="pct">${pct}%</span>
+        </div>
+      </div>
+    </div>`;
+
+  /* Ordre v13 (vs v12) :
+     1. Header compact
+     2. Carte identité fusionnée (avatar+nom+XP+progression globale)
+     3. Sélecteur de niveau scolaire (CM2/6ème) si applicable
+     4. CTA quiz aléatoire COMPACT
+     5. Grille des matières (ACTION PRIORITAIRE ↑ au-dessus du pli)
+     6. Streak card (motivation, peut descendre dans le scroll)
+     7. Section badges
+     8. Actions data (export/import) ou actions invité */
   return `
     <div class="anim-slide">
-      <div class="app-header">
+      <div class="app-header compact">
         <div class="stars">
           <div class="star"></div><div class="star"></div><div class="star"></div>
           <div class="star"></div><div class="star"></div>
         </div>
         <h1>Cassio</h1>
-        <p>Programme officiel · Toutes matières</p>
       </div>
 
-      <div class="profile-banner">
-        <div class="profile-banner-left">
-          <span class="profile-avatar">${prof.emoji}</span>
-          <div>
-            <div class="profile-banner-name">${prof.name}</div>
-            <div class="profile-banner-sub">Ma progression</div>
-          </div>
-        </div>
-        <div class="profile-banner-right">
-          <button class="btn-sm accent" onclick="goHistory()">📋 Historique</button>
-          ${!isGuest() ? '<button class="btn-sm" onclick="goCustomize()" title="Personnaliser ton avatar et ton nom">✏️</button>' : ''}
-          <button class="btn-sm" onclick="goProfile()">Changer</button>
-        </div>
-      </div>
+      ${identityCard}
 
-      ${renderLevelCard()}
+      ${renderLevelSelector()}
 
-      ${renderStreakCard()}
-
-      <div class="home-overview">
-        <div class="overview-icon">🎓</div>
-        <div class="overview-text">
-          <div class="lbl">Progression globale</div>
-          <div class="val">${doneTopics}/${totalTopics}</div>
-          <div class="sub">thèmes complétés</div>
-        </div>
-        <div class="overview-prog">
-          <div class="pct">${pct}%</div>
-          <div class="pct-lbl">complété</div>
-        </div>
-      </div>
-
-      <div class="random-cta" onclick="startRandomQuiz()">
-        <div class="random-cta-icon">🎲</div>
-        <div class="random-cta-text">
-          <div class="random-cta-title">Quiz aléatoire</div>
-          <div class="random-cta-sub">10 questions surprise piochées dans toutes les matières</div>
-        </div>
-        <div class="random-cta-arrow">▶</div>
-      </div>
+      ${(() => {
+        // Le CTA "Mes points faibles" n'apparaît qu'à partir de 10 erreurs uniques
+        // mémorisées (avec complément "thèmes fragiles" géré dans pickWeakQuestions).
+        const weakCount = countWeakQuestions();
+        const showWeak = weakCount >= 10;
+        const randomCta = `
+          <div class="dual-cta random-cta" onclick="startRandomQuiz()"
+               role="button" aria-label="Lancer un quiz aléatoire de 10 questions">
+            <div class="dual-cta-icon" aria-hidden="true">🎲</div>
+            <div class="dual-cta-title">Quiz aléatoire</div>
+            <div class="dual-cta-sub">10 questions surprise</div>
+          </div>`;
+        const weakCta = showWeak ? `
+          <div class="dual-cta weak-cta" onclick="startWeakQuiz()"
+               role="button" aria-label="Réviser mes points faibles">
+            <div class="dual-cta-icon" aria-hidden="true">🎯</div>
+            <div class="dual-cta-title">Mes points faibles</div>
+            <div class="dual-cta-sub">Revois tes erreurs</div>
+          </div>` : '';
+        // Si un seul CTA : il prend toute la largeur (la grille s'adapte).
+        return `<div class="cta-grid${showWeak ? '' : ' single'}">${randomCta}${weakCta}</div>`;
+      })()}
 
       <div class="section-title">Choisir une matière</div>
       <div class="subjects-grid">${cards}</div>
+
+      ${renderStreakCard()}
 
       ${renderBadgesSection()}
 
@@ -667,7 +896,7 @@ function renderQuizScreen() {
         <span class="crumb" onclick="goHome()">🏠</span>
         <span class="sep">›</span>
         ${S.randomMode
-          ? `<span class="current-crumb">🎲 Quiz aléatoire${S.reviewMode ? ' · 🔁 Révision' : ''}</span>`
+          ? `<span class="current-crumb">${S.weakMode ? '🎯 Mes points faibles' : '🎲 Quiz aléatoire'}${S.reviewMode ? ' · 🔁 Révision' : ''}</span>`
           : `<span class="crumb" onclick="goSubject('${S.subjId}')">${subj.name}</span>
              <span class="sep">›</span>
              <span class="current-crumb">${S.reviewMode ? '🔁 Révision · ' : ''}${topic.name}</span>`
@@ -818,8 +1047,13 @@ function qValidate() {
   }
 
   // Feedback texte
+  // ⚠️ Bugfix v15 : pour vrai_faux, q.options peut être absent (le SCHEMA déclare
+  // qu'il est optionnel). Sans ce fallback, q.options[q.answer] levait une TypeError
+  // qui interrompait silencieusement qValidate → bouton Suivant désactivé et auto-passage HS.
+  // On reproduit ici le fallback déjà présent dans le rendu (ligne ~810).
   let bonneRep = '';
-  if (t === 'qcu' || t === 'vrai_faux') bonneRep = q.options[q.answer];
+  if (t === 'qcu') bonneRep = q.options[q.answer];
+  else if (t === 'vrai_faux') bonneRep = (q.options || ['Vrai', 'Faux'])[q.answer];
   else if (t === 'qcm') bonneRep = q.answer.map(i => q.options[i]).join(', ');
   else if (t === 'texte') bonneRep = Array.isArray(q.answer) ? q.answer[0] : q.answer;
 
@@ -831,12 +1065,29 @@ function qValidate() {
     // ── Animations de récompense (sobres) ──
     S.streak = (S.streak || 0) + 1;
     rewardCorrect(S.cur, S.streak);
+    // ── Mémoire des erreurs : en mode points faibles, une bonne réponse
+    //    retire la question de la liste (l'enfant l'a maîtrisée). ──
+    if (S.weakMode) {
+      const sId = q._origSubjId, tId = q._origTopicId;
+      if (sId && tId && typeof q._origQi === 'number') clearMistake(sId, tId, q._origQi);
+    }
   } else {
     S.wrong++;
     fb.className = 'feedback show bad';
     fb.innerHTML = `❌ Pas tout à fait. Bonne réponse : <strong>${bonneRep}</strong><div class="expl">${q.explication}</div>`;
     dot.classList.remove('current'); dot.classList.add('wrong-dot');
     S.streak = 0; // la série se brise à la première erreur
+    // ── Mémoire des erreurs : on enregistre toute question ratée (hors review).
+    //    Vaut pour le quiz par thème, le quiz aléatoire ET le mode points faibles
+    //    lui-même (une question encore ratée voit son wrongCount augmenter). ──
+    if (!S.reviewMode) {
+      const sId = q._origSubjId || S.subjId;
+      const tId = q._origTopicId || S.topicId;
+      const qi  = (typeof q._origQi === 'number') ? q._origQi : null;
+      if (sId && tId && qi !== null && sId !== RANDOM_SUBJ_ID) {
+        recordMistake(sId, tId, qi, q.text);
+      }
+    }
   }
 
   qUpdateStats();
@@ -997,21 +1248,38 @@ function renderScore() {
     : '';
   const titlePrefix = S.reviewMode ? '🔁 Révision · ' : '';
 
-  // Confettis pour un sans-faute
-  if (S.correct === n && !S.__confettiFired) {
+  // Célébration sans-faute. Confettis toujours fired sur 10/10 (comportement
+  // historique), tandis que le jingle audio + badge doré ne se déclenchent
+  // qu'au premier passage (hors mode review : rattraper ses erreurs c'est
+  // bien mais ce n'est pas une victoire "premier coup").
+  // Le délai 250 ms aligne tout avec l'apparition de la grosse note "10/10"
+  // pour un effet "résultat → célébration" naturel.
+  // Le flag __confettiFired est partagé : empêche le re-déclenchement si
+  // l'élève quitte puis revient sur l'écran de score.
+  if (S.correct === n && n > 0 && !S.__confettiFired) {
     S.__confettiFired = true;
-    setTimeout(launchConfetti, 250);
+    // Jingle + badge doré réservés à une vraie victoire "premier coup" :
+    // ni en review, ni en mode points faibles (qui est de la révision ciblée).
+    const isFirstPass = !S.reviewMode && !S.weakMode;
+    setTimeout(() => {
+      launchConfetti();
+      if (isFirstPass) {
+        playPerfectScoreFanfare();
+        showPerfectBadge();
+      }
+    }, 250);
   } else if (S.correct !== n) {
     S.__confettiFired = false;
   }
 
   // Titre, breadcrumb et boutons d'action diffèrent selon le mode
+  const pseudoLabel = S.weakMode ? '🎯 Mes points faibles' : '🎲 Quiz aléatoire';
   const screenTitle = S.randomMode
-    ? `${titlePrefix}🎲 Quiz aléatoire`
+    ? `${titlePrefix}${pseudoLabel}`
     : `${titlePrefix}${topic.name}`;
 
   const breadcrumbBody = S.randomMode
-    ? `<span class="current-crumb">🎲 Quiz aléatoire — Résultats</span>`
+    ? `<span class="current-crumb">${pseudoLabel} — Résultats</span>`
     : `<span class="crumb" onclick="goSubject('${S.subjId}')">${subj.name}</span>
        <span class="sep">›</span>
        <span class="current-crumb">Résultats</span>`;
@@ -1043,6 +1311,18 @@ function renderScore() {
           const isPerfect = S.correct === n && n > 0;
           const hintsUsed = S.hintsUsed || 0;
           let subMsg = '';
+          // En mode points faibles : message tourné "révision" plutôt que "exploit".
+          if (S.weakMode) {
+            const after = countWeakQuestions();
+            const corrected = Math.max(0, (S.__weakBefore || 0) - after);
+            if (corrected > 0) {
+              const word = corrected === 1 ? 'erreur corrigée' : 'erreurs corrigées';
+              subMsg = `<div class="xp-sub xp-sub-info">🎯 ${corrected} ${word} — elles sortent de ta liste de révision !</div>`;
+            } else {
+              subMsg = `<div class="xp-sub xp-sub-info">🎯 Continue : ces questions restent dans ta liste pour la prochaine fois.</div>`;
+            }
+            return `<div class="xp-gained">+ ${S.xpGained} XP gagnés</div>${subMsg}`;
+          }
           if (isPerfect && hintsUsed === 0) {
             subMsg = `<div class="xp-sub xp-sub-perfect">🌟 Sans-faute parfait — bonus +20 XP !</div>`;
           } else if (isPerfect && hintsUsed > 0) {
@@ -1059,12 +1339,12 @@ function renderScore() {
           <div class="badge-unlock-wrap">
             <div class="lbl">🎉 Nouveau${S.newBadges.length > 1 ? 'x' : ''} badge${S.newBadges.length > 1 ? 's' : ''} débloqué${S.newBadges.length > 1 ? 's' : ''} !</div>
             <div class="badge-unlock-list">
-              ${S.newBadges.map(b => `
+              ${S.newBadges.map(b => { const d = getBadgeDisplay(b); return `
                 <div class="badge-unlock-item">
-                  <span class="emj">${b.emoji}</span>
-                  <div class="nm">${b.name}</div>
-                  <div class="ds">${b.desc}</div>
-                </div>`).join('')}
+                  <span class="emj">${d.emoji}</span>
+                  <div class="nm">${d.name}</div>
+                  <div class="ds">${d.desc}</div>
+                </div>`; }).join('')}
             </div>
           </div>` : ''}
 
@@ -1138,11 +1418,13 @@ function renderEvolutionChart(sessionsChrono) {
 
   // Cercles colorés par matière (avec <title> pour tooltip natif)
   const dots = pts.map(p => {
-    const isRandom = p.s.subjId === RANDOM_SUBJ_ID;
-    const style = STYLES[p.s.subjId] || (isRandom ? STYLES.random : STYLES.maths);
-    const subj = isRandom ? null : getSubject(p.s.subjId);
-    const topic = isRandom ? null : getTopic(p.s.subjId, p.s.topicId);
-    const labelLeft = isRandom ? '🎲 Quiz aléatoire' : `${subj ? subj.name : '?'} – ${topic ? topic.name : '?'}`;
+    const pseudo = pseudoSubjInfo(p.s.subjId); // {label, styleId} si pseudo-matière, sinon null
+    const isPseudo = pseudo !== null;
+    const style = STYLES[p.s.subjId] || (isPseudo ? STYLES[pseudo.styleId] : STYLES.maths);
+    const sessLevel = p.s.level || DEFAULT_LEVEL;
+    const subj = isPseudo ? null : getSubject(p.s.subjId, sessLevel);
+    const topic = isPseudo ? null : getTopic(p.s.subjId, p.s.topicId, sessLevel);
+    const labelLeft = isPseudo ? pseudo.label : `${subj ? subj.name : '?'} – ${topic ? topic.name : '?'}`;
     const label = `${labelLeft} : ${p.s.score}/${p.s.total} (${Math.round(p.pct)}%) · ${formatDate(p.s.timestamp)}`;
     return `<circle class="ev-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5"
               fill="${style.color}">
@@ -1153,9 +1435,10 @@ function renderEvolutionChart(sessionsChrono) {
   // Légende : uniquement les matières effectivement présentes dans ce jeu de sessions
   const presentSubjIds = [...new Set(sessionsChrono.map(s => s.subjId))];
   const legend = presentSubjIds.map(id => {
-    if (id === RANDOM_SUBJ_ID) {
-      const style = STYLES.random;
-      return `<span class="evo-leg-item"><span class="evo-leg-dot" style="background:${style.color}"></span>🎲 Aléatoire</span>`;
+    const pseudo = pseudoSubjInfo(id);
+    if (pseudo) {
+      const style = STYLES[pseudo.styleId];
+      return `<span class="evo-leg-item"><span class="evo-leg-dot" style="background:${style.color}"></span>${pseudo.legendLabel}</span>`;
     }
     const subj = getSubject(id);
     const style = STYLES[id];
@@ -1206,16 +1489,18 @@ function renderHistory() {
   const items = sessionsList.length === 0
     ? `<div class="session-empty">Aucune session pour l'instant.<br>Lance un quiz pour voir ton historique ici !</div>`
     : sessionsList.map(s => {
-        const isRandom = s.subjId === RANDOM_SUBJ_ID;
-        const subj = isRandom ? null : getSubject(s.subjId);
-        const topic = isRandom ? null : getTopic(s.subjId, s.topicId);
-        // Filtrer les sessions corrompues (matière/thème disparus) mais GARDER les sessions random
-        if (!isRandom && (!subj || !topic)) return '';
+        const pseudo = pseudoSubjInfo(s.subjId);
+        const isPseudo = pseudo !== null;
+        const sessLevel = s.level || DEFAULT_LEVEL;
+        const subj = isPseudo ? null : getSubject(s.subjId, sessLevel);
+        const topic = isPseudo ? null : getTopic(s.subjId, s.topicId, sessLevel);
+        // Filtrer les sessions corrompues (matière/thème disparus) mais GARDER les sessions pseudo
+        if (!isPseudo && (!subj || !topic)) return '';
         const stars = getStars(s.score, s.total);
         const cls = stars === 3 ? 's3' : stars === 2 ? 's2' : 's1';
-        const emoji = isRandom ? '🎲' : subj.emoji;
-        const topicName = isRandom ? 'Quiz aléatoire' : topic.name;
-        const subjName = isRandom ? 'Multi-matières' : subj.name;
+        const emoji = isPseudo ? pseudo.emoji : subj.emoji;
+        const topicName = isPseudo ? pseudo.topicName : topic.name;
+        const subjName = isPseudo ? pseudo.subjName : subj.name;
         return `
           <div class="session-item">
             <div class="session-emoji">${emoji}</div>

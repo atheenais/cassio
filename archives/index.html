@@ -30,20 +30,33 @@
 <input type="file" id="import-file" accept="application/json,.json" style="display:none" onchange="handleImport(event)">
 
 <!-- ═══════════════════════════════════════════════════
-     DONNÉES : une matière par fichier (chargement en parallèle)
-     L'ordre des matières est défini dans data/curriculum.js
+     DONNÉES : un dossier par niveau, un fichier par matière
+     L'ordre des niveaux et matières est défini dans data/curriculum.js
+     (LEVELS_CONFIG). Voir data/SCHEMA.md pour ajouter du contenu.
      ═══════════════════════════════════════════════════ -->
-<script src="data/curriculum-maths.js"></script>
-<script src="data/curriculum-francais.js"></script>
-<script src="data/curriculum-histoire.js"></script>
-<script src="data/curriculum-sciences.js"></script>
-<script src="data/curriculum-anglais.js"></script>
-<script src="data/curriculum-emc.js"></script>
-<script src="data/curriculum-svt.js"></script>
-<script src="data/curriculum-techno.js"></script>
-<script src="data/curriculum-physchim.js"></script>
-<script src="data/curriculum-latin.js"></script>
-<script src="data/curriculum-numerique.js"></script>
+<!-- Niveau CM2 -->
+<script src="data/cm2/maths.js"></script>
+<script src="data/cm2/francais.js"></script>
+<script src="data/cm2/histoire.js"></script>
+<script src="data/cm2/sciences.js"></script>
+<script src="data/cm2/anglais.js"></script>
+<script src="data/cm2/emc.js"></script>
+<script src="data/cm2/svt.js"></script>
+<script src="data/cm2/techno.js"></script>
+<script src="data/cm2/physchim.js"></script>
+<script src="data/cm2/latin.js"></script>
+<script src="data/cm2/numerique.js"></script>
+<!-- Niveau 6ème (livraison v17 — 5 matières) -->
+<script src="data/6eme/maths.js"></script>
+<script src="data/6eme/francais.js"></script>
+<script src="data/6eme/histoire-geo.js"></script>
+<script src="data/6eme/svt.js"></script>
+<script src="data/6eme/anglais.js"></script>
+<script src="data/6eme/espagnol.js"></script>
+<!-- Niveau 5ème — à peupler lors d'une livraison future
+     <script src="data/5eme/maths.js"></script>
+     ... -->
+<!-- Manifest : doit être chargé APRÈS toutes les matières -->
 <script src="data/curriculum.js"></script>
 
 <!-- ═══════════════════════════════════════════════════

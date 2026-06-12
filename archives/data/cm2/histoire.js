@@ -1,7 +1,8 @@
 /* Matière : Histoire-Géographie 🏛️
    7 thèmes × 10 questions = 70 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["histoire"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["histoire"] = {
   id: "histoire",
   name: "Histoire-Géographie",
   emoji: "🏛️",

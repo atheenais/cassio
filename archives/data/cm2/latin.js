@@ -1,7 +1,8 @@
 /* Matière : Latin & racines 🏛️
    4 thèmes × 10 questions = 40 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["latin"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["latin"] = {
   id: "latin",
   name: "Latin & racines",
   emoji: "🏛️",

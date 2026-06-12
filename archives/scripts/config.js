@@ -4,9 +4,11 @@
 const STYLES = {
   maths:     { color: '#4f9cf9', grad: 'linear-gradient(135deg, #4f9cf9, #a78bfa)' },
   francais:  { color: '#fb923c', grad: 'linear-gradient(135deg, #fb923c, #f472b6)' },
-  histoire:  { color: '#2dd4bf', grad: 'linear-gradient(135deg, #2dd4bf, #34d399)' },
-  sciences:  { color: '#fbbf24', grad: 'linear-gradient(135deg, #fbbf24, #fb923c)' },
+  histoire:    { color: '#2dd4bf', grad: 'linear-gradient(135deg, #2dd4bf, #34d399)' },
+  'histoire-geo': { color: '#0d9488', grad: 'linear-gradient(135deg, #0d9488, #2dd4bf)' }, // matière 6ème (histoire + géo)
+  sciences:    { color: '#fbbf24', grad: 'linear-gradient(135deg, #fbbf24, #fb923c)' },
   anglais:   { color: '#a78bfa', grad: 'linear-gradient(135deg, #a78bfa, #6366f1)' },
+  espagnol:  { color: '#f97316', grad: 'linear-gradient(135deg, #f97316, #facc15)' },
   emc:       { color: '#ec4899', grad: 'linear-gradient(135deg, #ec4899, #8b5cf6)' },
   svt:       { color: '#10b981', grad: 'linear-gradient(135deg, #10b981, #84cc16)' },
   techno:    { color: '#475569', grad: 'linear-gradient(135deg, #475569, #06b6d4)' },
@@ -14,11 +16,15 @@ const STYLES = {
   latin:     { color: '#d97706', grad: 'linear-gradient(135deg, #d97706, #b45309)' },
   numerique: { color: '#06b6d4', grad: 'linear-gradient(135deg, #06b6d4, #8b5cf6)' },
   /* Pseudo-matière pour le mode "Quiz aléatoire" multi-thèmes */
-  random:    { color: '#8b5cf6', grad: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }
+  random:    { color: '#8b5cf6', grad: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
+  /* Pseudo-matière pour le mode "Mes points faibles" */
+  weak:      { color: '#0ea5e9', grad: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }
 };
 
 /* Identifiant spécial utilisé pour marquer une session "Quiz aléatoire" */
 const RANDOM_SUBJ_ID = '__random__';
+/* Identifiant spécial utilisé pour marquer une session "Mes points faibles" */
+const WEAK_SUBJ_ID = '__weak__';
 
 /* ═══════════════════════════════════════════════════
    PROFILS
@@ -38,6 +44,28 @@ const ALL_PROFILES = PROFILES.concat([GUEST_PROFILE]);
 
 /* Choix d'emojis pour la personnalisation d'avatar. Variés et adaptés enfant.
    Les emojis par défaut 👦 et 👧 sont inclus pour permettre de revenir au look d'origine. */
+/* Matières récemment enrichies — badge "Nouveau" affiché jusqu'à la date indiquée.
+   Format : '{ "levelId|subjId": "YYYY-MM-DD" }'
+   Passé la date, le badge disparaît automatiquement sans toucher au code. */
+const NEW_UNTIL = {
+  '6eme|svt':      '2026-10-01',
+  '6eme|anglais':  '2026-10-01',
+  '6eme|espagnol': '2026-10-01',
+};
+
+function isSubjectNew(levelId, subjId) {
+  const until = NEW_UNTIL[levelId + '|' + subjId];
+  if (!until) return false;
+  return new Date().toISOString().slice(0, 10) < until;
+}
+
+function hasNewSubjects(levelId) {
+  return Object.keys(NEW_UNTIL).some(k => {
+    const [lvl, subj] = k.split('|');
+    return lvl === levelId && isSubjectNew(lvl, subj);
+  });
+}
+
 const AVATAR_EMOJIS = [
   '👦', '👧', '🧒',
   '🦊', '🐱', '🐶', '🐧', '🐼', '🦁', '🐯',

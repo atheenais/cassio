@@ -8,7 +8,7 @@
    nouveaux fichiers. Sans ce changement de version, les utilisateurs déjà
    installés continueraient de voir l'ancienne version en cache. */
 
-const CACHE_VERSION = 'cm2-v10';
+const CACHE_VERSION = 'cassio-v22';
 
 /* Liste de tous les fichiers nécessaires au fonctionnement hors-ligne.
    Les chemins sont relatifs au scope du service worker (la racine de l'app). */
@@ -20,18 +20,26 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-512-maskable.png',
-  // Données (une matière par fichier)
-  './data/curriculum-maths.js',
-  './data/curriculum-francais.js',
-  './data/curriculum-histoire.js',
-  './data/curriculum-sciences.js',
-  './data/curriculum-anglais.js',
-  './data/curriculum-emc.js',
-  './data/curriculum-svt.js',
-  './data/curriculum-techno.js',
-  './data/curriculum-physchim.js',
-  './data/curriculum-latin.js',
-  './data/curriculum-numerique.js',
+  // Données — niveau CM2
+  './data/cm2/maths.js',
+  './data/cm2/francais.js',
+  './data/cm2/histoire.js',
+  './data/cm2/sciences.js',
+  './data/cm2/anglais.js',
+  './data/cm2/emc.js',
+  './data/cm2/svt.js',
+  './data/cm2/techno.js',
+  './data/cm2/physchim.js',
+  './data/cm2/latin.js',
+  './data/cm2/numerique.js',
+  // Données — niveau 6ème (v17 : 5 matières)
+  './data/6eme/maths.js',
+  './data/6eme/francais.js',
+  './data/6eme/histoire-geo.js',
+  './data/6eme/svt.js',
+  './data/6eme/anglais.js',
+  './data/6eme/espagnol.js',
+  // Manifest curriculum (multi-niveaux)
   './data/curriculum.js',
   // Logique
   './scripts/config.js',
@@ -67,14 +75,15 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
+  const isFontReq = url.hostname === 'fonts.gstatic.com' || url.hostname === 'fonts.googleapis.com';
+  if (url.origin !== self.location.origin && !isFontReq) return;
 
   event.respondWith(
     caches.match(req).then(cached => {
       if (cached) return cached;
       return fetch(req).then(resp => {
-        // On ne met en cache que les réponses valides
-        if (resp && resp.status === 200 && resp.type === 'basic') {
+        // On met en cache les réponses same-origin (basic) et cross-origin avec CORS (polices)
+        if (resp && resp.status === 200 && (resp.type === 'basic' || resp.type === 'cors')) {
           const clone = resp.clone();
           caches.open(CACHE_VERSION).then(cache => cache.put(req, clone));
         }

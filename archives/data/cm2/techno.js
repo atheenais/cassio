@@ -1,7 +1,8 @@
 /* Matière : Technologie ⚙️
    5 thèmes × 10 questions = 50 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["techno"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["techno"] = {
   id: "techno",
   name: "Technologie",
   emoji: "⚙️",

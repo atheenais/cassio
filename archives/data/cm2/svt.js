@@ -1,7 +1,8 @@
 /* Matière : SVT 🌱
    5 thèmes × 10 questions = 50 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["svt"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["svt"] = {
   id: "svt",
   name: "SVT",
   emoji: "🌱",

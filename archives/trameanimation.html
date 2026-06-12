@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Trame Fabrice — 4 juin 2026</title>
+<style>
+  :root {
+    --fab1:#FF6B35;--fab2:#FFB366;--fab-bg:rgba(255,107,53,0.12);
+    --robin:#62FFB3;--melissa:#74B2FF;--walerand:#FFB454;--qual:#B480FF;
+    --bg:#0a0e1a;--card:#14192a;--card-dim:#0e1320;
+    --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.16);
+    --txt:#f3f5fa;--soft:#aab2c5;--mute:#6a738a;
+    --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+  body{padding-top:calc(var(--st) + 58px);padding-bottom:calc(var(--sb) + 74px);}
+
+  /* HEADER */
+  .hdr{position:fixed;top:0;left:0;right:0;background:rgba(10,14,26,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--line);padding:calc(var(--st) + 7px) 16px 8px;z-index:100;display:flex;align-items:center;justify-content:space-between;}
+  .hdr-t{font-size:13px;font-weight:700;}.hdr-t em{background:linear-gradient(135deg,var(--fab1),var(--fab2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:normal;}
+  .hdr-m{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums;}
+
+  /* BOTTOM NAV */
+  .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(10,14,26,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--line);padding:7px 2px calc(var(--sb) + 7px);z-index:100;display:flex;}
+  .nb{flex:1;background:none;border:none;color:var(--mute);padding:5px 2px;font-size:9.5px;font-weight:600;letter-spacing:.3px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:8px;transition:all .15s;}
+  .nb .ic{font-size:19px;line-height:1;}
+  .nb.on{color:var(--fab1);background:rgba(255,107,53,.10);}
+
+  /* CONTAINER & TABS */
+  .wrap{padding:6px 11px 20px;}
+  .tab{display:none;}
+  .tab.on{display:block;animation:fi .18s ease;}
+  @keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  /* TAB HEADER */
+  .th{padding:14px 3px 10px;border-bottom:.5px solid var(--line);margin-bottom:12px;}
+  .th h2{font-size:21px;font-weight:800;letter-spacing:-.4px;}
+  .th p{font-size:12px;color:var(--soft);margin-top:3px;font-variant-numeric:tabular-nums;}
+
+  /* JUMP BAR */
+  .jb{display:flex;gap:5px;overflow-x:auto;padding:6px 0 12px;margin-bottom:6px;border-bottom:.5px solid var(--line);scrollbar-width:none;}
+  .jb::-webkit-scrollbar{display:none;}
+  .jl{flex-shrink:0;background:var(--card-dim);color:var(--soft);border:.5px solid var(--line);font-size:11px;font-weight:600;padding:5px 9px;border-radius:13px;text-decoration:none;white-space:nowrap;}
+  .jl.f{background:rgba(255,107,53,.14);color:var(--fab2);border-color:rgba(255,107,53,.35);}
+
+  /* CARD BASE */
+  .seq{background:var(--card);border:.5px solid var(--line);border-radius:13px;margin-bottom:10px;overflow:hidden;scroll-margin-top:76px;}
+
+  /* FABRICE — MODE SOUFFLEUR */
+  .seq.F{border:1.5px solid var(--fab1);background:linear-gradient(175deg,#1a1019 0%,#14192a 100%);box-shadow:0 0 28px rgba(255,107,53,.16);}
+
+  /* AUTRES ANIMATEURS — DÉGRADÉ */
+  .seq.D{opacity:.52;background:var(--card-dim);}
+  .seq.D .bd{display:none;}
+
+  /* HEAD */
+  .hd{padding:12px 14px;display:flex;align-items:flex-start;gap:9px;cursor:pointer;}
+  .tm{flex-shrink:0;width:52px;display:flex;flex-direction:column;align-items:center;gap:1px;}
+  .hr{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .seq.F .hr{color:var(--fab1);}
+  .du{font-size:9.5px;color:var(--mute);font-variant-numeric:tabular-nums;font-weight:600;}
+  .mx{flex:1;min-width:0;}
+  .tgs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px;}
+  .tg{font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 6px;border-radius:9px;text-transform:uppercase;}
+  .tg.F{background:rgba(255,107,53,.17);color:var(--fab2);}
+  .tg.R,.tg.E{background:rgba(98,255,179,.13);color:var(--robin);}
+  .tg.M{background:rgba(116,178,255,.13);color:var(--melissa);}
+  .tg.W{background:rgba(255,180,84,.13);color:var(--walerand);}
+  .tg.Q{background:rgba(180,128,255,.16);color:var(--qual);}
+  .tg.S{background:rgba(255,255,255,.07);color:var(--soft);}
+  .tg.RG{background:rgba(255,255,255,.05);color:var(--mute);}
+  .tg.X{background:rgba(255,107,53,.07);color:var(--fab2);}
+  .ti{font-size:14.5px;font-weight:700;letter-spacing:-.15px;line-height:1.3;}
+  .seq.F .ti{color:var(--fab2);}
+  .tog{flex-shrink:0;width:27px;height:27px;border-radius:14px;background:rgba(255,255,255,.05);color:var(--soft);display:flex;align-items:center;justify-content:center;font-size:13px;border:none;cursor:pointer;transition:transform .2s;}
+  .seq.F .tog{background:rgba(255,107,53,.17);color:var(--fab2);}
+  .seq.op .tog{transform:rotate(180deg);}
+
+  /* BODY */
+  .bd{padding:0 14px 14px;border-top:.5px solid var(--line);display:none;}
+  .seq.op .bd{display:block;animation:si .18s ease;}
+  @keyframes si{from{opacity:0;}to{opacity:1;}}
+
+  /* LABELS */
+  .lb{font-size:9.5px;font-weight:700;letter-spacing:.9px;color:var(--mute);text-transform:uppercase;margin:12px 0 5px;display:flex;align-items:center;gap:5px;}
+  .lb .d{width:4px;height:4px;border-radius:50%;background:var(--mute);}
+  .lb.F{color:var(--fab2);}.lb.F .d{background:var(--fab1);}
+
+  /* SOUFFLEUR FABRICE */
+  .sf{background:#000;border-radius:9px;padding:13px;margin-top:5px;border-left:3px solid var(--fab1);}
+  .sf .ln{font-size:21px;line-height:1.45;font-weight:500;letter-spacing:-.15px;color:#fff;padding:5px 0;border-bottom:.5px solid rgba(255,255,255,.04);}
+  .sf .ln:last-child{border-bottom:none;}
+  .sf .ln.bt{font-size:13.5px;color:#8a92a8;font-style:italic;font-weight:400;padding:2px 0;}
+  .sf .ln.rg{font-size:12.5px;color:var(--walerand);background:rgba(255,180,84,.08);border-radius:5px;padding:5px 9px;margin:3px 0;font-weight:600;}
+  .sf .ln.em{color:var(--fab2);font-weight:700;}
+
+  /* QUESTION BLOC — autres */
+  .qb{background:rgba(255,255,255,.025);border-left:3px solid var(--robin);border-radius:7px;padding:10px 13px;margin-top:5px;}
+  .qb.M{border-left-color:var(--melissa);}
+  .qb.W{border-left-color:var(--walerand);}
+  .qb.Q{border-left-color:var(--qual);}
+  .qb.F{border-left-color:var(--fab1);background:rgba(255,107,53,.05);}
+  .qb .qs{font-size:14.5px;line-height:1.5;color:var(--txt);}
+  .qb .qs em{color:var(--fab2);font-weight:600;font-style:normal;}
+
+  /* MOTS-CLÉS */
+  .kws{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;}
+  .kw{background:rgba(98,255,179,.09);color:var(--robin);font-size:12.5px;font-weight:600;padding:4px 9px;border-radius:7px;border:.5px solid rgba(98,255,179,.22);}
+
+  /* VERBATIM TOGGLE */
+  .vt{background:rgba(255,255,255,.045);border:.5px solid var(--line2);color:var(--soft);font-size:12px;font-weight:600;padding:6px 11px;border-radius:7px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;border:none;}
+  .vc{display:none;margin-top:7px;padding:11px 13px;background:rgba(0,0,0,.22);border-radius:7px;border-left:2px solid var(--line2);}
+  .vc.op{display:block;animation:fi .18s ease;}
+  .vc .v{font-size:13px;line-height:1.55;color:var(--soft);font-style:italic;margin-bottom:7px;}
+  .vc .v:last-child{margin-bottom:0;}
+  .vc .v::before{content:"« ";color:var(--fab2);font-style:normal;font-weight:700;}
+  .vc .v::after{content:" »";color:var(--fab2);font-style:normal;font-weight:700;}
+  .vc .au{font-size:10.5px;color:var(--mute);font-style:normal;font-weight:600;margin-top:2px;display:block;}
+
+  /* INFO */
+  .inf{font-size:12.5px;color:var(--soft);line-height:1.55;padding:9px 11px;background:rgba(255,255,255,.03);border-radius:7px;margin-top:7px;}
+  .inf.w{background:rgba(255,180,84,.07);border-left:3px solid var(--walerand);color:var(--txt);}
+
+  /* SÉPARATEUR */
+  .sep{margin:14px 0 5px;display:flex;align-items:center;gap:8px;}
+  .sep .br{flex:1;height:1px;background:var(--line);}
+  .sep .sl{font-size:10px;font-weight:800;letter-spacing:1.2px;color:var(--fab2);text-transform:uppercase;}
+
+  /* INTERMÈDE ÉDITEUR — très visible */
+  .im{background:linear-gradient(160deg,rgba(255,180,84,.18) 0%,rgba(255,140,40,.10) 100%);border:2px solid rgba(255,180,84,.55);border-radius:13px;padding:14px 15px;margin-bottom:12px;box-shadow:0 0 22px rgba(255,180,84,.14),inset 0 1px 0 rgba(255,220,120,.12);}
+  .im::before{content:"⚡ ÉDITEUR";display:block;font-size:8.5px;font-weight:900;letter-spacing:1.8px;color:rgba(255,180,84,.55);margin-bottom:8px;}
+  .im .ih{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--walerand);text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .im .ih::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--walerand);box-shadow:0 0 6px var(--walerand);}
+  .im .it{font-size:16px;font-weight:800;color:var(--txt);letter-spacing:-.2px;}
+  .im .id{font-size:12px;color:var(--walerand);font-variant-numeric:tabular-nums;margin-top:3px;font-weight:600;opacity:.8;}
+
+  /* QUALIMÉTRIE / STATS BLOCK */
+  .qs-block{background:linear-gradient(160deg,rgba(180,128,255,.16) 0%,rgba(140,80,255,.08) 100%);border:2px solid rgba(180,128,255,.45);border-radius:13px;padding:14px 15px;margin-bottom:12px;box-shadow:0 0 22px rgba(180,128,255,.12),inset 0 1px 0 rgba(200,160,255,.10);}
+  .qs-block::before{content:"📊 QUALIMÉTRIE";display:block;font-size:8.5px;font-weight:900;letter-spacing:1.8px;color:rgba(180,128,255,.6);margin-bottom:8px;}
+  .qs-block .qh{font-size:16px;font-weight:800;color:var(--txt);letter-spacing:-.2px;margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+  .qs-block .qh::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--qual);box-shadow:0 0 6px var(--qual);}
+  .qs-block .qd{font-size:11.5px;color:var(--qual);font-weight:600;margin-bottom:10px;opacity:.85;}
+  .qs-block .stat{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:.5px solid rgba(180,128,255,.12);}
+  .qs-block .stat:last-child{border-bottom:none;}
+  .qs-block .stat .n{font-size:28px;font-weight:900;color:var(--qual);letter-spacing:-1px;line-height:1;min-width:58px;}
+  .qs-block .stat .l{font-size:13px;color:var(--txt);line-height:1.4;}
+
+  /* SCROLL TOP */
+  #stt{position:fixed;bottom:calc(var(--sb) + 86px);right:13px;width:42px;height:42px;border-radius:21px;background:rgba(255,107,53,.88);color:#fff;border:none;font-size:17px;display:none;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(255,107,53,.38);cursor:pointer;z-index:50;}
+  #stt.on{display:flex;}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-t">🎙 Trame <em>Fabrice</em></div>
+  <div class="hdr-m">4 juin · 18h30→20h35</div>
+</div>
+
+<div class="wrap">
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║        INTRO                 ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="tab on" id="tab-intro">
+  <div class="th"><h2>Introduction</h2><p>18h30 → 18h46 · ~16 min</p></div>
+  <div class="jb">
+    <a class="jl" href="#i-vid">🎬 Vidéo</a>
+    <a class="jl f" href="#i-chauffe">🎙 Chauffe salle</a>
+    <a class="jl f" href="#i-mains">✋ Mains levées</a>
+    <a class="jl" href="#i-orga-in">🎵 Entrée orga</a>
+    <a class="jl" href="#i-phrase">💬 1 phrase</a>
+    <a class="jl" href="#i-orga-out">🎵 Sortie orga</a>
+    <a class="jl f" href="#i-chap1">📖 Chapitre 1</a>
+    <a class="jl" href="#i-emeric">📊 Emeric</a>
+    <a class="jl f" href="#i-tr1">▶ Lance TR1</a>
+  </div>
+
+  <!-- VIDÉO -->
+  <div class="seq D" id="i-vid">
+    <div class="hd">
+      <div class="tm"><div class="hr">18h27</div><div class="du">3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg RG">🎬 Régie</span></div><div class="ti">Vidéo de lancement + musique</div></div>
+    </div>
+  </div>
+
+  <!-- CHAUFFE SALLE -->
+  <div class="seq F op" id="i-chauffe">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h30</div><div class="du">2 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span></div><div class="ti">Chauffe salle · Bienvenue</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln bt">Debout, centre scène, regard circulaire · laisser le silence s'installer</div>
+        <div class="ln em">Bonsoir tout le monde.</div>
+        <div class="ln bt">[Pause · regard circulaire · 2 sec]</div>
+        <div class="ln">Regardez où vous êtes.</div>
+        <div class="ln">Une usine textile reconvertie en lieu d'innovation.</div>
+        <div class="ln bt">[Temps · laisser la salle regarder l'espace]</div>
+        <div class="ln em">Roubaix n'a pas pleuré ses métiers à tisser.</div>
+        <div class="ln">Elle a réinventé ce qu'elle savait faire.</div>
+        <div class="ln bt">[Beat · regard qui embrasse la salle]</div>
+        <div class="ln em">C'est mot pour mot la question que vous allez devoir vous poser ce soir avec l'IA.</div>
+        <div class="ln bt">[Silence · laisser atterrir]</div>
+        <div class="ln">Ce soir, vous êtes <strong>~200 décideurs</strong>.</div>
+        <div class="ln">Des DG, des DAF, des directeurs digital, des directeurs retail, des fondateurs.</div>
+        <div class="ln">Des gens qui font tourner des milliers de personnes et des millions de clients.</div>
+        <div class="ln">Et vous avez tous en commun cette volonté de mieux comprendre l'IA et ce qu'elle peut apporter de meilleur à chacun de vos métiers — à chacune de vos organisations — à chacun de vos clients.</div>
+        <div class="ln bt">[Geste vers les écrans logos]</div>
+        <div class="ln">Les entreprises présentes ce soir — c'est vous. Merci d'être là.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAINS LEVÉES -->
+  <div class="seq F" id="i-mains">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h32</div><div class="du">1m30</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg X">✋ Salle</span></div><div class="ti">Question IA · mains levées</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln em">Levez la main si vous avez utilisé l'IA au moins une fois cette semaine.</div>
+        <div class="ln bt">[Observe · la plupart lèvent · sourire]</div>
+        <div class="ln">Bien.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln em">Maintenant — gardez la main levée si vous avez un projet IA en production dans votre entreprise aujourd'hui.</div>
+        <div class="ln bt">[Silence · les mains baissent]</div>
+        <div class="ln">Ce delta — entre ceux qui utilisent et ceux qui ont vraiment déployé — c'est le sujet de ce soir.</div>
+        <div class="ln em">Ce soir, personne ne vous vend rien.</div>
+        <div class="ln">Ce que vous allez entendre, c'est du vécu. Les galères, les surprises, et les décisions difficiles.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRÉE ORGANISATEURS -->
+  <div class="seq F" id="i-orga-in">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h34</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg RG">🎵 Régie</span></div><div class="ti">Appel entrée organisateurs</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">Mais avant — je voudrais que vous rencontriez les <strong>4 personnes qui ont construit cette soirée</strong>.</div>
+        <div class="ln rg">RÉGIE → musique · entrée Mélissa · Walerand · Robin · Edouard</div>
+        <div class="ln bt">[Geste d'accueil vers la coulisse]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1 PHRASE ORGANISATEURS -->
+  <div class="seq D" id="i-phrase">
+    <div class="hd">
+      <div class="tm"><div class="hr">18h35</div><div class="du">3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg M">Mélissa</span><span class="tg W">Walerand</span><span class="tg R">Robin</span><span class="tg E">Edouard</span></div><div class="ti">4 organisateurs · 1 phrase conviction</div></div>
+    </div>
+  </div>
+
+  <!-- SORTIE ORGANISATEURS -->
+  <div class="seq F" id="i-orga-out">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h38</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg RG">🎵 Régie</span></div><div class="ti">Sortie organisateurs · Toi seul</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln bt">[Merci court · régie musique · tu restes seul]</div>
+        <div class="ln rg">RÉGIE → musique douce · sortie Mélissa · Walerand · Robin · Edouard</div>
+        <div class="ln bt">[Tu les regardes partir · tu te retournes vers la salle · silence]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO CHAPITRE 1 -->
+  <div class="seq F" id="i-chap1">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h39</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg X">📖 Pivot</span></div><div class="ti">Introduction Chapitre 1</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">Ce soir se déroule en <strong>deux actes</strong>.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln em">Premier acte : ce qu'il faut avoir en place pour que l'IA marche vraiment.</div>
+        <div class="ln">Le socle. La donnée. La gouvernance. Le cadre juridique.</div>
+        <div class="ln">Sans ça — l'IA hallucine, déçoit, et coûte plus qu'elle ne rapporte.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">Deuxième acte : la question humaine.</div>
+        <div class="ln">Comment mon équipe vit ça ? Comment mon client vit l'IA en face de lui ?</div>
+        <div class="ln bt">[Beat · changer légèrement de ton · plus pratique]</div>
+        <div class="ln">Deux tables rondes. <strong>Format plateau TV</strong> — des questions, des réponses vraies, et des chiffres pour ancrer le débat dans la réalité.</div>
+        <div class="ln bt">[Geste discret vers le plafond / la régie]</div>
+        <div class="ln">La soirée est enregistrée et retranscrite — par notre partenaire <strong>Leexi</strong>. Vous recevrez le compte-rendu.</div>
+        <div class="ln bt">[Pause · sourire · revenir au sujet]</div>
+        <div class="ln">Mais avant — quelques chiffres pour poser le décor.</div>
+        <div class="ln rg">→ INVITE EMERIC BAYARD</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMERIC BAYARD — QUALIMÉTRIE -->
+  <div class="qs-block" id="i-emeric">
+    <div class="qh">Emeric Bayard · Qualimétrie</div>
+    <div class="qd">18h40 · 4 min · Flash stat ouverture soirée</div>
+    <div class="stat"><div class="n">72%</div><div class="l">des dirigeants considèrent l'IA comme priorité stratégique n°1 en 2026</div></div>
+    <div class="stat"><div class="n">38%</div><div class="l">seulement ont un déploiement IA actif au-delà du pilote</div></div>
+    <div class="stat"><div class="n">1/3</div><div class="l">des projets IA abandonnés dans les 12 premiers mois, faute de socle données</div></div>
+    <div class="lb" style="margin-top:10px;"><span class="d"></span>Contexte</div>
+    <div class="inf" style="background:rgba(180,128,255,.07);border-left:3px solid var(--qual);">Flash stat d'ouverture : poser les chiffres qui donnent l'urgence d'agir — avant que Fabrice lance TR1.</div>
+  </div>
+
+  <!-- LANCEMENT TR1 -->
+  <div class="seq F" id="i-tr1">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h44</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg X">▶ Lance TR1</span></div><div class="ti">Transition → Table Ronde 1</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln em">La vraie question ce soir n'est pas : est-ce que l'IA transforme ?</div>
+        <div class="ln em">La question c'est : pourquoi ça ne marche pas ?</div>
+        <div class="ln">Et qu'est-ce qu'il faut avoir en place pour que ça marche vraiment ?</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln">Pour répondre — j'ai deux animateurs et des gens qui ont fait la route.</div>
+        <div class="ln">Qui se sont trompés. Et qui ont des résultats à montrer.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">Robin. Edouard. À vous.</div>
+        <div class="ln rg">RÉGIE → musique · entrée Moez · Joannes · Frédéric + présence Emeric</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║         TR1                  ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="tab" id="tab-tr1">
+  <div class="th"><h2>Table Ronde 1</h2><p>18h45 → 19h25 · ~40 min · Robin & Edouard animent</p></div>
+  <div class="jb">
+    <a class="jl f" href="#t1-out">🎙 Toi ouvre</a>
+    <a class="jl" href="#t1-joannes">Joannes · Jules</a>
+    <a class="jl" href="#t1-moez">Moez · Jules</a>
+    <a class="jl" href="#t1-fred">Frédéric · Lesaffre</a>
+    <a class="jl" href="#t1-1b">TR1·B →</a>
+    <a class="jl" href="#t1-florian">Florian · Geomind</a>
+    <a class="jl" href="#t1-benj">Benjamin · Bignon</a>
+    <a class="jl" href="#t1-thomas">Thomas · Norauto</a>
+    <a class="jl" href="#t1-leexi">⚡ Lexi</a>
+    <a class="jl f" href="#t1-trans">▶ Transition TR2</a>
+  </div>
+
+  <!-- OUVERTURE FABRICE -->
+  <div class="seq F op" id="t1-out">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">18h45</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg X">▶ Lance Robin/Ed</span></div><div class="ti">Ouverture TR1</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln"><strong>80% des grandes entreprises françaises</strong> ont déployé l'IA dans au moins une fonction.</div>
+        <div class="ln em">Et pourtant — 11 semaines en moyenne pour atteindre le plein potentiel. La plupart abandonnent avant.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln">Alors c'est quoi qu'il faut avoir en place pour que ça marche ?</div>
+        <div class="ln em">Robin. Edouard. La table est ouverte.</div>
+        <div class="ln rg">→ PASSE LA MAIN À ROBIN/EDOUARD</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"><div class="br"></div><div class="sl">Robin & Edouard — TR1·A</div><div class="br"></div></div>
+
+  <!-- JOANNES — DG JULES -->
+  <div class="seq D" id="t1-joannes">
+    <div class="hd">
+      <div class="tm"><div class="hr">18h45</div><div class="du">~4 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg E">Edouard pose</span><span class="tg S">Joannes Soenen · Jules</span></div><div class="ti">Vision DG · transformation Jules</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Questions Edouard</div>
+      <div class="qb">
+        <div class="qs">"Joannes, tu as pris la DG de Jules il y a 2 ans. Tu as choisi de mettre <em>l'IA au cœur de la transformation</em>. C'était quoi ta vision et tes convictions profondes ?"</div>
+      </div>
+      <div class="qb" style="margin-top:6px;">
+        <div class="qs">"Pourquoi <em>accélérer il y a 2 ans déjà</em> alors que beaucoup d'entreprises hésitent encore ?"</div>
+      </div>
+      <div class="qb" style="margin-top:6px;">
+        <div class="qs">"En quoi l'IA contribue-t-elle à changer le <em>modèle économique</em> et l'avantage concurrentiel de Jules ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Pure player = entreprise tech</span>
+        <span class="kw">Vision DG → ROI</span>
+        <span class="kw">3 ans = transformation réelle</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOEZ — OPÉRATIONNEL JULES -->
+  <div class="seq D" id="t1-moez">
+    <div class="hd">
+      <div class="tm"><div class="hr">18h49</div><div class="du">~8 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg E">Edouard + Robin</span><span class="tg S">Moez Hamad · Jules</span></div><div class="ti">Du bug cyber au big bang IA</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Questions Robin/Edouard</div>
+      <div class="qb">
+        <div class="qs">"Moez, Jules a subi une <em>cyberattaque, une externalisation ratée, une dette tech colossale</em>. Comment tu as transformé ça en tremplin IA ?"</div>
+      </div>
+      <div class="qb" style="margin-top:6px;">
+        <div class="qs">"Quel a été le <em>1er chantier décisif</em> : un cas d'usage, la data, les outils, l'organisation, la culture ?"</div>
+      </div>
+      <div class="qb" style="margin-top:6px;">
+        <div class="qs">"<em>24 mois plus tard</em> — on en est où ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés réponse</div>
+      <div class="kws">
+        <span class="kw">Construire en parallèle</span>
+        <span class="kw">Socle d'abord</span>
+        <span class="kw">Sponsor métier obligatoire</span>
+        <span class="kw">2× plus vite si autonomie</span>
+        <span class="kw">Juridique > dev</span>
+        <span class="kw">JULIA · MYRIADE · DEV FLUX</span>
+        <span class="kw">Forecast -30% temps +15% précision</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Notre conviction : les pure players ne sont pas des retailers, ce sont des entreprises tech. Jules devait devenir une entreprise tech qui fait du retail.<span class="au">— Moez Hamad / Jules</span></div>
+        <div class="v">Socle d'abord, IA ensuite. Pas de livrable IA sans sponsor métier. On ne digitalise pas un mauvais processus — on le redessine d'abord.</div>
+        <div class="v">Les équipes les plus autonomes ont délivré 2 fois plus vite. Trop de validations annulent le gain.</div>
+        <div class="v">On passe aujourd'hui plus de temps sur le juridique que sur le dev. La tech n'est plus le facteur limitant — c'est l'organisation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRÉDÉRIC — LESAFFRE -->
+  <div class="seq D" id="t1-fred">
+    <div class="hd">
+      <div class="tm"><div class="hr">18h57</div><div class="du">~7 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg E">Edouard + Robin</span><span class="tg S">Frédéric · Lesaffre</span></div><div class="ti">Gouvernance data · 60 pays</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Questions</div>
+      <div class="qb">
+        <div class="qs">"Frédéric, pour tirer le meilleur de la donnée dans une entreprise comme Lesaffre — présent dans <em>60 pays</em> — quels sont les <em>chantiers clés</em> et les bonnes pratiques ?"</div>
+      </div>
+      <div class="qb" style="margin-top:6px;">
+        <div class="qs">"Dans votre contexte international : <em>qualité · enrichissement · sécurité · gouvernance</em> de la donnée — par quoi on commence ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés réponse</div>
+      <div class="kws">
+        <span class="kw">Gouvernance = pierre angulaire</span>
+        <span class="kw">Qualité relative au use case</span>
+        <span class="kw">Sécurité avant qualité</span>
+        <span class="kw">Sables mouvants</span>
+        <span class="kw">DPO obligatoire</span>
+        <span class="kw">Tester · se tromper vite</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Avant de parler qualité, il faut parler sécurité ! Et la souveraineté est le pendant de la sécurité en termes de stockage.<span class="au">— Frédéric Muyl / Lesaffre</span></div>
+        <div class="v">La pierre angulaire de toutes ces notions = la gouvernance de la donnée.</div>
+        <div class="v">Ne rien faire sur l'IA, c'est comme dans les sables mouvants — ça peut être fatal.</div>
+        <div class="v">En Europe, GDPR est la règle. Dans un contexte international, vérifiez les législations des pays d'implantation. Équipez-vous d'un DPO — ce n'est pas une option.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep" id="t1-1b"><div class="br"></div><div class="sl">Robin & Edouard — TR1·B</div><div class="br"></div></div>
+
+  <!-- FLORIAN — GEOMIND -->
+  <div class="seq D" id="t1-florian">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h04</div><div class="du">~6 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg R">Robin pose</span><span class="tg S">Florian · Geomind</span></div><div class="ti">Cloud agentique souverain</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb">
+        <div class="qs">"Florian, vous avez développé un Cloud Agentique. En une phrase : pourquoi devenir <em>participant du cloud</em> plutôt que simple consommateur ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Not your key · not your agent</span>
+        <span class="kw">Système parallèle</span>
+        <span class="kw">First-principles</span>
+        <span class="kw">6% IA agentique France vs 19% mondial</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Partez du futur — les agents — et revenez au présent plutôt que de patcher l'existant. Construisez un système parallèle qui devient progressivement le principal.<span class="au">— Florian Fournier / Geomind</span></div>
+        <div class="v">Not your key, not your agent. Si vous ne contrôlez pas vos agents, quelqu'un d'autre décide à votre place.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BENJAMIN — BIGNON LEBRAY -->
+  <div class="seq D" id="t1-benj">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h10</div><div class="du">~5 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg E">Edouard pose</span><span class="tg S">Benjamin · Bignon Lebray</span></div><div class="ti">Contrats IA · 3 vérifications</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb">
+        <div class="qs">"Benjamin, pour un dirigeant qui signe un contrat avec un éditeur IA demain — <em>les 3 choses à vérifier absolument</em> ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Propriété données générées</span>
+        <span class="kw">Hébergement (RGPD vs Cloud Act)</span>
+        <span class="kw">Responsabilité hallucinations</span>
+        <span class="kw">Segmenter usages</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Données publiques = outils US OK. Données clients / RH / stratégiques = infrastructure souveraine obligatoire.<span class="au">— Benjamin Mourot / Bignon Lebray</span></div>
+        <div class="v">En Europe, le RGPD est la règle. Équipez-vous d'un DPO — ce n'est pas une option, c'est une assurance.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THOMAS — NORAUTO -->
+  <div class="seq D" id="t1-thomas">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h15</div><div class="du">~7 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg R">Robin pose</span><span class="tg S">Thomas · Norauto CTO</span></div><div class="ti">1 100 centres · courbe en J</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb">
+        <div class="qs">"Thomas, <em>1 100 centres</em>, 50 ans d'histoire. L'IA suit une <em>courbe en J</em> — creux de productivité avant les gains. Comment vous raccourcissez ce creux sans épuiser vos équipes ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Phase pilote · 1er cercle</span>
+        <span class="kw">Loi fondamentale = clarté</span>
+        <span class="kw">Diagnostic atelier · 1er entrant</span>
+        <span class="kw">Humain & méthodologique</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Ce qui se conçoit bien s'énonce clairement — c'est devenu, pour moi, la loi fondamentale de l'IA.<span class="au">— Thomas Gauthier / Norauto</span></div>
+        <div class="v">Notre pari n'est pas technologique — il est humain et méthodologique.</div>
+        <div class="v">En confiant l'exécution à l'IA, nous libérons notre intelligence métier pour nous concentrer sur le conseil, l'expertise et la satisfaction client.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERMÈDE LEXI -->
+  <div class="im" id="t1-leexi">
+    <div class="ih">Intermède Walerand · 5 min MAX</div>
+    <div class="it">Philippe Corbisier · Lexi</div>
+    <div class="id">19h20 · Souveraineté de la réunion</div>
+    <div class="lb" style="margin-top:8px;"><span class="d"></span>Question Walerand</div>
+    <div class="qb W" style="margin-top:4px;">
+      <div class="qs">"Philippe, votre conviction : la réunion est la donnée la plus précieuse de l'entreprise — et la moins capturée. Montrez-nous en 2 min ce que ça change concrètement chez Grand Frais."</div>
+    </div>
+    <div class="lb" style="margin-top:8px;"><span class="d"></span>Mots-clés</div>
+    <div class="kws"><span class="kw">Grand Frais · -40% reporting</span><span class="kw">ISO 27001 · France</span><span class="kw">4 000 clients</span><span class="kw">Souveraineté données réunion</span></div>
+    <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+    <div class="vc">
+      <div class="v">La réunion est la donnée la plus précieuse de l'entreprise — et la moins capturée.<span class="au">— Philippe Corbisier / Lexi</span></div>
+    </div>
+  </div>
+
+  <!-- TRANSITION FABRICE -->
+  <div class="seq F" id="t1-trans">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">19h25</div><div class="du">3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg X">🔄 Pivot Acte 1→2</span></div><div class="ti">Transition vers TR2</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">On vient d'entendre ce qu'il faut avoir en place pour que l'IA marche.</div>
+        <div class="ln">Un socle solide. Des données propres. Un cadre juridique clair. De la gouvernance.</div>
+        <div class="ln em">Tout ça, c'est vrai. Et c'est nécessaire. Mais ce n'est pas suffisant.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">Parce qu'une fois que vous avez tout ça, il reste la vraie question.</div>
+        <div class="ln">Pas la question technique. La question humaine.</div>
+        <div class="ln">Comment je fais vivre ça dans mes équipes ? Comment mon client vit l'IA en face de lui ?</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln em">C'est ce qu'on va explorer maintenant.</div>
+        <div class="ln">Et pour ça, je me tourne vers Mélissa — et on commence par quelques chiffres.</div>
+        <div class="ln rg">→ INVITE MÉLISSA · puis intermède Yoobic</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║         TR2                  ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="tab" id="tab-tr2">
+  <div class="th"><h2>Table Ronde 2</h2><p>19h27 → 20h15 · ~48 min · Mélissa & Toi</p></div>
+  <div class="jb">
+    <a class="jl" href="#t2-stat">📊 Flash stat</a>
+    <a class="jl" href="#t2-yoobic">⚡ Yoobic</a>
+    <a class="jl" href="#t2-j1">Justine Q1</a>
+    <a class="jl" href="#t2-j2">Justine Q2 · Ambassadeur</a>
+    <a class="jl" href="#t2-antoine">📊 Antoine</a>
+    <a class="jl" href="#t2-idelink">⚡ Idelink</a>
+    <a class="jl" href="#t2-2b">TR2·B →</a>
+    <a class="jl" href="#t2-thib-pf">Thibaut · pile/face</a>
+    <a class="jl f" href="#t2-thib-inv">🎙 Commerce invisible</a>
+    <a class="jl" href="#t2-thib-line">Thibaut · ligne rouge</a>
+    <a class="jl" href="#t2-nostress">⚡ NoStress</a>
+    <a class="jl" href="#t2-wair">🎬 Wair</a>
+  </div>
+
+  <div class="qs-block" id="t2-stat" style="margin-bottom:10px;scroll-margin-top:76px;">
+    <div class="qh">Flash stat · Qualimétrie</div>
+    <div class="qd">Intro TR2 · Le paradoxe humain / IA</div>
+    <div class="stat"><div class="n">58%</div><div class="l">des Français veulent un humain <strong>tout au long</strong> de leur parcours service client</div></div>
+    <div class="stat"><div class="n">56%</div><div class="l">ont déjà été en contact avec une IA</div></div>
+  </div>
+
+  <!-- YOOBIC -->
+  <div class="seq D op" id="t2-yoobic">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h27</div><div class="du">5 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg W">⚡ Walerand</span><span class="tg S">JC Lepetit · Yoobic</span></div><div class="ti">Ouverture TR2 · Chatbot Eya</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question Walerand</div>
+      <div class="qb W">
+        <div class="qs">"Jean-Charles, <em>350 clients retail</em>. Montrez-nous en 3 minutes le cas d'usage qui a le plus changé la vie d'une équipe magasin."</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Chatbot Eya</span>
+        <span class="kw">1500 jours perdus/an sur 200 pts vente</span>
+        <span class="kw">Hugo Boss · +3% CA</span>
+        <span class="kw">80M photos · VM Copilot</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+      <div class="vc">
+        <div class="v">En magasin, une majorité de collaborateurs passent du temps à chercher des informations. Sur un réseau de 200 points de vente, c'est 1500 jours par an perdus.<span class="au">— JC Lepetit / Yoobic</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"><div class="br"></div><div class="sl">TR2·A — Mélissa & Fabrice</div><div class="br"></div></div>
+  <div class="inf" style="margin-bottom:10px;">Entrée simultanée : Justine Sanson · Thibaut Bayard · Antoine Vilain — 19h32</div>
+
+  <!-- JUSTINE Q1 -->
+  <div class="seq D" id="t2-j1">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h33</div><div class="du">~4 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg M">Mélissa pose</span><span class="tg S">Justine · Kiabi</span></div><div class="ti">Première chose qu'elle ne regrette pas</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb M">
+        <div class="qs">"Justine, responsable innovation & IA générative chez Kiabi — <em>10 000 collaborateurs</em>. C'est quoi la <em>première chose</em> que vous avez faite que vous ne regrettez pas ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés réponse</div>
+      <div class="kws">
+        <span class="kw">Collectif IA · avril 2024</span>
+        <span class="kw">Compliance · cyber · IT · RH</span>
+        <span class="kw">Réseau ambassadeurs · jan 2025</span>
+        <span class="kw">Quick Wins d'abord</span>
+        <span class="kw">Marathon pas sprint</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+      <div class="vc">
+        <div class="v">On a posé un collectif IA en avril 2024 — avec une ambition : promouvoir l'IA générative au service des collaborateurs, dans un environnement compliance, cyber, IT, RH, qui correspond à nos valeurs.<span class="au">— Justine Sanson / Kiabi</span></div>
+        <div class="v">L'IA, c'est courir un marathon. Et si on n'a jamais couru un 5 km, il y a plus de chances de se planter.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JUSTINE Q2 — AMBASSADEUR vs CHAMPION -->
+  <div class="seq D" id="t2-j2">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h37</div><div class="du">~3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg M">Mélissa pose</span><span class="tg S">Justine · Kiabi</span></div><div class="ti">Ambassadeur · pas Champion</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb M">
+        <div class="qs">"Vous avez choisi le mot <em>«ambassadeur»</em> — pas champion, pas expert. Votre N+1 voulait un mot qui «claque plus». Vous avez tenu. Pourquoi ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés réponse</div>
+      <div class="kws">
+        <span class="kw">Diffusion · rôle modèle · proximité</span>
+        <span class="kw">Expert IA = dur à vendre (pas boîte tech)</span>
+        <span class="kw">Corentin · fiches de paie</span>
+        <span class="kw">100% contrôle vs échantillonnage</span>
+        <span class="kw">Chloé · collections</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Mon chef me disait : champion, expert, ça claque un peu plus qu'ambassadeur. Et je lui disais : ouais, sauf qu'on n'est pas une boîte tech — expert IA, on va avoir un peu de mal à le vendre.<span class="au">— Justine Sanson / Kiabi</span></div>
+        <div class="v">J'en ai un qui est en fiche de paye — qui est ambassadeur IA sur les personnes qui font les fiches de paye. Il est venu un jour avec son projet : les audits de fiches de paye, ça se fait à la main tous les mois. Avec l'IA, on peut faire 100% de contrôle — plus d'échantillonnage.</div>
+        <div class="v">Si je n'avais pas eu Corentin en ambassadeur IA, il ne serait pas venu en levant la main.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANTOINE — FLASH STAT TOURISME -->
+  <div class="qs-block" id="t2-antoine">
+    <div class="qh">Antoine Vilain · Qualimétrie</div>
+    <div class="qd">19h40 · ~3 min · Flash tourisme → retail</div>
+    <div class="stat"><div class="n">37%</div><div class="l">des Français utilisent <strong>déjà</strong> l'IA pour préparer leurs vacances</div></div>
+    <div class="stat"><div class="n">69%</div><div class="l">touchés ou en route (utilisateurs + ceux qui envisagent)</div></div>
+    <div class="stat"><div class="n">+3×</div><div class="l">vitesse d'adoption vs projections 2024 — le consommateur n'attend pas</div></div>
+    <div class="lb" style="margin-top:10px;"><span class="d"></span>Format</div>
+    <div class="inf" style="background:rgba(180,128,255,.07);border-left:3px solid var(--qual);">Mini-cas concret tourisme (pas flash stat générique) → ce que ça dit de la vitesse d'adoption terrain et de l'avenir du retail.</div>
+    <button class="vt" style="margin-top:8px;" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+    <div class="vc">
+      <div class="v">37% des Français utilisent déjà l'IA pour préparer leurs vacances. 69% sont touchés ou en route. La question n'est plus «faut-il y aller ?» — elle est «à quelle vitesse, et avec qui ?»<span class="au">— Antoine Vilain / Qualimétrie</span></div>
+    </div>
+  </div>
+
+  <!-- IDELINK -->
+  <div class="im" id="t2-idelink">
+    <div class="ih">⚡ Intermède Walerand · 5 min</div>
+    <div class="it">Toni Da Cruz + Georges Alves · Idelink / ADEO</div>
+    <div class="id">19h50 · TG Analyzer · Leroy Merlin</div>
+    <div class="lb" style="margin-top:8px;"><span class="d"></span>Mots-clés</div>
+    <div class="kws">
+      <span class="kw">113p référentiel → score /20</span>
+      <span class="kw">Turn-over 30-40% résolu</span>
+      <span class="kw">Pologne · Espagne · Portugal</span>
+    </div>
+    <div class="inf w" style="margin-top:6px;">⚠ Screens pré-timés — éviter latence 20 sec en live</div>
+    <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+    <div class="vc">
+      <div class="v">L'IA rend omniprésent le savoir-faire qui était invisible.<span class="au">— Toni Da Cruz / Idelink</span></div>
+    </div>
+  </div>
+
+  <div class="sep" id="t2-2b"><div class="br"></div><div class="sl">TR2·B — Thibaut + Antoine (Vincent absent)</div><div class="br"></div></div>
+
+  <!-- THIBAUT PILE/FACE -->
+  <div class="seq D" id="t2-thib-pf">
+    <div class="hd">
+      <div class="tm"><div class="hr">19h55</div><div class="du">~3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg M">Mélissa pose</span><span class="tg S">Thibaut · Chronodrive</span></div><div class="ti">Pile ou face : remplace ou augmente ?</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb M">
+        <div class="qs">"Thibaut, <em>pile ou face</em> : l'IA va remplacer ou augmenter ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Ni l'un ni l'autre</span>
+        <span class="kw">Trop dichotomique</span>
+        <span class="kw">Maîtriser · superviser</span>
+        <span class="kw">Super-pouvoirs</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Je risque de vous déplaire — je suis ni d'un côté ni de l'autre. Je trouve que c'est trop dichotomique.<span class="au">— Thibaut Bayard / Chronodrive</span></div>
+        <div class="v">L'IA permet d'écrire un mot personnalisé à mille personnes plutôt qu'à cinq. C'est ça les super-pouvoirs.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THIBAUT COMMERCE INVISIBLE — FABRICE -->
+  <div class="seq F" id="t2-thib-inv">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">19h58</div><div class="du">~2 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi poses</span><span class="tg S">Thibaut · Chronodrive</span></div><div class="ti">Commerce invisible</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln em">Le commerce invisible — concrètement chez Chronodrive ?</div>
+        <div class="ln bt">[Si silence : Le client qui commande via ChatGPT — vous le voyez ?]</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés réponse</div>
+      <div class="kws">
+        <span class="kw">Interfaces nouvelles</span>
+        <span class="kw">Données interprétables</span>
+        <span class="kw">Réinternalisation tech</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Demain, on n'ira plus forcément sur les interfaces de ceux qui vendent ces produits. Le côté invisible, il démarre là.<span class="au">— Thibaut Bayard / Chronodrive</span></div>
+        <div class="v">Pour rester dans le game, nos systèmes d'information et nos données doivent être interprétables par ces nouvelles interfaces.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THIBAUT LIGNE ROUGE -->
+  <div class="seq D" id="t2-thib-line">
+    <div class="hd">
+      <div class="tm"><div class="hr">20h00</div><div class="du">~3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg M">Mélissa pose</span><span class="tg S">Thibaut · Chronodrive</span></div><div class="ti">La décision qu'il ne confiera jamais</div></div>
+    </div>
+    <div class="bd">
+      <div class="lb"><span class="d"></span>Question</div>
+      <div class="qb M">
+        <div class="qs">"Thibaut, <em>la décision que vous ne confierez jamais à une IA</em> ?"</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés</div>
+      <div class="kws">
+        <span class="kw">Impacts emploi</span>
+        <span class="kw">Empathie · amour · humour</span>
+        <span class="kw">Conséquences des conséquences</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+      <div class="vc">
+        <div class="v">La décision difficile avec des impacts sur l'emploi — je ne confierai jamais ça à une IA.<span class="au">— Thibaut Bayard / Chronodrive</span></div>
+        <div class="v">Ça doit rester de l'ordre de la capacité humaine à discerner les conséquences des conséquences.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOSTRESS -->
+  <div class="im" id="t2-nostress">
+    <div class="ih">Intermède Walerand · 5 min MAX</div>
+    <div class="it">Jean-Bernard Della Chiesa · NoStress</div>
+    <div class="id">20h05 · Jumeau digital magasin · Performance</div>
+    <div class="lb" style="margin-top:8px;"><span class="d"></span>Question Walerand</div>
+    <div class="qb W" style="margin-top:4px;">
+      <div class="qs">"Jean-Bernard, NoStress modélise la performance à partir des clients, des produits, du temps. Montrez-nous comment un responsable de rayon devient un stratège."</div>
+    </div>
+    <div class="lb" style="margin-top:8px;"><span class="d"></span>Mots-clés</div>
+    <div class="kws"><span class="kw">Frankie Shop · -45% tickets</span><span class="kw">Lever bridages orga</span><span class="kw">Clients · produits · temps</span><span class="kw">80% IA · 20% humain à valeur</span></div>
+    <button class="vt" onclick="tV(this)">📜 Verbatim <span>▼</span></button>
+    <div class="vc">
+      <div class="v">L'IA règle les 80% — l'humain se consacre aux 20% qui font la différence.<span class="au">— JB Della Chiesa / NoStress</span></div>
+    </div>
+  </div>
+
+  <!-- WAIR -->
+  <div class="seq D" id="t2-wair">
+    <div class="hd">
+      <div class="tm"><div class="hr">20h10</div><div class="du">3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg W">⚡ Walerand</span><span class="tg RG">🎬 Vidéo</span></div><div class="ti">Wair Retail · Mitch Van Deursen</div></div>
+    </div>
+    <div class="bd">
+      <div class="inf">Vidéo · IA prédictive stocks · 230 magasins · rupture stock = 4% CA, IA réduit de 60%</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║        LUDOVIC               ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="tab" id="tab-ludo">
+  <div class="th"><h2>Ludovic Le Moan</h2><p>20h15 → 20h25 · 10 min · Toi seul · Face à face</p></div>
+  <div class="jb">
+    <a class="jl f" href="#l-in">🎵 Entrée</a>
+    <a class="jl f" href="#l-q1">Q1 · Pragmatisme</a>
+    <a class="jl f" href="#l-q2">Q2 · Sens</a>
+    <a class="jl f" href="#l-piv">🔄 Pivot Philo</a>
+    <a class="jl f" href="#l-fin">⭐ Question finale</a>
+  </div>
+
+  <div class="inf w" style="margin-bottom:10px;">⭐ Format face à face. Voix posée. Pas de hâte. Tu poses · il répond · tu laisses respirer. 3 sec de silence avant la 1ère question.</div>
+
+  <!-- ENTRÉE LUDOVIC -->
+  <div class="seq F op" id="l-in">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h15</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg RG">🎵 Musique</span></div><div class="ti">Présentation Ludovic</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln rg">RÉGIE → musique entrée Ludovic Le Moan</div>
+        <div class="ln bt">[Voix posée · après la vidéo Wair]</div>
+        <div class="ln">Avant de partir au cocktail — <strong>une dernière présence</strong>.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln">Quelqu'un qui a construit un réseau IoT dans <strong>72 pays</strong>.</div>
+        <div class="ln">Qui travaille aujourd'hui sur l'<strong>IA pour les seniors</strong>.</div>
+        <div class="ln">Et qui pense à l'IA <strong>différemment</strong> de tous ceux que vous avez entendus ce soir.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">Ludovic Le Moan.</div>
+        <div class="ln bt">[3 sec silence avant de poser la première question]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q1 PRAGMATISME -->
+  <div class="seq F" id="l-q1">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h16</div><div class="du">3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi poses</span><span class="tg S">Ludovic</span></div><div class="ti">Q1 · Pragmatisme · Sigfox → IA</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">Vous avez construit Sigfox — un réseau dans <strong>72 pays</strong>, des millions d'objets connectés.</div>
+        <div class="ln">Vous aviez promis une révolution. Elle a eu lieu — mais pas toujours comme prévu.</div>
+        <div class="ln em">Aujourd'hui vous dites que l'IA, c'est la même infrastructure — mais en plus puissant.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">Qu'est-ce qui se répète, et qu'est-ce qui est radicalement nouveau ?</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés attendus</div>
+      <div class="kws">
+        <span class="kw">Outil productivité · pas magique</span>
+        <span class="kw">Dénominateur = donnée</span>
+        <span class="kw">Compétitivité → fatal si inaction</span>
+        <span class="kw">Usages > LLM</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">L'IA, comme le mobile, reste un outil de productivité. Pas magique — mais puissant quand il est bien utilisé.<span class="au">— Ludovic Le Moan</span></div>
+        <div class="v">Une entreprise qui n'utilise pas l'IA va vite perdre de la compétitivité.</div>
+        <div class="v">La bataille des LLM est peut-être perdue pour l'Europe — mais les usages peuvent être notre terrain.</div>
+      </div>
+      <div class="lb F" style="margin-top:10px;"><span class="d"></span>Ton rebond 15 sec</div>
+      <div class="sf" style="margin-top:4px;">
+        <div class="ln bt">[Après sa réponse]</div>
+        <div class="ln em">Neomya — vous appliquez ça aux seniors. C'est une conviction de sens autant qu'un business.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q2 SENS -->
+  <div class="seq F" id="l-q2">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h19</div><div class="du">2 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi poses</span><span class="tg S">Ludovic</span></div><div class="ti">Q2 · Sens · Pourquoi les seniors ?</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln"><strong>Neomya</strong> — l'IA au service des résidences seniors.</div>
+        <div class="ln">Automatiser les commandes. Gérer les signalements. Orchestrer les animations.</div>
+        <div class="ln">On est dans le très concret.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln em">Mais derrière ce choix, il y a une conviction plus profonde. Laquelle ?</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés attendus</div>
+      <div class="kws">
+        <span class="kw">Info fragmentée → perte</span>
+        <span class="kw">Signal du quotidien</span>
+        <span class="kw">Valeur humaine irremplaçable</span>
+      </div>
+      <button class="vt" onclick="tV(this)">📜 Verbatims <span>▼</span></button>
+      <div class="vc">
+        <div class="v">Tant que l'information reste fragmentée, vous ressaisissez, vous perdez du temps, de la visibilité, du chiffre d'affaires.<span class="au">— Ludovic Le Moan / Neomya</span></div>
+        <div class="v">Ce qui ne changera pas : la valeur humaine, l'empathie, le sens. L'IA ne remplace pas l'humain — elle révèle ce qu'il y a de meilleur en lui.</div>
+      </div>
+      <div class="lb F" style="margin-top:10px;"><span class="d"></span>Ta bascule</div>
+      <div class="sf" style="margin-top:4px;">
+        <div class="ln em">Vous avez une phrase que je veux qu'on entende ce soir.</div>
+        <div class="ln em">L'IA ne sert à rien si on n'y ajoute pas un complément d'âme.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIVOT PHILO -->
+  <div class="seq F" id="l-piv">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h21</div><div class="du">2 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi poses</span><span class="tg X">🔄 BASCULE</span></div><div class="ti">Pivot philo · IA contrepoids réseaux</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">Vous avez écrit que <strong>l'IA pourrait être un contrepoids aux réseaux sociaux</strong>.</div>
+        <div class="ln">Que là où les réseaux ont <strong>amplifié les instincts les plus bas</strong>...</div>
+        <div class="ln">L'IA pourrait révéler <strong>ce qu'il y a de meilleur dans l'humain</strong>.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">C'est une conviction optimiste. Qu'est-ce qui vous y amène ?</div>
+      </div>
+      <div class="lb"><span class="d"></span>Mots-clés attendus</div>
+      <div class="kws">
+        <span class="kw">IA comme miroir</span>
+        <span class="kw">Réseaux → colère facile</span>
+        <span class="kw">IA → pas d'instinct de survie</span>
+        <span class="kw">Donner la meilleure part de soi</span>
+      </div>
+      <div class="lb F" style="margin-top:10px;"><span class="d"></span>Ta bascule finale</div>
+      <div class="sf" style="margin-top:4px;">
+        <div class="ln bt">[Voix très posée · tu te recules légèrement]</div>
+        <div class="ln em">Ludovic — vous avez une question. Pas pour moi. Pour eux.</div>
+        <div class="ln bt">[Silence · Ludovic se retourne vers la salle]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⭐ QUESTION FINALE -->
+  <div class="seq F" id="l-fin">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h23</div><div class="du">3 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">⭐ Toi</span><span class="tg X">Ludovic → SALLE</span></div><div class="ti">⭐ Question finale à la salle</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Ton intro — 5 sec</div>
+      <div class="sf">
+        <div class="ln bt">[Tu te recules · voix très posée]</div>
+        <div class="ln em">Ludovic — la question.</div>
+        <div class="ln bt">[Tu te tais. Tu lui laisses la scène.]</div>
+      </div>
+      <div class="lb" style="margin-top:10px;"><span class="d"></span>Ludovic pose à la salle</div>
+      <div class="sf" style="border-left-color:var(--qual);">
+        <div class="ln bt">[Ludovic debout · face à la salle]</div>
+        <div class="ln">Ce soir vous avez vu des gens qui ont construit des choses concrètes avec l'IA.</div>
+        <div class="ln">Des socles de données, des agents, des formations, des clients mieux servis.</div>
+        <div class="ln bt">[3 sec silence]</div>
+        <div class="ln em">Dans le monde que l'IA va construire — qu'est-ce que vous voulez, vous, construire ?</div>
+        <div class="ln bt">[SILENCE — 5 secondes — ne pas couper]</div>
+      </div>
+      <div class="inf w" style="margin-top:8px;">⚠ Ne jamais couper les 5 sec de silence après la question · Fabrice reste assis · pas de slide, pas de musique</div>
+      <div class="lb F" style="margin-top:10px;"><span class="d"></span>Toi après le silence</div>
+      <div class="sf">
+        <div class="ln em">Merci Ludovic.</div>
+        <div class="ln bt">[Applaudissements · musique douce sortie Ludovic]</div>
+        <div class="ln rg">→ CONCLUSION</div>
+      </div>
+      <div class="lb" style="margin-top:8px;"><span class="d"></span>Variante Ludovic</div>
+      <button class="vt" onclick="tV(this)">📜 Voir variante <span>▼</span></button>
+      <div class="vc">
+        <div class="v">L'IA ne sert à rien si on n'y ajoute pas un complément d'âme. Quel complément d'âme allez-vous lui apporter ?<span class="au">— Variante Ludovic Le Moan</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║       CONCLUSION             ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="tab" id="tab-conclu">
+  <div class="th"><h2>Conclusion</h2><p>20h26 → 20h35 · ~9 min · Toi seul puis avec l'équipe</p></div>
+  <div class="jb">
+    <a class="jl f" href="#c1">💡 3 convictions</a>
+    <a class="jl f" href="#c2">🎵 Entrée équipe</a>
+    <a class="jl f" href="#c3">💬 1 phrase</a>
+    <a class="jl f" href="#c4">🙏 Remerciements</a>
+    <a class="jl f" href="#c5">🎬 Vidéo finale</a>
+  </div>
+
+  <!-- 3 CONVICTIONS -->
+  <div class="seq F op" id="c1">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h26</div><div class="du">2m30</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi seul</span><span class="tg X">💡 3 convictions</span></div><div class="ti">3 convictions de la soirée</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln bt">[Seul sur scène · pas de slide]</div>
+        <div class="ln">On a entendu beaucoup de choses ce soir. Des REX, des chiffres, des convictions.</div>
+        <div class="ln em">Je veux vous en laisser 3 — celles qui reviennent dans toutes les bouches ce soir.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln em">💡 01 — L'IA n'est plus une option.</div>
+        <div class="ln">Ne pas y aller, c'est laisser le terrain à ceux qui y vont.</div>
+        <div class="ln">La question n'est plus si — c'est où, comment, et avec qui.</div>
+        <div class="ln bt">[Silence court]</div>
+        <div class="ln em">💡 02 — Les gains se cachent dans les processus, pas dans la techno.</div>
+        <div class="ln">Sans socle data propre et sans sponsor métier, l'IA déçoit.</div>
+        <div class="ln">Avec les deux, elle change le métier.</div>
+        <div class="ln bt">[Silence court]</div>
+        <div class="ln em">💡 03 — L'IA sans âme humaine ne sert à rien.</div>
+        <div class="ln">La techno n'est jamais le facteur limitant.</div>
+        <div class="ln">C'est l'organisation, le sens, et la capacité à embarquer les humains.</div>
+        <div class="ln bt">[Pause · regarder la salle]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRÉE ÉQUIPE -->
+  <div class="seq F" id="c2">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h28</div><div class="du">30 sec</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg RG">🎵 Régie</span></div><div class="ti">Entrée organisateurs</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">Pour clore cette soirée — les <strong>4 personnes qui l'ont construite</strong>.</div>
+        <div class="ln rg">RÉGIE → musique · entrée Mélissa · Walerand · Robin · Edouard</div>
+        <div class="ln bt">[Ils viennent se placer à tes côtés]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1 PHRASE CHACUN -->
+  <div class="seq F" id="c3">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h30</div><div class="du">1m30</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi lances</span><span class="tg M">+ 4 orga</span></div><div class="ti">Dernière phrase de chacun</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln em">Une phrase chacun. La dernière de ce soir.</div>
+      </div>
+      <div class="inf" style="margin-top:8px;"><strong>Mélissa</strong> · phrase clôture (~20 sec)<br><strong>Walerand</strong> · phrase clôture (~20 sec)<br><strong>Robin</strong> · phrase clôture (~20 sec)<br><strong>Edouard</strong> · phrase clôture (~20 sec)<br>→ Phrases préparées en amont — pas d'improvisation</div>
+      <div class="lb F" style="margin-top:10px;"><span class="d"></span>Toi reprends</div>
+      <div class="sf" style="margin-top:4px;">
+        <div class="ln em">Merci.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMERCIEMENTS -->
+  <div class="seq F" id="c4">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h32</div><div class="du">2 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi seul</span><span class="tg X">🙏 Remerciements</span></div><div class="ti">Remerciements</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln">Merci à tous nos speakers —</div>
+        <div class="ln"><strong>Moez, Joannes, Frédéric, Florian, Benjamin, Thomas, Justine, Thibaut, Ludovic.</strong></div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln">Merci à <strong>Walerand</strong> et aux éditeurs qui nous ont montré ce que ça donne en vrai.</div>
+        <div class="ln bt">[Beat]</div>
+        <div class="ln">Merci à <strong>Emeric Bayard et Qualimétrie</strong> pour les chiffres qui ancrent.</div>
+        <div class="ln bt">[Pause]</div>
+        <div class="ln em">Et merci à vous — qui avez choisi d'être là ce soir plutôt qu'ailleurs.</div>
+        <div class="ln bt">[Courte pause]</div>
+        <div class="ln">Le cocktail vous attend. Continuez les conversations.</div>
+        <div class="ln em">Et si quelqu'un vous demande ce soir ce que vous avez retenu — vous savez quoi répondre.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDÉO FINALE -->
+  <div class="seq F" id="c5">
+    <div class="hd" onclick="tS(this)">
+      <div class="tm"><div class="hr">20h34</div><div class="du">1 min</div></div>
+      <div class="mx"><div class="tgs"><span class="tg F">🎙 Toi</span><span class="tg RG">🎬 Régie</span><span class="tg X">↪ Cocktail</span></div><div class="ti">Vidéo finale + ouverture cocktail</div></div>
+      <button class="tog">▼</button>
+    </div>
+    <div class="bd">
+      <div class="lb F"><span class="d"></span>Souffleur</div>
+      <div class="sf">
+        <div class="ln em">Une dernière chose avant le cocktail.</div>
+        <div class="ln rg">RÉGIE → MÊME vidéo qu'à l'ouverture + même musique</div>
+        <div class="ln bt">[La vidéo tourne — logos clients · ambiance]</div>
+        <div class="ln bt">[En fin de vidéo — DJ démarre en fondu · cocktail rooftop]</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nb on" onclick="sT('intro',this)"><span class="ic">🎬</span><span>Intro</span></button>
+  <button class="nb" onclick="sT('tr1',this)"><span class="ic">1️⃣</span><span>TR1</span></button>
+  <button class="nb" onclick="sT('tr2',this)"><span class="ic">2️⃣</span><span>TR2</span></button>
+  <button class="nb" onclick="sT('ludo',this)"><span class="ic">⭐</span><span>Ludovic</span></button>
+  <button class="nb" onclick="sT('conclu',this)"><span class="ic">✅</span><span>Fin</span></button>
+</nav>
+
+<button id="stt" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+function sT(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('on');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function tS(h){
+  const s=h.closest('.seq');
+  s.classList.toggle('op');
+}
+function tV(btn){
+  const vc=btn.nextElementSibling;
+  const isOpen=vc.classList.toggle('op');
+  const sp=btn.querySelector('span');
+  sp.style.display='inline-block';
+  sp.style.transform=isOpen?'rotate(180deg)':'';
+  btn.childNodes[0].textContent=isOpen?'📜 Masquer ':'📜 Verbatims ';
+}
+document.querySelectorAll('.jl').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){
+      t.scrollIntoView({behavior:'smooth',block:'start'});
+      if(t.classList.contains('F'))t.classList.add('op');
+    }
+  });
+});
+window.addEventListener('scroll',()=>{
+  document.getElementById('stt').classList.toggle('on',window.scrollY>350);
+});
+</script>
+</body>
+</html>

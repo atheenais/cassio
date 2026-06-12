@@ -1,3 +1,80 @@
-/* Assemblage final du CURRICULUM dans l'ordre d'origine.
-   Ce fichier doit être chargé APRÈS tous les fichiers data/curriculum-*.js */
-const CURRICULUM = ["maths","francais","histoire","sciences","anglais","emc","svt","techno","physchim","latin","numerique"].map(id => window.CURRICULUM_PARTS[id]);
+/* ═══════════════════════════════════════════════════
+   MANIFEST CURRICULUM — multi-niveaux
+   ═══════════════════════════════════════════════════
+   Ce fichier est chargé APRÈS tous les fichiers data/{niveau}/*.js
+   et déclare la liste des niveaux scolaires + leur composition.
+
+   Pour ajouter un niveau : créer data/{niveau}/, ajouter une entrée
+   dans LEVELS_CONFIG ci-dessous, et la déclarer dans LEVEL_IDS.
+
+   Pour ajouter une matière à un niveau : créer data/{niveau}/{id}.js,
+   ajouter son id dans subjects[]. Voir data/SCHEMA.md.
+   ═══════════════════════════════════════════════════ */
+
+const LEVELS_CONFIG = {
+  cm2: {
+    id: 'cm2',
+    name: 'CM2',
+    emoji: '📘',
+    /* Couleurs v14 : déterminent le rendu du pill actif dans le segmented control.
+       CM2 = bleu/violet, cohérent avec l'identité visuelle de l'app et le 📘. */
+    color: '#4f9cf9',
+    grad: 'linear-gradient(135deg, #4f9cf9, #a78bfa)',
+    // Ordre d'affichage des matières dans l'accueil
+    subjects: ['maths', 'francais', 'histoire', 'sciences', 'anglais', 'emc', 'svt', 'techno', 'physchim', 'latin', 'numerique']
+  },
+  '6eme': {
+    id: '6eme',
+    name: '6ème',
+    emoji: '📗',
+    /* 6ème = vert/teal, cohérent avec le 📗. */
+    color: '#10b981',
+    grad: 'linear-gradient(135deg, #10b981, #2dd4bf)',
+    subjects: ['maths', 'francais', 'histoire-geo', 'svt', 'anglais', 'espagnol'] // v19 : 6 matières peuplées
+  },
+  '5eme': {
+    id: '5eme',
+    name: '5ème',
+    emoji: '📕',
+    /* 5ème = rouge/orange, cohérent avec le 📕. */
+    color: '#ef4444',
+    grad: 'linear-gradient(135deg, #ef4444, #f59e0b)',
+    subjects: [] // À remplir lors de la livraison 2
+  }
+};
+
+/* Ordre d'affichage des niveaux dans le sélecteur (ascendant). */
+const LEVEL_IDS = ['cm2', '6eme', '5eme'];
+
+/* Niveau par défaut pour un nouveau profil. */
+const DEFAULT_LEVEL = 'cm2';
+
+/* ─ Helpers de lecture ─────────────────────────────── */
+
+/* Retourne la config d'un niveau (ou null si inconnu). */
+function getLevelConfig(levelId) {
+  return LEVELS_CONFIG[levelId] || null;
+}
+
+/* Retourne le tableau des matières d'un niveau, dans l'ordre déclaré.
+   Filtre silencieusement les matières dont le fichier data n'a pas été
+   chargé (utile pendant qu'on développe : pas de crash si un id pointe
+   sur un fichier inexistant). */
+function getCurriculum(levelId) {
+  const config = getLevelConfig(levelId);
+  if (!config) return [];
+  const parts = (window.CURRICULUM_PARTS && window.CURRICULUM_PARTS[levelId]) || {};
+  return config.subjects.map(id => parts[id]).filter(Boolean);
+}
+
+/* Retourne uniquement les niveaux qui contiennent du contenu chargé.
+   Sert à conditionner l'affichage du sélecteur de niveau : si un seul
+   niveau a du contenu, pas la peine d'afficher un sélecteur. */
+function getAvailableLevels() {
+  return LEVEL_IDS.filter(id => getCurriculum(id).length > 0);
+}
+
+/* Compatibilité avec l'ancien code : CURRICULUM reste accessible et
+   pointe sur les matières du niveau par défaut. Le code qui dépend du
+   niveau courant doit utiliser getCurriculum(getCurrentLevel()) à la place. */
+const CURRICULUM = getCurriculum(DEFAULT_LEVEL);

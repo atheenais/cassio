@@ -1,7 +1,8 @@
 /* Matière : Français 📝
    8 thèmes × 10 questions = 80 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["francais"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["francais"] = {
   id: "francais",
   name: "Français",
   emoji: "📝",
@@ -226,7 +227,7 @@ window.CURRICULUM_PARTS["francais"] = {
         },
         {
           text: "Quel est le féminin de l'adjectif « heureux » ?",
-          options: ["heureuse","heureuxe","heureuse","heureus"],
+          options: ["heureuse","heureuxe","heureusse","heureus"],
           answer: 0,
           explication: "Les adjectifs en -eux font leur féminin en -euse : heureux → heureuse, joyeux → joyeuse."
         }

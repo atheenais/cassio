@@ -1,7 +1,8 @@
 /* Matière : Culture numérique 💻
    4 thèmes × 10 questions = 40 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["numerique"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["numerique"] = {
   id: "numerique",
   name: "Culture numérique",
   emoji: "💻",

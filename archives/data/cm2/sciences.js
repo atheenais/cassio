@@ -1,7 +1,8 @@
 /* Matière : Sciences 🔬
    8 thèmes × 10 questions = 80 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["sciences"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["sciences"] = {
   id: "sciences",
   name: "Sciences",
   emoji: "🔬",

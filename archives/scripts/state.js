@@ -14,15 +14,55 @@ let S = {
   hintsUsed: 0,        // nombre d'indices révélés pendant la session courante (impacte le bonus XP "sans-faute parfait")
   liveQuestions: null,  // copie mélangée des questions du quiz courant
   reviewMode: false,    // true en mode révision des erreurs (pas de sauvegarde de progression)
-  randomMode: false     // true en mode "Quiz aléatoire" multi-thèmes (pas de sauvegarde de progression par thème)
+  randomMode: false,    // true en mode "Quiz aléatoire" multi-thèmes (pas de sauvegarde de progression par thème)
+  weakMode: false       // true en mode "Mes points faibles" (repioche des questions ratées)
 };
+
+/* ═══════════════════════════════════════════════════
+   NIVEAU SCOLAIRE COURANT (CM2, 6ème, 5ème...)
+   ═══════════════════════════════════════════════════
+   Le niveau courant est stocké par profil dans `cm2-level-{profileId}`.
+   Il est distinct de la customization (emoji, nom) volontairement :
+   - tous les profils ont un niveau (y compris l'invité)
+   - mais seuls Elias et Leïla peuvent personnaliser leur emoji/nom
+   Tant qu'il n'y a qu'un seul niveau peuplé, ce mécanisme est invisible
+   pour l'utilisateur (sélecteur masqué). */
+
+function getCurrentLevel() {
+  if (!S.profile) return DEFAULT_LEVEL;
+  const stored = localStorage.getItem(`cm2-level-${S.profile}`);
+  if (stored && LEVELS_CONFIG[stored]) return stored;
+  return DEFAULT_LEVEL;
+}
+
+function setCurrentLevel(levelId) {
+  if (!S.profile) return;
+  if (!LEVELS_CONFIG[levelId]) return;
+  localStorage.setItem(`cm2-level-${S.profile}`, levelId);
+  _invalidateCache('all'); // les caches progress/sessions sont liés au niveau
+}
+
+/* Indique si un profil a déjà choisi explicitement son niveau.
+   Sert à déclencher la popup d'onboarding au premier lancement (uniquement
+   si plusieurs niveaux sont peuplés). */
+function hasLevelChosen(profileId) {
+  return !!localStorage.getItem(`cm2-level-${profileId}`);
+}
 
 /* ═══════════════════════════════════════════════════
    UTILITAIRES
    ═══════════════════════════════════════════════════ */
-function getSubject(id) { return CURRICULUM.find(s => s.id === id); }
-function getTopic(sId, tId) {
-  const subj = getSubject(sId);
+
+/* getSubject / getTopic acceptent un argument level optionnel.
+   Par défaut : niveau courant du profil actif.
+   Pour les écrans qui parcourent l'historique multi-niveaux (ex. session
+   stockée avec son level d'origine), passer le level explicitement. */
+function getSubject(id, level) {
+  const lvl = level || getCurrentLevel();
+  return getCurriculum(lvl).find(s => s.id === id);
+}
+function getTopic(sId, tId, level) {
+  const subj = getSubject(sId, level);
   return subj ? subj.topics.find(t => t.id === tId) : undefined;
 }
 /* getProfile() retourne le profil enrichi avec sa personnalisation.
@@ -69,6 +109,21 @@ function saveCustomization(profileId, emoji, name) {
 
 function isGuest() { return S.profile === 'guest'; }
 
+/* Renvoie les infos d'affichage d'une pseudo-matière (Quiz aléatoire / Points
+   faibles) à partir de son subjId de session, ou null si c'est une vraie matière.
+   Centralise les libellés pour l'historique, la légende et la liste des sessions. */
+function pseudoSubjInfo(subjId) {
+  if (subjId === RANDOM_SUBJ_ID) {
+    return { styleId: 'random', emoji: '🎲', label: '🎲 Quiz aléatoire',
+             legendLabel: '🎲 Aléatoire', topicName: 'Quiz aléatoire', subjName: 'Multi-matières' };
+  }
+  if (subjId === WEAK_SUBJ_ID) {
+    return { styleId: 'weak', emoji: '🎯', label: '🎯 Mes points faibles',
+             legendLabel: '🎯 Points faibles', topicName: 'Mes points faibles', subjName: 'Révision ciblée' };
+  }
+  return null;
+}
+
 /* ─ Types de questions ─ */
 function qType(q) { return q.type || 'qcu'; }
 
@@ -82,13 +137,15 @@ function shuffleArray(arr) {
   return a;
 }
 
-/* ─ Pioche n questions au hasard parmi TOUTES les matières et tous les thèmes ─
+/* ─ Pioche n questions au hasard parmi TOUTES les matières et tous les thèmes
+   du niveau courant ─
    Renvoie un tableau d'objets enrichis du subjId et topicId d'origine, utiles
    pour afficher l'origine de chaque question dans l'écran de score. */
 function pickRandomQuestions(n) {
   const pool = [];
-  CURRICULUM.forEach(s => s.topics.forEach(t => {
-    t.questions.forEach(q => pool.push({ ...q, _origSubjId: s.id, _origTopicId: t.id }));
+  const curriculum = getCurriculum(getCurrentLevel());
+  curriculum.forEach(s => s.topics.forEach(t => {
+    t.questions.forEach((q, i) => pool.push({ ...q, _origSubjId: s.id, _origTopicId: t.id, _origQi: i }));
   }));
   return shuffleArray(pool).slice(0, n);
 }
@@ -104,6 +161,156 @@ function prepareQuestion(q) {
   else             newAnswer = perm.indexOf(q.answer);
   return { ...q, options: newOptions, answer: newAnswer };
 }
+
+/* ═══════════════════════════════════════════════════
+   MÉMOIRE DES ERREURS — Mode "Mes points faibles"
+   ═══════════════════════════════════════════════════
+   Stocke les questions ratées par profil et par niveau pour permettre un
+   quiz de révision ciblé. Pondération par fréquence (Niveau 2) : une question
+   ratée N fois pèse N fois plus dans la pioche, modulée par la récence.
+
+   Clé localStorage : cm2-mistakes-{profileId}-{level}
+   Chaque entrée : { sId, tId, qi, qHint, wrongCount, lastWrongAt }
+     - sId, tId, qi : identifient la question (matière / thème / index)
+     - qHint : 40 premiers caractères du texte, garde-fou si le contenu change
+               (si à la repioche le texte ne correspond plus à l'index, on ignore
+                l'entrée — évite de présenter une question jamais ratée après un
+                réordonnancement du fichier de données)
+     - wrongCount : nombre de fois ratée (sert à la pondération)
+     - lastWrongAt : timestamp de la dernière erreur (sert au facteur de récence)
+
+   Décisions actées :
+   - Identification par index (qi) + garde-fou texte
+   - Seuil d'apparition du CTA : 10 erreurs uniques (avec complément "thèmes fragiles")
+   - Pondération Niveau 2, démarrage de la mémoire à partir de cette version (pas de rétroactif)
+*/
+
+function _mistakesKey() {
+  return `cm2-mistakes-${S.profile}-${getCurrentLevel()}`;
+}
+
+function getMistakes() {
+  if (!S.profile) return [];
+  try {
+    const raw = localStorage.getItem(_mistakesKey());
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function saveMistakes(list) {
+  if (!S.profile || S.profile === 'guest') return; // pas de persistance pour l'invité
+  try { localStorage.setItem(_mistakesKey(), JSON.stringify(list)); } catch (e) { /* quota plein : on ignore */ }
+}
+
+/* Enregistre une erreur. Si la question est déjà connue, incrémente wrongCount
+   et rafraîchit lastWrongAt. Sinon crée une nouvelle entrée. */
+function recordMistake(sId, tId, qi, questionText) {
+  if (!S.profile || S.profile === 'guest') return;
+  if (sId === RANDOM_SUBJ_ID || tId === RANDOM_SUBJ_ID) return; // sécurité : jamais d'ID random
+  const list = getMistakes();
+  const existing = list.find(m => m.sId === sId && m.tId === tId && m.qi === qi);
+  if (existing) {
+    existing.wrongCount = (existing.wrongCount || 1) + 1;
+    existing.lastWrongAt = Date.now();
+  } else {
+    list.push({
+      sId, tId, qi,
+      qHint: String(questionText || '').slice(0, 40),
+      wrongCount: 1,
+      lastWrongAt: Date.now()
+    });
+  }
+  saveMistakes(list);
+}
+
+/* Retire une question de la mémoire (réussie en mode points faibles). */
+function clearMistake(sId, tId, qi) {
+  if (!S.profile || S.profile === 'guest') return;
+  const list = getMistakes().filter(m => !(m.sId === sId && m.tId === tId && m.qi === qi));
+  saveMistakes(list);
+}
+
+/* Résout une entrée de mémoire vers la question réelle du curriculum.
+   Renvoie null si la question n'existe plus OU si le garde-fou texte ne
+   correspond plus (contenu réordonné depuis l'enregistrement de l'erreur). */
+function resolveMistake(m) {
+  const topic = getTopic(m.sId, m.tId);
+  if (!topic || !topic.questions || m.qi >= topic.questions.length) return null;
+  const q = topic.questions[m.qi];
+  if (!q) return null;
+  // Garde-fou : le début du texte doit toujours correspondre
+  if (m.qHint && String(q.text || '').slice(0, 40) !== m.qHint) return null;
+  return { ...q, _origSubjId: m.sId, _origTopicId: m.tId, _origQi: m.qi };
+}
+
+/* Facteur de récence : une erreur récente pèse plus qu'une vieille erreur. */
+function _recencyFactor(lastWrongAt) {
+  const days = (Date.now() - (lastWrongAt || 0)) / (1000 * 60 * 60 * 24);
+  if (days <= 7) return 1.0;
+  if (days <= 30) return 0.7;
+  return 0.4;
+}
+
+/* Compte le nombre d'erreurs uniques actuellement en mémoire (résolvables). */
+function countWeakQuestions() {
+  return getMistakes().filter(m => resolveMistake(m) !== null).length;
+}
+
+/* Construit les questions du quiz "points faibles".
+   1. Pioche pondérée parmi les erreurs mémorisées (poids = wrongCount × récence)
+   2. Si moins de n erreurs disponibles, complète avec des questions issues des
+      "thèmes fragiles" (thèmes commencés avec un score < 80%), pour que le mode
+      soit utilisable même avant d'avoir accumulé beaucoup d'erreurs.
+   Renvoie un tableau de questions enrichies (_origSubjId / _origTopicId). */
+function pickWeakQuestions(n) {
+  const count = n || 10;
+  const mistakes = getMistakes();
+
+  // Résoudre + calculer le poids de chaque erreur encore valide
+  const weighted = [];
+  mistakes.forEach(m => {
+    const q = resolveMistake(m);
+    if (q) weighted.push({ q, weight: (m.wrongCount || 1) * _recencyFactor(m.lastWrongAt), m });
+  });
+
+  // Pioche pondérée sans remise
+  const picked = [];
+  const pool = weighted.slice();
+  while (picked.length < count && pool.length > 0) {
+    const total = pool.reduce((sum, e) => sum + e.weight, 0);
+    let r = Math.random() * total;
+    let idx = 0;
+    for (let i = 0; i < pool.length; i++) {
+      r -= pool[i].weight;
+      if (r <= 0) { idx = i; break; }
+    }
+    picked.push(pool[idx].q);
+    pool.splice(idx, 1);
+  }
+
+  // Complément "thèmes fragiles" si pas assez d'erreurs en mémoire
+  if (picked.length < count) {
+    const already = new Set(picked.map(q => `${q._origSubjId}/${q._origTopicId}/${q.text}`));
+    const fragiles = [];
+    const progress = getProgress();
+    getCurriculum(getCurrentLevel()).forEach(s => {
+      s.topics.forEach(t => {
+        const p = progress[s.id] && progress[s.id][t.id];
+        // Thème "fragile" : déjà tenté mais réussi à moins de 80%
+        if (p && p.total > 0 && (p.score / p.total) < 0.8) {
+          t.questions.forEach((q, i) => {
+            const key = `${s.id}/${t.id}/${q.text}`;
+            if (!already.has(key)) fragiles.push({ ...q, _origSubjId: s.id, _origTopicId: t.id, _origQi: i });
+          });
+        }
+      });
+    });
+    shuffleArray(fragiles).slice(0, count - picked.length).forEach(q => picked.push(q));
+  }
+
+  return picked;
+}
+
 
 function normalizeText(s) {
   return String(s).toLowerCase().trim()
@@ -144,7 +351,7 @@ function _invalidateCache(scope) {
   if (scope === 'sessions' || scope === 'all') _cache.sessions = null;
 }
 
-function progressKey() { return `cm2-progress-${S.profile}`; }
+function progressKey() { return `cm2-progress-${S.profile}-${getCurrentLevel()}`; }
 function getProgress() {
   const key = progressKey();
   if (_cache.progress[key] !== undefined) return _cache.progress[key];
@@ -205,7 +412,14 @@ function getSessions() {
 }
 function saveSession(sId, tId, score, total, hintsUsed = 0) {
   const sessions = getSessions();
-  sessions.push({ profile: S.profile, timestamp: Date.now(), subjId: sId, topicId: tId, score, total, hintsUsed });
+  sessions.push({
+    profile: S.profile,
+    level: getCurrentLevel(),    // niveau scolaire au moment du quiz (utile pour stats/badges par niveau)
+    timestamp: Date.now(),
+    subjId: sId,
+    topicId: tId,
+    score, total, hintsUsed
+  });
   if (sessions.length > 200) sessions.shift();
   localStorage.setItem('cm2-sessions', JSON.stringify(sessions));
   _invalidateCache('sessions');
@@ -296,7 +510,11 @@ const BADGES = [
   // Maîtrise — thèmes complétés
   { id: 'topics_10',  emoji: '🎓', name: 'Bon élève',  desc: '10 thèmes complétés',  check: c => c.topicsCompleted >= 10 },
   { id: 'topics_25',  emoji: '🏅', name: 'Expert',     desc: '25 thèmes complétés',  check: c => c.topicsCompleted >= 25 },
-  { id: 'topics_all', emoji: '👑', name: 'Maître CM2', desc: 'Tous les 65 thèmes complétés', check: c => c.topicsCompleted >= 65 }
+  /* "Maître du niveau" : seuil dynamique calculé à partir du nombre de thèmes
+     du niveau courant. Le nom et la description sont aussi dynamiques :
+     "Maître de CM2" / "Maître de 6ème"... (voir computeBadgeContext). */
+  { id: 'topics_all', emoji: '👑', name: 'Maître du niveau', desc: 'Tous les thèmes du niveau complétés',
+    check: c => c.totalTopics > 0 && c.topicsCompleted >= c.totalTopics, dynamic: true }
 ];
 
 /* Plus longue série de jours consécutifs avec ≥ 1 session */
@@ -349,9 +567,13 @@ function hasPlayedToday(sessions) {
   return sessions.some(s => new Date(s.timestamp).toDateString() === today);
 }
 
-/* Contexte global pour évaluer les badges */
+/* Contexte global pour évaluer les badges.
+   Filtré par niveau courant (les badges sont par niveau ; recommencer un
+   niveau permet de les redébloquer). Les sessions du quiz aléatoire sont
+   conservées même si subjId == '__random__'. */
 function computeBadgeContext() {
-  const sessions = getSessions().filter(s => s.profile === S.profile);
+  const level = getCurrentLevel();
+  const sessions = getSessions().filter(s => s.profile === S.profile && (s.level || DEFAULT_LEVEL) === level);
   const progress = getProgress();
   // On ne compte un thème comme "complété" que si son total stocké correspond
   // au nombre actuel de questions du thème (un ancien 5/5 sur un thème désormais
@@ -362,13 +584,33 @@ function computeBadgeContext() {
       if (isTopicFresh(sId, tId)) topicsCompleted++;
     }
   }
+  // Nombre total de thèmes disponibles dans le niveau courant — sert au seuil
+  // dynamique du badge "Maître du niveau".
+  const totalTopics = getCurriculum(level).reduce((n, s) => n + s.topics.length, 0);
   return {
     totalSessions:   sessions.length,
     perfectCount:    sessions.filter(s => s.score === s.total && s.total > 0).length,
     subjectsPlayed:  new Set(sessions.map(s => s.subjId)).size,
     topicsCompleted,
+    totalTopics,
     bestStreak:      computeBestStreak(sessions)
   };
+}
+
+/* Retourne le badge enrichi avec son nom/desc contextualisé pour les badges
+   marqués `dynamic: true`. Pour les autres, retourne le badge tel quel. */
+function getBadgeDisplay(badge) {
+  if (!badge.dynamic) return badge;
+  const lvl = getLevelConfig(getCurrentLevel());
+  const lvlName = lvl ? lvl.name : '';
+  if (badge.id === 'topics_all') {
+    return {
+      ...badge,
+      name: `Maître de ${lvlName}`,
+      desc: `Tous les thèmes de ${lvlName} complétés`
+    };
+  }
+  return badge;
 }
 
 /* Liste des badges actuellement débloqués pour le profil actif */

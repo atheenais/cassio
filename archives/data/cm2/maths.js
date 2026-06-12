@@ -1,7 +1,8 @@
 /* Matière : Mathématiques 🔢
    8 thèmes × 10 questions = 80 questions */
 window.CURRICULUM_PARTS = window.CURRICULUM_PARTS || {};
-window.CURRICULUM_PARTS["maths"] = {
+window.CURRICULUM_PARTS["cm2"] = window.CURRICULUM_PARTS["cm2"] || {};
+window.CURRICULUM_PARTS["cm2"]["maths"] = {
   id: "maths",
   name: "Mathématiques",
   emoji: "🔢",
