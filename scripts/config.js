@@ -48,9 +48,13 @@ const ALL_PROFILES = PROFILES.concat([GUEST_PROFILE]);
    Format : '{ "levelId|subjId": "YYYY-MM-DD" }'
    Passé la date, le badge disparaît automatiquement sans toucher au code. */
 const NEW_UNTIL = {
-  '6eme|svt':      '2026-10-01',
-  '6eme|anglais':  '2026-10-01',
-  '6eme|espagnol': '2026-10-01',
+  '6eme|svt':       '2026-10-01',
+  '6eme|anglais':   '2026-10-01',
+  '6eme|espagnol':  '2026-10-01',
+  '6eme|physchim':  '2026-12-01',
+  '6eme|techno':    '2026-12-01',
+  '6eme|emc':       '2026-12-01',
+  '6eme|numerique': '2026-12-01',
 };
 
 function isSubjectNew(levelId, subjId) {

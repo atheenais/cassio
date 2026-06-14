@@ -209,6 +209,9 @@ function startWeakQuiz(n) {
 
 function goScore() {
   clearQuizTimers();
+  // Garde : un timer résiduel (auto-passage) ou un retour d'app pourrait appeler
+  // goScore hors quiz. Sans liveQuestions, il n'y a rien à scorer.
+  if (!S.liveQuestions) return;
   const n = S.liveQuestions.length;
   S.newBadges = [];
   S.xpGained = 0;

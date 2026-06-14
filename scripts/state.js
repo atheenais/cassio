@@ -372,7 +372,7 @@ function saveProgress(sId, tId, score, total) {
   if (!prev || isPrevStale || score > prev.score) {
     p[sId][tId] = { score, total };
   }
-  localStorage.setItem(progressKey(), JSON.stringify(p));
+  try { localStorage.setItem(progressKey(), JSON.stringify(p)); } catch (e) { /* quota plein : on n'interrompt pas le quiz */ }
   _invalidateCache('progress');
 }
 
@@ -430,7 +430,7 @@ function saveSession(sId, tId, score, total, hintsUsed = 0) {
     const idx = sessions.indexOf(oldest);
     if (idx !== -1) sessions.splice(idx, 1);
   }
-  localStorage.setItem('cm2-sessions', JSON.stringify(sessions));
+  try { localStorage.setItem('cm2-sessions', JSON.stringify(sessions)); } catch (e) { /* quota plein : on n'interrompt pas la fin de quiz */ }
   _invalidateCache('sessions');
 }
 function formatDate(ts) {

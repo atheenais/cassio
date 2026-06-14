@@ -48,7 +48,7 @@ function _storeSession(data) {
     access_token:  data.access_token,
     refresh_token: data.refresh_token,
     expires_at:    Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
-    email:         data.user.email
+    email:         data.user?.email || ''
   });
 }
 
@@ -118,17 +118,30 @@ function syncSignOut() { setSyncSession(null); }
 
 /* ── Helpers de fusion ──────────────────────────────────── */
 
-/* Sessions : déduplication par (profile+timestamp+subjId+topicId), plafond 200 */
+/* Sessions : déduplication par (profile+timestamp+subjId+topicId), plafond 200 PAR PROFIL.
+   Le cap par profil (et non global) est essentiel : aligné sur saveSession (state.js),
+   il garantit qu'un enfant très actif ne peut JAMAIS évincer les sessions de l'autre
+   lors d'une fusion sync — ce qui écraserait son XP et ses badges. */
 function _mergeSessions(local, remote) {
   const all = [...(Array.isArray(local) ? local : []), ...(Array.isArray(remote) ? remote : [])];
   const seen = new Set();
-  const out  = [];
+  const dedup = [];
   for (const s of all) {
     const k = `${s.profile}|${s.timestamp}|${s.subjId}|${s.topicId}`;
-    if (!seen.has(k)) { seen.add(k); out.push(s); }
+    if (!seen.has(k)) { seen.add(k); dedup.push(s); }
   }
-  out.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-  return out.slice(0, 200);
+  dedup.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+  // Plafond 200 par profil : on compte par profil et on ne garde que les 200 plus
+  // récentes de CHACUN. Les sessions sans profil identifiable sont conservées telles quelles.
+  const counts = {};
+  const out = [];
+  for (const s of dedup) {
+    const pid = s.profile;
+    if (pid == null) { out.push(s); continue; }
+    counts[pid] = (counts[pid] || 0) + 1;
+    if (counts[pid] <= 200) out.push(s);
+  }
+  return out;
 }
 
 /* Choisit la meilleure entrée de score entre deux candidats pour un thème donné.
