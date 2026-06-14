@@ -120,10 +120,10 @@ function goHome() {
   S.screen = 'home'; S.subjId = null; S.topicId = null;
   S.randomMode = false; S.reviewMode = false; S.weakMode = false;
   applySubjStyle(null);
-  // Si le profil n'a pas encore choisi son niveau et que plusieurs niveaux sont
-  // disponibles, on bascule sur l'écran d'onboarding du niveau. Sinon, le niveau
-  // est inscrit silencieusement et on reste sur l'accueil.
-  maybeShowLevelOnboarding();
+  // Au 1er lancement d'un profil, on inscrit silencieusement son niveau (plus
+  // d'écran d'onboarding "En quelle classe es-tu ?"). Changement possible via
+  // le sélecteur de niveau de l'accueil.
+  ensureLevelChosen();
   render();
 }
 function goSubject(id) {
@@ -251,7 +251,6 @@ function render() {
     banner.hidden = !showBanner;
   }
   if (S.screen === 'profile')   { app.innerHTML = renderProfile();   }
-  if (S.screen === 'level-onboarding') { app.innerHTML = renderLevelOnboarding(); }
   if (S.screen === 'customize') { app.innerHTML = renderCustomize(); }
   if (S.screen === 'home')      { app.innerHTML = renderHome();      }
   if (S.screen === 'subject') { app.innerHTML = renderSubject();  }
@@ -468,47 +467,16 @@ function changeLevel(levelId) {
   goHome();
 }
 
-/* Popup d'onboarding au 1er lancement d'un profil quand plusieurs niveaux sont
-   peuplés. Tant qu'on n'a qu'un seul niveau (CM2), la popup ne se déclenche pas.
-   À déclencher depuis render() après que S.profile a été défini. */
-function maybeShowLevelOnboarding() {
+/* Inscrit silencieusement le niveau d'un profil à son 1er lancement.
+   Plus d'écran d'onboarding "En quelle classe es-tu ?" : on retient le niveau
+   par défaut (CM2 si disponible) et l'enfant en change quand il veut via le
+   sélecteur de niveau de l'accueil. À déclencher depuis goHome() après que
+   S.profile a été défini. */
+function ensureLevelChosen() {
   if (!S.profile) return;
   if (hasLevelChosen(S.profile)) return;
   const available = getAvailableLevels();
-  if (available.length < 2) {
-    // Un seul niveau : on l'inscrit silencieusement sans déranger l'enfant
-    setCurrentLevel(available[0] || DEFAULT_LEVEL);
-    return;
-  }
-  // Plusieurs niveaux disponibles : on affiche un écran intermédiaire
-  S.screen = 'level-onboarding';
-}
-
-function renderLevelOnboarding() {
-  const prof = getProfile();
-  const available = getAvailableLevels();
-  const cards = available.map(lvl => {
-    const cfg = getLevelConfig(lvl);
-    return `
-      <button class="onboarding-level-card" onclick="chooseInitialLevel('${lvl}')">
-        <span class="onboarding-level-emoji">${cfg.emoji}</span>
-        <span class="onboarding-level-name">${cfg.name}</span>
-      </button>`;
-  }).join('');
-  return `
-    <div class="anim-slide level-onboarding">
-      <div class="app-header">
-        <h1>👋 Salut ${escapeHtml(prof.name)} !</h1>
-        <p>En quelle classe es-tu cette année ?</p>
-      </div>
-      <div class="onboarding-level-grid">${cards}</div>
-      <p class="onboarding-level-hint">Tu pourras changer à tout moment depuis l'accueil.</p>
-    </div>`;
-}
-
-function chooseInitialLevel(levelId) {
-  setCurrentLevel(levelId);
-  goHome();
+  setCurrentLevel(available.includes(DEFAULT_LEVEL) ? DEFAULT_LEVEL : (available[0] || DEFAULT_LEVEL));
 }
 
 /* Carte "série de jours consécutifs" affichée sur l'accueil.

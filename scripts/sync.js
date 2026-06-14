@@ -263,14 +263,24 @@ async function syncUp(profileId) {
     headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify({ profile_id: profileId, data, updated_at: new Date().toISOString() })
   });
-  if (!res.ok) throw new Error(`syncUp ${profileId} failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error('[sync] échec upsert', profileId, res.status, body);
+    const e = new Error(`La synchronisation a échoué (code ${res.status}).`);
+    e.status = res.status;
+    throw e;
+  }
 }
 
 /* ── Sync descendant : pull + fusion dans le localStorage ─ */
 async function syncDown() {
   if (!await _refreshIfNeeded()) return false;
   const res = await _supaFetch('/rest/v1/profiles_sync?select=profile_id,data');
-  if (!res.ok) return false;
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error('[sync] échec pull', res.status, body);
+    return false;
+  }
   const rows = await res.json();
 
   // Les sessions sont lues UNE SEULE FOIS avant la boucle et maintenues à jour
@@ -425,8 +435,17 @@ function _syncResetNowBtn(label) {
 /* Message d'erreur réseau adapté : distingue hors-ligne d'une vraie panne. */
 function _syncNetError() {
   _syncSetError(navigator.onLine === false
-    ? "Tu n'es pas connecté à Internet."
-    : 'Erreur réseau, réessaie.');
+    ? "Vous n'êtes pas connecté à Internet."
+    : 'Erreur réseau, réessayez.');
+}
+
+/* Gestionnaire d'erreur unifié : une erreur HTTP (avec .status) porte un message
+   informatif (code) ; un échec de fetch (TypeError) ou un état hors-ligne donne
+   le message réseau. Évite d'afficher "Erreur réseau" sur une vraie erreur serveur. */
+function _syncErr(e) {
+  if (e && e.status) { _syncSetError(e.message); return; }
+  if (e instanceof TypeError || navigator.onLine === false) { _syncNetError(); return; }
+  _syncSetError(e && e.message ? e.message : 'Une erreur est survenue.');
 }
 
 async function _syncConnect() {
@@ -453,7 +472,7 @@ async function _syncConnect() {
   } catch (e) {
     const btn = document.getElementById('sync-connect-btn');
     if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; }
-    if (e && e.message) _syncSetError(e.message); else _syncNetError();
+    _syncErr(e);
   } finally {
     _syncBusy = false;
   }
@@ -468,9 +487,9 @@ async function _syncManual() {
     const ok = await syncDown();
     if (ok) render();
     _syncResetNowBtn(ok ? '✓ Synchronisé !' : '⟳ Synchroniser maintenant');
-  } catch {
+  } catch (e) {
     _syncResetNowBtn('⟳ Synchroniser maintenant');
-    _syncNetError();
+    _syncErr(e);
   } finally {
     _syncBusy = false;
   }
@@ -482,3 +501,22 @@ function _syncDisconnect() {
   closeSyncModal();
   render(); // rafraîchit le bouton ☁️ sur l'écran de sélection de profil
 }
+
+/* ── Rafraîchissement autonome ───────────────────────────
+   Sur une PWA qui reste ouverte, initSync (au boot) ne suffit pas : l'appareil
+   ne reverrait jamais les changements poussés par un autre appareil. On tire
+   donc à nouveau quand l'app revient au premier plan (changement d'onglet, retour
+   depuis l'arrière-plan iOS), avec un throttle de 30 s pour ne pas spammer le réseau.
+   On évite de re-rendre pendant un quiz pour ne pas perturber la partie en cours. */
+let _lastAutoPull = 0;
+function _syncOnVisible() {
+  if (document.visibilityState !== 'visible') return;
+  if (!isSyncConnected()) return;
+  const now = Date.now();
+  if (now - _lastAutoPull < 30000) return;
+  _lastAutoPull = now;
+  syncDown().then(ok => {
+    if (ok && ['profile', 'home', 'history'].includes(S.screen)) render();
+  }).catch(() => {});
+}
+document.addEventListener('visibilitychange', _syncOnVisible);
