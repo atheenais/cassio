@@ -52,7 +52,8 @@ function _storeSession(data) {
   });
 }
 
-/* Tente la connexion, crée le compte automatiquement si inexistant. */
+/* Tente la connexion, crée le compte automatiquement si inexistant.
+   Distingue trois cas : connexion OK, mauvais mot de passe, nouveau compte. */
 async function signInOrUp(email, password) {
   // 1. Essai connexion
   const signInRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
@@ -63,12 +64,11 @@ async function signInOrUp(email, password) {
   if (signInRes.ok) { _storeSession(await signInRes.json()); return; }
 
   const signInErr = await signInRes.json().catch(() => ({}));
-  // Si le compte n'existe pas encore → création automatique
-  const notFound = signInRes.status === 400 &&
-    /invalid login|user not found|no user/i.test(signInErr.error_description || signInErr.msg || '');
-  if (!notFound) throw new Error(signInErr.error_description || signInErr.msg || 'Erreur de connexion');
+  const isInvalidCreds = signInRes.status === 400 &&
+    /invalid login/i.test(signInErr.error_description || signInErr.msg || '');
+  if (!isInvalidCreds) throw new Error(signInErr.error_description || signInErr.msg || 'Erreur de connexion');
 
-  // 2. Création du compte
+  // 2. Tentative de création (nous dira si le compte existe déjà ou non)
   const signUpRes = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
     method: 'POST',
     headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
@@ -76,9 +76,18 @@ async function signInOrUp(email, password) {
   });
   if (!signUpRes.ok) {
     const err = await signUpRes.json().catch(() => ({}));
+    // Le compte existe → c'est un mauvais mot de passe, pas un compte absent
+    if (/already registered|already exists/i.test(err.error_description || err.msg || '')) {
+      throw new Error('Mot de passe incorrect.');
+    }
     throw new Error(err.error_description || err.msg || 'Erreur création du compte');
   }
-  _storeSession(await signUpRes.json());
+  const signUpData = await signUpRes.json();
+  // Pas de token → la confirmation email est encore activée dans Supabase
+  if (!signUpData.access_token) {
+    throw new Error('Active d\'abord "Disable email confirmations" dans Supabase → Auth → Settings.');
+  }
+  _storeSession(signUpData);
 }
 
 /* Rafraîchit le token si il expire dans moins de 5 min. */
@@ -286,7 +295,8 @@ function _renderSyncModal() {
       <input id="sync-email-in" class="sync-input" type="email" inputmode="email"
              placeholder="ton@email.fr" value="${_syncEmail}" autocomplete="email">
       <input id="sync-pwd-in" class="sync-input" type="password"
-             placeholder="Mot de passe (6 car. min.)" autocomplete="current-password">
+             placeholder="Mot de passe (6 car. min.)" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')_syncConnect()">
       <button class="sync-btn primary" id="sync-connect-btn" onclick="_syncConnect()">Se connecter</button>`;
   }
 
@@ -360,4 +370,5 @@ function _syncDisconnect() {
   if (!confirm('Se déconnecter ? Les données locales sont conservées.')) return;
   syncSignOut();
   closeSyncModal();
+  render(); // rafraîchit le bouton ☁️ sur l'accueil
 }
