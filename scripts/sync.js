@@ -258,7 +258,11 @@ async function syncUp(profileId) {
       if (remote) data = _mergeProfileData(local, remote);
     }
   } catch {} // pas de ligne serveur lisible : on pousse le local tel quel
-  const res = await _supaFetch('/rest/v1/profiles_sync', {
+  // ?on_conflict=user_id,profile_id : indique explicitement à PostgREST la cible
+  // du conflit. Sans ça, l'upsert vise la clé primaire (id) ; comme on n'envoie
+  // jamais d'id, chaque envoi crée un nouvel id → INSERT pur → viole la contrainte
+  // unique(user_id, profile_id) → 409. Avec on_conflict, il met à jour la ligne existante.
+  const res = await _supaFetch('/rest/v1/profiles_sync?on_conflict=user_id,profile_id', {
     method: 'POST',
     headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify({ profile_id: profileId, data, updated_at: new Date().toISOString() })
