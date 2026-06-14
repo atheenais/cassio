@@ -224,6 +224,7 @@ function goScore() {
     const savedSubjId = isPseudo ? pseudoId : S.subjId;
     const savedTopicId = isPseudo ? pseudoId : S.topicId;
     saveSession(savedSubjId, savedTopicId, S.correct, n, S.hintsUsed || 0);
+    syncUpCurrent(); // fire-and-forget : pousse le profil vers Supabase si connecté
     const after = computeBadgesUnlocked();
     S.newBadges = after.filter(b => !beforeIds.includes(b.id));
   }
@@ -741,6 +742,9 @@ function renderHome() {
              <button class="btn-sm" onclick="resetGuestProgress()">🔄 Réinitialiser le mode invité</button>
            </div>`
         : `<div class="data-actions">
+             <button class="btn-sm btn-sync${isSyncConnected() ? ' sync-on' : ''}" onclick="openSyncModal()">
+               ${isSyncConnected() ? '☁️ Synchro active' : '☁️ Synchroniser'}
+             </button>
              <button class="btn-sm" onclick="exportData()">💾 Exporter ma progression</button>
              <button class="btn-sm" onclick="triggerImport()">📂 Importer un fichier</button>
            </div>

@@ -1349,3 +1349,71 @@
     body.light .feedback.bad { color: #991b1b; }
     body.light .feedback .expl { color: var(--muted); }
     body.light .star { box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+
+    /* ── BOUTON SYNC (accueil) ── */
+    .btn-sync { border: 1px solid var(--border); }
+    .btn-sync.sync-on { border-color: #34d39966; color: var(--green); background: rgba(52,211,153,.08); }
+
+    /* ── MODALE SYNCHRONISATION ── */
+    .sync-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(10,15,30,.75); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .sync-modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 1.25rem;
+      padding: 1.75rem 1.5rem 1.5rem;
+      width: 100%; max-width: 360px;
+      position: relative; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    .sync-modal-close {
+      position: absolute; top: .75rem; right: .85rem;
+      background: none; border: none; color: var(--muted); font-size: 1rem;
+      cursor: pointer; padding: .25rem .4rem; border-radius: .4rem; line-height: 1;
+    }
+    .sync-modal-close:hover { background: rgba(255,255,255,.06); color: var(--text); }
+    .sync-modal-icon  { font-size: 2.25rem; line-height: 1; margin-bottom: .35rem; }
+    .sync-modal-title { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; }
+    .sync-modal-body  { display: flex; flex-direction: column; gap: .65rem; }
+    .sync-hint {
+      font-size: .8rem; color: var(--muted); line-height: 1.45;
+      text-align: left; margin: 0;
+    }
+    .sync-input {
+      width: 100%; box-sizing: border-box;
+      padding: .65rem .85rem; border-radius: .7rem;
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      color: var(--text); font-size: .95rem; font-family: inherit;
+      text-align: center; letter-spacing: .05em;
+      outline: none; transition: border-color .15s;
+    }
+    .sync-input:focus { border-color: var(--blue); }
+    .sync-btn {
+      width: 100%; padding: .65rem 1rem; border-radius: .7rem;
+      border: none; font-size: .9rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; transition: opacity .15s;
+    }
+    .sync-btn:disabled { opacity: .5; cursor: default; }
+    .sync-btn.primary  { background: var(--blue); color: #fff; }
+    .sync-btn.primary:hover:not(:disabled) { opacity: .88; }
+    .sync-btn.danger   { background: rgba(248,113,113,.15); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
+    .sync-btn.ghost    { background: none; color: var(--muted); border: 1px solid var(--border); }
+    .sync-btn.ghost:hover:not(:disabled) { color: var(--text); }
+    .sync-status-row {
+      display: flex; align-items: center; gap: .55rem; justify-content: center;
+      font-size: .85rem; color: var(--text); padding: .4rem 0;
+    }
+    .sync-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      background: var(--green); box-shadow: 0 0 6px var(--green);
+    }
+    .sync-error {
+      font-size: .78rem; color: var(--red); margin: 0;
+      background: rgba(248,113,113,.08); border-radius: .5rem;
+      padding: .4rem .65rem; text-align: left;
+    }
+    body.light .sync-modal { box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+    body.light .sync-input { background: #fff; }
+    body.light .sync-btn.ghost { color: var(--muted); }

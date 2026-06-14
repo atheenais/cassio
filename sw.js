@@ -8,7 +8,7 @@
    nouveaux fichiers. Sans ce changement de version, les utilisateurs déjà
    installés continueraient de voir l'ancienne version en cache. */
 
-const CACHE_VERSION = 'cassio-v22';
+const CACHE_VERSION = 'cassio-v23';
 
 /* Liste de tous les fichiers nécessaires au fonctionnement hors-ligne.
    Les chemins sont relatifs au scope du service worker (la racine de l'app). */
@@ -45,6 +45,7 @@ const ASSETS = [
   './scripts/config.js',
   './scripts/state.js',
   './scripts/render.js',
+  './scripts/sync.js',
   './scripts/app.js'
 ];
 

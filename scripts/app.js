@@ -538,4 +538,5 @@ migrateToMultiLevels();
 cleanupOrphanedProgress();
 loadTheme();
 updateSoundButton();
+initSync(); // pull silencieux si déjà connecté
 render();
