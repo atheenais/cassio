@@ -644,7 +644,9 @@ function applySubjStyle(id) {
     document.documentElement.style.setProperty('--subj-grad', 'linear-gradient(135deg,#4f9cf9,#a78bfa)');
     return;
   }
-  const s = STYLES[id];
+  // Filet de sécurité : une matière sans entrée STYLES (id inconnu, oubli au prochain
+  // ajout) ne doit pas crasher tout l'écran (page blanche) — on retombe sur le bleu.
+  const s = STYLES[id] || STYLES.maths;
   document.documentElement.style.setProperty('--subj-color', s.color);
   document.documentElement.style.setProperty('--subj-grad', s.grad);
 }

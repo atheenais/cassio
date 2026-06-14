@@ -593,13 +593,13 @@ function renderHome() {
      - le texte "3/8 complétés" sous la barre est conservé en HTML pour les
        lecteurs d'écran mais masqué visuellement (.subj-prog-text { display: none }) */
   const cards = curriculum.map(s => {
-    const style = STYLES[s.id];
+    const style = STYLES[s.id] || STYLES.maths; // fallback si une matière n'a pas de couleur définie
     const done = doneBycSubject[s.id];
     const total = s.topics.length;
     const subjPct = total > 0 ? Math.round(done / total * 100) : 0;
     return `
       <div class="subject-card" style="--sc-color:${style.color}; --sc-grad:${style.grad};"
-           onclick="goSubject('${s.id}')"
+           onclick="goSubject('${s.id}')" tabindex="0"
            role="button" aria-label="${s.name} — ${done} thèmes sur ${total} complétés">
         <div class="subject-card-head">
           <span class="subj-icon" aria-hidden="true">${s.emoji}</span>
@@ -689,14 +689,14 @@ function renderHome() {
         const weakCount = countWeakQuestions();
         const showWeak = weakCount >= 10;
         const randomCta = `
-          <div class="dual-cta random-cta" onclick="startRandomQuiz()"
+          <div class="dual-cta random-cta" onclick="startRandomQuiz()" tabindex="0"
                role="button" aria-label="Lancer un quiz aléatoire de 10 questions">
             <div class="dual-cta-icon" aria-hidden="true">🎲</div>
             <div class="dual-cta-title">Quiz aléatoire</div>
             <div class="dual-cta-sub">10 questions surprise</div>
           </div>`;
         const weakCta = showWeak ? `
-          <div class="dual-cta weak-cta" onclick="startWeakQuiz()"
+          <div class="dual-cta weak-cta" onclick="startWeakQuiz()" tabindex="0"
                role="button" aria-label="Réviser mes points faibles">
             <div class="dual-cta-icon" aria-hidden="true">🎯</div>
             <div class="dual-cta-title">Mes points faibles</div>
@@ -764,7 +764,7 @@ function renderSubject() {
             <div class="topic-stars">${starsHTML(stars)}</div>
           </div>
           ${badge}
-          <button class="btn-start">${btnLabel}</button>
+          <button class="btn-start" aria-label="${btnLabel} — ${t.name}">${btnLabel}</button>
         </div>
         <div class="t-meta">${t.desc}</div>
       </div>`;

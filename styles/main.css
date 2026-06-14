@@ -1195,7 +1195,7 @@
     .theme-toggle {
       position: fixed;
       top: max(.75rem, env(safe-area-inset-top)); right: .75rem; z-index: 100;
-      width: 38px; height: 38px; border-radius: 50%;
+      width: 44px; height: 44px; border-radius: 50%;
       border: 1px solid var(--border); background: var(--card);
       color: var(--text); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
@@ -1207,8 +1207,8 @@
     /* Bouton son (à gauche du bouton thème) */
     .sound-toggle {
       position: fixed;
-      top: max(.75rem, env(safe-area-inset-top)); right: 3.4rem; z-index: 100;
-      width: 38px; height: 38px; border-radius: 50%;
+      top: max(.75rem, env(safe-area-inset-top)); right: 4rem; z-index: 100;
+      width: 44px; height: 44px; border-radius: 50%;
       border: 1px solid var(--border); background: var(--card);
       color: var(--text); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
@@ -1216,6 +1216,14 @@
       box-shadow: 0 4px 12px rgba(0,0,0,.2);
     }
     .sound-toggle:hover { border-color: var(--blue); transform: scale(1.08); }
+
+    /* Anneau de focus clavier visible et homogène. :focus-visible ne se déclenche
+       qu'à la navigation clavier (jamais au tap/clic souris) — aucun impact tactile. */
+    :focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
 
     /* ═══ ANIMATIONS DE RÉCOMPENSE (sobres) ═══ */
 
@@ -1319,7 +1327,7 @@
       --card:   #ffffff;
       --border: #d8dde8;
       --text:   #1e293b;
-      --muted:  #64748b;
+      --muted:  #586377; /* assombri vs #64748b pour passer le seuil WCAG AA (4.5:1) sur fond clair */
       background-image: radial-gradient(ellipse at 20% 10%, #c7d2fe55 0%, transparent 60%),
                         radial-gradient(ellipse at 80% 80%, #fbcfe833 0%, transparent 60%);
     }

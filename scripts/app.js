@@ -436,6 +436,20 @@ function quizKeyHandler(ev) {
 }
 document.addEventListener('keydown', quizKeyHandler);
 
+/* Activation clavier des éléments cliquables non natifs (div role="button" :
+   cartes matière, CTA quiz aléatoire / points faibles). Entrée et Espace
+   déclenchent le clic, comme un vrai bouton. Les <button>/<a> natifs gèrent
+   déjà cela seuls — on ne les touche pas (et on ignore les champs de saisie). */
+function activateKeyHandler(ev) {
+  if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'Spacebar') return;
+  const el = document.activeElement;
+  if (!el || el.getAttribute('role') !== 'button') return;
+  if (/^(BUTTON|A|INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+  ev.preventDefault(); // évite le scroll de page sur Espace
+  el.click();
+}
+document.addEventListener('keydown', activateKeyHandler);
+
 
 /* ═══════════════════════════════════════════════════
    INIT
