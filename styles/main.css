@@ -1350,9 +1350,17 @@
     body.light .feedback .expl { color: var(--muted); }
     body.light .star { box-shadow: 0 1px 3px rgba(0,0,0,.15); }
 
-    /* ── BOUTON SYNC (accueil) ── */
-    .btn-sync { border: 1px solid var(--border); }
-    .btn-sync.sync-on { border-color: #34d39966; color: var(--green); background: rgba(52,211,153,.08); }
+    /* ── BOUTON SYNC (écran sélection de profil) ── */
+    .profile-sync {
+      display: flex; align-items: center; justify-content: center; gap: .4rem;
+      margin: .75rem auto 0; padding: .6rem 1rem;
+      background: none; border: 1px solid var(--border); border-radius: .7rem;
+      color: var(--muted); font-size: .82rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: border-color .15s, color .15s, background .15s;
+    }
+    .profile-sync:hover { color: var(--text); border-color: var(--blue); }
+    .profile-sync.sync-on { border-color: #34d39966; color: var(--green); background: rgba(52,211,153,.08); }
+    .profile-sync-txt { font-weight: 700; }
 
     /* ── MODALE SYNCHRONISATION ── */
     .sync-overlay {
@@ -1369,38 +1377,46 @@
       box-shadow: 0 20px 60px rgba(0,0,0,.45);
     }
     .sync-modal-close {
-      position: absolute; top: .75rem; right: .85rem;
+      position: absolute; top: .5rem; right: .5rem;
       background: none; border: none; color: var(--muted); font-size: 1rem;
-      cursor: pointer; padding: .25rem .4rem; border-radius: .4rem; line-height: 1;
+      cursor: pointer; border-radius: .5rem; line-height: 1;
+      width: 44px; height: 44px;          /* cible tactile conforme (≥44px) */
+      display: flex; align-items: center; justify-content: center;
     }
     .sync-modal-close:hover { background: rgba(255,255,255,.06); color: var(--text); }
     .sync-modal-icon  { font-size: 2.25rem; line-height: 1; margin-bottom: .35rem; }
     .sync-modal-title { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 1rem; }
     .sync-modal-body  { display: flex; flex-direction: column; gap: .65rem; }
+    .sync-parent-tag {
+      font-size: .72rem; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .04em; margin: 0; text-align: left;
+    }
     .sync-hint {
       font-size: .8rem; color: var(--muted); line-height: 1.45;
       text-align: left; margin: 0;
     }
+    .sync-warn {
+      font-size: .73rem; color: var(--muted); line-height: 1.4; margin: .1rem 0 0;
+      text-align: left; opacity: .9;
+    }
     .sync-input {
       width: 100%; box-sizing: border-box;
-      padding: .65rem .85rem; border-radius: .7rem;
+      padding: .7rem .85rem; border-radius: .7rem; min-height: 44px;
       background: rgba(255,255,255,.05); border: 1px solid var(--border);
       color: var(--text); font-size: .95rem; font-family: inherit;
-      text-align: center; letter-spacing: .05em;
+      text-align: left;
       outline: none; transition: border-color .15s;
     }
     .sync-input:focus { border-color: var(--blue); }
     .sync-btn {
-      width: 100%; padding: .65rem 1rem; border-radius: .7rem;
+      width: 100%; padding: .65rem 1rem; border-radius: .7rem; min-height: 44px;
       border: none; font-size: .9rem; font-weight: 700; cursor: pointer;
       font-family: inherit; transition: opacity .15s;
     }
     .sync-btn:disabled { opacity: .5; cursor: default; }
     .sync-btn.primary  { background: var(--blue); color: #fff; }
     .sync-btn.primary:hover:not(:disabled) { opacity: .88; }
-    .sync-btn.danger   { background: rgba(248,113,113,.15); color: #f87171; border: 1px solid rgba(248,113,113,.3); }
-    .sync-btn.ghost    { background: none; color: var(--muted); border: 1px solid var(--border); }
-    .sync-btn.ghost:hover:not(:disabled) { color: var(--text); }
+    .sync-btn.danger   { background: rgba(248,113,113,.15); color: var(--red); border: 1px solid rgba(248,113,113,.3); }
     .sync-status-row {
       display: flex; align-items: center; gap: .55rem; justify-content: center;
       font-size: .85rem; color: var(--text); padding: .4rem 0;
@@ -1416,4 +1432,3 @@
     }
     body.light .sync-modal { box-shadow: 0 20px 60px rgba(0,0,0,.15); }
     body.light .sync-input { background: #fff; }
-    body.light .sync-btn.ghost { color: var(--muted); }

@@ -420,7 +420,16 @@ function saveSession(sId, tId, score, total, hintsUsed = 0) {
     topicId: tId,
     score, total, hintsUsed
   });
-  if (sessions.length > 200) sessions.shift();
+  // Plafond PAR PROFIL (200), aligné sur la fusion sync (_mergeSessions).
+  // On retire la session la plus ancienne DU PROFIL courant en cas de dépassement,
+  // sans jamais toucher à l'historique de l'autre enfant — un enfant très actif ne
+  // peut donc plus évincer les sessions (et donc l'XP/les badges) de l'autre.
+  const mine = sessions.filter(s => s.profile === S.profile);
+  if (mine.length > 200) {
+    const oldest = mine.reduce((a, b) => (a.timestamp <= b.timestamp ? a : b));
+    const idx = sessions.indexOf(oldest);
+    if (idx !== -1) sessions.splice(idx, 1);
+  }
   localStorage.setItem('cm2-sessions', JSON.stringify(sessions));
   _invalidateCache('sessions');
 }

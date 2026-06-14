@@ -294,6 +294,12 @@ function renderProfile() {
         <span class="guest-btn-text">Mode invité</span>
         <span class="guest-btn-sub">Pour tester librement</span>
       </button>
+      <button class="profile-sync${isSyncConnected() ? ' sync-on' : ''}" onclick="openSyncModal()"
+              title="Synchroniser la progression entre appareils">
+        ${isSyncConnected()
+          ? '☁️ <span class="profile-sync-txt">Synchronisation active</span>'
+          : '☁️ <span class="profile-sync-txt">Synchroniser (parents)</span>'}
+      </button>
     </div>`;
 }
 
@@ -408,7 +414,7 @@ function renderLevelCard() {
           <div class="level-circle-lbl">Niveau</div>
         </div>
         <div class="level-info">
-          <div class="level-name">${prof.emoji} ${prof.name}</div>
+          <div class="level-name">${escapeHtml(prof.emoji)} ${escapeHtml(prof.name)}</div>
           <div class="level-xp">${xpLine}</div>
           <div class="xp-bar"><div class="xp-bar-fill" style="width:${fillPct}%"></div></div>
         </div>
@@ -492,7 +498,7 @@ function renderLevelOnboarding() {
   return `
     <div class="anim-slide level-onboarding">
       <div class="app-header">
-        <h1>👋 Salut ${prof.name} !</h1>
+        <h1>👋 Salut ${escapeHtml(prof.name)} !</h1>
         <p>En quelle classe es-tu cette année ?</p>
       </div>
       <div class="onboarding-level-grid">${cards}</div>
@@ -662,7 +668,7 @@ function renderHome() {
           <div class="lbl">NIV.</div>
         </div>
         <div class="home-identity-main">
-          <div class="home-identity-name">${prof.emoji} ${prof.name}</div>
+          <div class="home-identity-name">${escapeHtml(prof.emoji)} ${escapeHtml(prof.name)}</div>
           <div class="home-identity-xp">${xpLine}</div>
         </div>
         <div class="home-identity-actions">
@@ -742,9 +748,6 @@ function renderHome() {
              <button class="btn-sm" onclick="resetGuestProgress()">🔄 Réinitialiser le mode invité</button>
            </div>`
         : `<div class="data-actions">
-             <button class="btn-sm btn-sync${isSyncConnected() ? ' sync-on' : ''}" onclick="openSyncModal()">
-               ${isSyncConnected() ? '☁️ Synchro active' : '☁️ Synchroniser'}
-             </button>
              <button class="btn-sm" onclick="exportData()">💾 Exporter ma progression</button>
              <button class="btn-sm" onclick="triggerImport()">📂 Importer un fichier</button>
            </div>
@@ -1102,7 +1105,9 @@ function qValidate() {
   if (!isLast) {
     document.getElementById('next-btn').disabled = false;
   } else {
-    if (!S.reviewMode) saveProgress(S.subjId, S.topicId, S.correct, n);
+    // Pas de progression par thème en révision / aléatoire / points faibles
+    // (S.subjId vaut alors 'random'/'weak' → entrée parasite, et elle remonterait au serveur via syncUpCurrent).
+    if (!S.reviewMode && !S.randomMode && !S.weakMode) saveProgress(S.subjId, S.topicId, S.correct, n);
     const valBtn = document.getElementById('val-btn');
     valBtn.style.display = '';   // s'assure que le bouton est visible (cas QCU/Vrai-Faux où il avait été caché)
     valBtn.textContent = '🏆 Voir mes résultats';
@@ -1531,9 +1536,9 @@ function renderHistory() {
 
       <div class="profile-banner" style="margin-bottom:1.25rem;">
         <div class="profile-banner-left">
-          <span class="profile-avatar">${prof.emoji}</span>
+          <span class="profile-avatar">${escapeHtml(prof.emoji)}</span>
           <div>
-            <div class="profile-banner-name">${prof.name}</div>
+            <div class="profile-banner-name">${escapeHtml(prof.name)}</div>
             <div class="profile-banner-sub">${nb} session${nb !== 1 ? 's' : ''} enregistrée${nb !== 1 ? 's' : ''}</div>
           </div>
         </div>
@@ -1544,7 +1549,7 @@ function renderHistory() {
       <div class="section-title">Dernières sessions</div>
       <div class="history-list">${items}</div>
 
-      ${nb > 0 ? `<div class="reset-link" onclick="resetHistory()">Effacer l'historique de ${prof.name}</div>` : ''}
+      ${nb > 0 ? `<div class="reset-link" onclick="resetHistory()">Effacer l'historique de ${escapeHtml(prof.name)}</div>` : ''}
     </div>`;
 }
 
