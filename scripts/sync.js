@@ -41,36 +41,44 @@ async function _supaFetch(path, opts = {}) {
   return fetch(SUPABASE_URL + path, { ...opts, headers });
 }
 
-/* ── Auth : OTP sans magic link (compatible iOS PWA) ────── */
-async function sendOTP(email) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/otp`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, create_user: true })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error_description || err.msg || 'Erreur envoi du code');
-  }
-}
+/* ── Auth : email + mot de passe (compatible iOS PWA, zéro email) ── */
 
-async function verifyOTP(email, token) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'email', email, token })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error_description || err.msg || 'Code invalide ou expiré');
-  }
-  const data = await res.json();
+function _storeSession(data) {
   setSyncSession({
     access_token:  data.access_token,
     refresh_token: data.refresh_token,
     expires_at:    Math.floor(Date.now() / 1000) + (data.expires_in || 3600),
     email:         data.user.email
   });
+}
+
+/* Tente la connexion, crée le compte automatiquement si inexistant. */
+async function signInOrUp(email, password) {
+  // 1. Essai connexion
+  const signInRes = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  if (signInRes.ok) { _storeSession(await signInRes.json()); return; }
+
+  const signInErr = await signInRes.json().catch(() => ({}));
+  // Si le compte n'existe pas encore → création automatique
+  const notFound = signInRes.status === 400 &&
+    /invalid login|user not found|no user/i.test(signInErr.error_description || signInErr.msg || '');
+  if (!notFound) throw new Error(signInErr.error_description || signInErr.msg || 'Erreur de connexion');
+
+  // 2. Création du compte
+  const signUpRes = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  if (!signUpRes.ok) {
+    const err = await signUpRes.json().catch(() => ({}));
+    throw new Error(err.error_description || err.msg || 'Erreur création du compte');
+  }
+  _storeSession(await signUpRes.json());
 }
 
 /* Rafraîchit le token si il expire dans moins de 5 min. */
@@ -240,7 +248,7 @@ function syncUpCurrent() {
 }
 
 /* ── UI : modale de synchronisation ─────────────────────── */
-let _syncStep  = 'init';   // 'init' | 'otp-sent' | 'connected'
+let _syncStep  = 'init';   // 'init' | 'connected'
 let _syncEmail = '';
 
 function openSyncModal() {
@@ -272,19 +280,14 @@ function _renderSyncModal() {
       </div>
       <button class="sync-btn primary" id="sync-now-btn" onclick="_syncManual()">⟳ Synchroniser maintenant</button>
       <button class="sync-btn danger"  onclick="_syncDisconnect()">Se déconnecter</button>`;
-  } else if (_syncStep === 'otp-sent') {
-    body = `
-      <p class="sync-hint">Un code à 6 chiffres a été envoyé à <strong>${_syncEmail}</strong>. Colle-le ci-dessous.</p>
-      <input id="sync-otp" class="sync-input" type="text" inputmode="numeric" maxlength="6"
-             placeholder="123456" autocomplete="one-time-code">
-      <button class="sync-btn primary" id="sync-verify-btn" onclick="_syncVerify()">Valider le code</button>
-      <button class="sync-btn ghost"   onclick="_syncBack()">← Changer d'adresse</button>`;
   } else {
     body = `
-      <p class="sync-hint">Synchronise les profils d'Elias et Leïla sur tous tes appareils. Saisis l'adresse email du compte parent.</p>
+      <p class="sync-hint">Synchronise Elias et Leïla sur tous tes appareils. Crée un compte ou connecte-toi — aucun email envoyé.</p>
       <input id="sync-email-in" class="sync-input" type="email" inputmode="email"
              placeholder="ton@email.fr" value="${_syncEmail}" autocomplete="email">
-      <button class="sync-btn primary" id="sync-send-btn" onclick="_syncSend()">Envoyer un code</button>`;
+      <input id="sync-pwd-in" class="sync-input" type="password"
+             placeholder="Mot de passe (6 car. min.)" autocomplete="current-password">
+      <button class="sync-btn primary" id="sync-connect-btn" onclick="_syncConnect()">Se connecter</button>`;
   }
 
   overlay.innerHTML = `
@@ -295,7 +298,7 @@ function _renderSyncModal() {
       <div class="sync-modal-body" id="sync-modal-body">${body}</div>
     </div>`;
 
-  const first = document.getElementById('sync-email-in') || document.getElementById('sync-otp');
+  const first = document.getElementById('sync-email-in');
   if (first) setTimeout(() => first.focus(), 80);
 }
 
@@ -311,32 +314,18 @@ function _syncSetError(msg) {
   err.textContent = msg;
 }
 
-async function _syncSend() {
-  const el = document.getElementById('sync-email-in');
-  if (!el) return;
-  const email = el.value.trim();
+async function _syncConnect() {
+  const emailEl = document.getElementById('sync-email-in');
+  const pwdEl   = document.getElementById('sync-pwd-in');
+  if (!emailEl || !pwdEl) return;
+  const email = emailEl.value.trim();
+  const pwd   = pwdEl.value;
   if (!email || !email.includes('@')) { _syncSetError('Adresse email invalide.'); return; }
+  if (pwd.length < 6) { _syncSetError('Le mot de passe doit faire au moins 6 caractères.'); return; }
   _syncEmail = email;
-  _syncSetLoading('sync-send-btn', 'Envoi…');
+  _syncSetLoading('sync-connect-btn', 'Connexion…');
   try {
-    await sendOTP(email);
-    _syncStep = 'otp-sent';
-    _renderSyncModal();
-  } catch (e) {
-    const btn = document.getElementById('sync-send-btn');
-    if (btn) { btn.disabled = false; btn.textContent = 'Envoyer un code'; }
-    _syncSetError(e.message || 'Erreur réseau, réessaie.');
-  }
-}
-
-async function _syncVerify() {
-  const el = document.getElementById('sync-otp');
-  if (!el) return;
-  const code = el.value.replace(/\s/g, '');
-  if (code.length !== 6) { _syncSetError('Le code doit faire 6 chiffres.'); return; }
-  _syncSetLoading('sync-verify-btn', 'Vérification…');
-  try {
-    await verifyOTP(_syncEmail, code);
+    await signInOrUp(email, pwd);
     _syncStep = 'connected';
     _renderSyncModal();
     // Pull immédiat après connexion
@@ -346,9 +335,9 @@ async function _syncVerify() {
     const btn = document.getElementById('sync-now-btn');
     if (btn) { btn.disabled = false; btn.textContent = ok ? '✓ Synchronisé !' : '⟳ Synchroniser maintenant'; }
   } catch (e) {
-    const btn = document.getElementById('sync-verify-btn');
-    if (btn) { btn.disabled = false; btn.textContent = 'Valider le code'; }
-    _syncSetError(e.message || 'Code invalide, réessaie.');
+    const btn = document.getElementById('sync-connect-btn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Se connecter'; }
+    _syncSetError(e.message || 'Erreur réseau, réessaie.');
   }
 }
 
@@ -371,8 +360,4 @@ function _syncDisconnect() {
   if (!confirm('Se déconnecter ? Les données locales sont conservées.')) return;
   syncSignOut();
   closeSyncModal();
-}
-function _syncBack() {
-  _syncStep = 'init';
-  _renderSyncModal();
 }
