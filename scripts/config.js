@@ -15,6 +15,7 @@ const STYLES = {
   physchim:  { color: '#ef4444', grad: 'linear-gradient(135deg, #ef4444, #f59e0b)' },
   latin:     { color: '#d97706', grad: 'linear-gradient(135deg, #d97706, #b45309)' },
   numerique: { color: '#06b6d4', grad: 'linear-gradient(135deg, #06b6d4, #8b5cf6)' },
+  neuro:     { color: '#d946ef', grad: 'linear-gradient(135deg, #d946ef, #8b5cf6)' },
   /* Pseudo-matière pour le mode "Quiz aléatoire" multi-thèmes */
   random:    { color: '#8b5cf6', grad: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
   /* Pseudo-matière pour le mode "Mes points faibles" */
@@ -55,6 +56,7 @@ const NEW_UNTIL = {
   '6eme|techno':    '2026-12-01',
   '6eme|emc':       '2026-12-01',
   '6eme|numerique': '2026-12-01',
+  '6eme|neuro':     '2027-02-01',
 };
 
 function isSubjectNew(levelId, subjId) {

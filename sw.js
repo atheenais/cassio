@@ -8,7 +8,7 @@
    nouveaux fichiers. Sans ce changement de version, les utilisateurs déjà
    installés continueraient de voir l'ancienne version en cache. */
 
-const CACHE_VERSION = 'cassio-v29';
+const CACHE_VERSION = 'cassio-v30';
 
 /* Liste de tous les fichiers nécessaires au fonctionnement hors-ligne.
    Les chemins sont relatifs au scope du service worker (la racine de l'app). */
@@ -43,6 +43,7 @@ const ASSETS = [
   './data/6eme/techno.js',
   './data/6eme/emc.js',
   './data/6eme/numerique.js',
+  './data/6eme/neuro.js',
   // Manifest curriculum (multi-niveaux)
   './data/curriculum.js',
   // Logique
