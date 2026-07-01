@@ -1,4 +1,16 @@
 /* ═══════════════════════════════════════════════════
+   VERSION DE L'APPLICATION
+   ═══════════════════════════════════════════════════
+   Source de vérité unique affichée en pied de l'accueil (évite d'aller lire sw.js).
+   ⚠️ À CHAQUE livraison fonctionnelle : incrémenter `num`, mettre `date` à jour
+   (format JJ.MM.AAAA), ET penser à bumper CACHE_VERSION dans sw.js à la même valeur. */
+const APP_VERSION = {
+  num:  31,
+  date: '15.06.2026',
+  url:  'https://github.com/atheenais/cassio/commits/main'
+};
+
+/* ═══════════════════════════════════════════════════
    STYLES PAR MATIÈRE
    ═══════════════════════════════════════════════════ */
 const STYLES = {

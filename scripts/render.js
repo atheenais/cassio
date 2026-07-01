@@ -724,6 +724,10 @@ function renderHome() {
            </div>
            ${doneTopics > 0 ? `<div class="reset-link" onclick="resetProgress()">Effacer toute la progression</div>` : ''}`
       }
+
+      <footer class="app-version">
+        <a href="${APP_VERSION.url}" target="_blank" rel="noopener noreferrer">version ${APP_VERSION.num} du ${APP_VERSION.date}</a>
+      </footer>
     </div>`;
 }
 
