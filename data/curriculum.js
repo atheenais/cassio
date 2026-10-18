@@ -30,7 +30,7 @@ const LEVELS_CONFIG = {
     /* 6ème = vert/teal, cohérent avec le 📗. */
     color: '#10b981',
     grad: 'linear-gradient(135deg, #10b981, #2dd4bf)',
-    subjects: ['maths', 'francais', 'histoire-geo', 'svt', 'anglais', 'espagnol', 'physchim', 'techno', 'emc', 'numerique', 'neuro'] // v30 : 11 matières
+    subjects: ['maths', 'francais', 'histoire-geo', 'svt', 'anglais', 'espagnol', 'physchim', 'techno', 'emc', 'numerique', 'neuro', 'football', 'enigmes'] // v32 : 13 matières
   },
   '5eme': {
     id: '5eme',

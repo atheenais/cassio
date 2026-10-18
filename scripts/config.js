@@ -28,6 +28,8 @@ const STYLES = {
   latin:     { color: '#d97706', grad: 'linear-gradient(135deg, #d97706, #b45309)' },
   numerique: { color: '#06b6d4', grad: 'linear-gradient(135deg, #06b6d4, #8b5cf6)' },
   neuro:     { color: '#d946ef', grad: 'linear-gradient(135deg, #d946ef, #8b5cf6)' },
+  football:  { color: '#16a34a', grad: 'linear-gradient(135deg, #16a34a, #a3e635)' }, // v32 : culture foot (6ème)
+  enigmes:   { color: '#fb7185', grad: 'linear-gradient(135deg, #fb7185, #f59e0b)' }, // v32 : énigmes (6ème)
   /* Pseudo-matière pour le mode "Quiz aléatoire" multi-thèmes */
   random:    { color: '#8b5cf6', grad: 'linear-gradient(135deg, #8b5cf6, #ec4899)' },
   /* Pseudo-matière pour le mode "Mes points faibles" */
@@ -69,6 +71,8 @@ const NEW_UNTIL = {
   '6eme|emc':       '2026-12-01',
   '6eme|numerique': '2026-12-01',
   '6eme|neuro':     '2027-02-01',
+  '6eme|football':  '2027-01-01',
+  '6eme|enigmes':   '2027-01-01',
 };
 
 function isSubjectNew(levelId, subjId) {
